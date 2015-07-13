@@ -1,0 +1,10 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_pressed="true" android:drawable="@drawable/table_background_selected"/>
+ <!-- pressed -->
+    <item android:state_focused="true" android:drawable="@drawable/table_background_selected"/>
+ <!-- focused -->
+    <item android:drawable="@drawable/table_background"/>
+ <!-- default -->
+
+</selector>

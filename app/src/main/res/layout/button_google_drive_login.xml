@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/google_drive_button"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:background="@drawable/button_clickable"
+    android:clickable="true" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" >
+
+        <ImageView
+            android:id="@+id/test_button_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:src="@drawable/ic_google_drive" />
+
+        <TextView
+            android:id="@+id/test_button_text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/test_button_image"
+            android:paddingLeft="5dp"
+            android:text="Google Drive"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            android:textStyle="bold" >
+
+    </TextView>
+    </RelativeLayout>
+
+</RelativeLayout>

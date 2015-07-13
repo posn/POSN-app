@@ -1,0 +1,74 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="5dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="5dp" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <RelativeLayout
+            android:id="@+id/title_area"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:padding="5dp" >
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="6dip"
+                android:src="@drawable/ic_launcher" />
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="3dp"
+                android:layout_toRightOf="@id/image"
+                android:gravity="center_vertical"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:layout_below="@id/name"
+                android:layout_toRightOf="@id/image"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/confirm_button"
+                    style="@style/FriendButtonText"
+                    android:layout_width="fill_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_friend_clickable"
+                    android:minHeight="0dp"
+                    android:text="Confirm"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/decline_button"
+                    style="@style/FriendButtonText"
+                    android:layout_width="fill_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_friend_clickable"
+                    android:text="Decline"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>

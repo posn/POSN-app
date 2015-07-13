@@ -1,0 +1,45 @@
+<RelativeLayout
+    style="@style/AppBaseTheme"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="#ffffff"
+
+    >
+    <View
+        android:id="@+id/divider"
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dip"
+        android:layout_centerVertical="true"
+        android:background="#8b9dc3"
+        android:layout_alignParentTop="true"/>
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_below="@id/divider"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+
+        android:headerDividersEnabled="false">
+    </ListView>
+
+    <TableRow
+        android:id="@+id/status_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="44dp"
+        android:layout_alignParentBottom="true"
+        android:background="#E63b5998">
+
+        <include
+            layout="@layout/button_add_friend"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:drawable/list_selector_background"
+            android:clickable="true"/>
+    </TableRow>
+
+</RelativeLayout>

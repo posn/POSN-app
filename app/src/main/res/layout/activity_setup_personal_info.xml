@@ -1,0 +1,127 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="20dp" >
+
+        <EditText
+            android:id="@+id/firstname_text"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".7"
+            android:background="@drawable/textview_background_selector"
+            android:hint="First Name"
+            android:inputType="textPersonName|textCapSentences"
+            android:nextFocusDown="@+id/lastname_text"
+            android:paddingLeft="15dp"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/lastname_text"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".7"
+            android:background="@drawable/textview_background_selector"
+            android:hint="Last Name"
+            android:inputType="textPersonName|textCapSentences"
+            android:nextFocusDown="@+id/email_text"
+            android:paddingLeft="15dp"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/email_text"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".7"
+            android:background="@drawable/textview_background_selector"
+            android:ems="10"
+            android:hint="Email Address"
+            android:inputType="textEmailAddress"
+            android:nextFocusDown="@+id/phone_text"
+            android:paddingLeft="15dp"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/phone_text"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".7"
+            android:background="@drawable/textview_background_selector"
+            android:hint="Phone Number"
+            android:inputType="phone"
+            android:paddingLeft="15dp"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView1"
+            style="@android:style/Widget.EditText"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".7"
+            android:background="@drawable/textview_background_selector"
+            android:hint="Birthday"
+            android:paddingLeft="15dp"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".6"
+            android:orientation="vertical"
+            android:paddingTop="10dp" >
+
+            <RadioGroup
+                android:id="@+id/radioGroup1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <RadioButton
+                    android:id="@+id/radio0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:checked="true"
+                    android:text="Male  "
+                    android:textSize="24sp" />
+
+                <RadioButton
+                    android:id="@+id/radio1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Female"
+                    android:textSize="24sp" />
+
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp" >
+
+        <Button
+            android:id="@+id/next_button"
+            style="@style/ButtonText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:background="@drawable/button_clickable"
+            android:text="Next"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+</LinearLayout>

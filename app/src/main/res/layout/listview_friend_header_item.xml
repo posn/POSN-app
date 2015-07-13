@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:paddingTop="10dp"
+    android:background="#ffffff">
+
+
+    <TextView
+        android:id="@+id/separator"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2pt"
+        android:layout_marginLeft="9pt"
+        android:layout_marginRight="9pt"
+        android:text="LOGIN"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textAllCaps="true"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="9pt"
+        android:layout_marginRight="9pt"
+        android:background="#8b9dc3"
+        android:paddingBottom="5dp"/>
+
+</LinearLayout>

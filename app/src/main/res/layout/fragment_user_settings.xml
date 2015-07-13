@@ -1,0 +1,24 @@
+<RelativeLayout
+    style="@style/AppBaseTheme"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dip"
+        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
+        android:background="#8b9dc3"/>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/divider"
+        android:gravity="center"
+        android:text="Settings"/>
+
+</RelativeLayout>

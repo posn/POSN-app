@@ -1,0 +1,484 @@
+package com.posn.main;
+
+import android.app.ActionBar;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Base64;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
+
+import com.posn.R;
+import com.posn.application.POSNApplication;
+import com.posn.dropbox.DropboxClientUsage;
+import com.posn.encryption.AESEncryption;
+import com.posn.encryption.RSAEncryption;
+import com.posn.initial_setup.SetupPersonalInfoActivity;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.List;
+
+
+public class LoginActivity extends FragmentActivity implements OnClickListener
+   {
+
+      // variable declarations
+      Button signupButton, loginButton;
+      EditText passwordText, emailText;
+      POSNApplication app;
+      private ProgressDialog pDialog;
+
+
+      @Override
+      protected void onCreate(Bundle savedInstanceState)
+         {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_login);
+
+            // get the EditText from the layout
+            emailText = (EditText) findViewById(R.id.email_text);
+            passwordText = (EditText) findViewById(R.id.password_text);
+
+            // get the buttons from the layout
+            loginButton = (Button) findViewById(R.id.login_button);
+            signupButton = (Button) findViewById(R.id.signup_button);
+
+            // set an onclick listener for each button
+            loginButton.setOnClickListener(this);
+            signupButton.setOnClickListener(this);
+
+            passwordText.setOnEditorActionListener(new OnEditorActionListener()
+            {
+
+               @Override
+               public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+                  {
+                     if (actionId == EditorInfo.IME_ACTION_DONE)
+                        {
+                           // Clear focus here from edittext
+                           passwordText.setCursorVisible(false);
+                           InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                           imm.hideSoftInputFromWindow(passwordText.getWindowToken(), 0);
+                           passwordText.clearFocus();
+                        }
+                     return false;
+                  }
+            });
+
+            // get the action bar and set the page title
+            ActionBar actionBar = getActionBar();
+            actionBar.setTitle("Welcome - Login");
+
+            // get the application
+            app = (POSNApplication) this.getApplication();
+
+            // create the storage directories
+            createDefaultStorageDirectories();
+
+
+            processURI(getIntent().getData());
+
+
+         }
+
+
+      @Override
+      public void onClick(View v)
+         {
+            switch (v.getId())
+               {
+                  case R.id.login_button:
+
+                     // check if the email field is empty
+                     if (!isEmpty(emailText))
+                        {
+                           // check if the password field is empty
+                           if (!isEmpty(passwordText))
+                              {
+                                 // get the passwords from the edit texts
+                                 String email = emailText.getText().toString();
+                                 String password = passwordText.getText().toString();
+
+                                 passwordText.setCursorVisible(false);
+                                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                 imm.hideSoftInputFromWindow(passwordText.getWindowToken(), 0);
+                                 passwordText.clearFocus();
+
+                                 new AuthenticateUser(this, email, password).execute();
+
+
+                              }
+                           // show toast for empty password field
+                           else
+                              {
+                                 Toast.makeText(this, "Please Enter the Password for your POSN Account.", Toast.LENGTH_SHORT).show();
+                              }
+                        }
+                     // show toast for empty email field
+                     else
+                        {
+                           Toast.makeText(this, "Please Enter the Email for your POSN Account.", Toast.LENGTH_SHORT).show();
+                        }
+                     break;
+
+                  case R.id.signup_button:
+
+                     // start a new activity to create a new account
+                     Intent intent = new Intent(this, SetupPersonalInfoActivity.class);
+                     startActivity(intent);
+                     break;
+               }
+
+         }
+
+
+      // Background ASYNC Task to login by making HTTP Request
+      class AuthenticateUser extends AsyncTask<String, String, String>
+         {
+
+            String email, password;
+            boolean loginVerify;
+            Context context;
+
+
+            public AuthenticateUser(Context context, String email, String password)
+               {
+                  super();
+                  this.email = email;
+                  this.password = password;
+                  this.context = context;
+                  loginVerify = false;
+               }
+
+
+            // Before starting background thread Show Progress Dialog
+            @Override
+            protected void onPreExecute()
+               {
+                  super.onPreExecute();
+                  pDialog = new ProgressDialog(LoginActivity.this);
+                  pDialog.setMessage("Authenticating...");
+                  pDialog.setIndeterminate(false);
+                  pDialog.setCancelable(false);
+                  pDialog.show();
+               }
+
+
+            // Checking login in background
+            protected String doInBackground(String... params)
+               {
+                  // verify the password
+                  if (verifyPassword(password))
+                     {
+                        if (verifyEmail(email))
+                           {
+                              app.setDropbox(new DropboxClientUsage(context));
+                              app.setCloudProvider("Dropbox");
+                              app.getDropbox().initializeDropbox();
+                              app.getDropbox().authenticateDropboxLogin();
+
+                              // check dropbox folders
+                              app.getDropbox().createDropboxStorageDirectories();
+                              // app.getDropbox().uploadFile("/multimedia/Test.jpg", app.multimediaFilePath + "/Test2.jpg");
+
+                              // load in profile information
+                              loginVerify = true;
+                           }
+                     }
+
+
+                  return null;
+               }
+
+
+            // After completing background task Dismiss the progress dialog
+            protected void onPostExecute(String file_url)
+               {
+                  // dismiss the dialog once done
+                  pDialog.dismiss();
+
+                  if (loginVerify == true)
+                     {
+                        // Launch Employer homePage Screen
+                        Intent homepage = new Intent(getApplicationContext(), MainActivity.class);
+
+                        // Close all views before launching Employer
+                        // homePage
+                        homepage.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(homepage);
+
+                        // Close Login Screen
+                        finish();
+                     }
+                  else
+                     {
+                        // clear the email and password edit text
+                        emailText.getText().clear();
+                        passwordText.getText().clear();
+
+                        // display an error
+                        Toast.makeText(context, "Invalid email address or password. Please log in again.", Toast.LENGTH_SHORT).show();
+                     }
+               }
+         }
+
+
+      private boolean isEmpty(EditText etText)
+         {
+            // check if the length of the text is greater than 0
+            return (etText.getText().toString().trim().length() <= 0);
+         }
+
+
+      private boolean verifyPassword(String password)
+         {
+            // save the password to the application
+            app.setPassword(password);
+
+            // create AES key from password
+            AESEncryption AES = app.getAES();
+            AES.createAESKey(password);
+
+            // check if the keys were read in from the file
+            if (readKeysFromFile(app.encryptionKeyFilePath, AES))
+               {
+                  // check if the password is valid
+                  if (readPasswordVerificationFile(app.encryptionKeyFilePath, password))
+                     {
+                        return true;
+                     }
+               }
+            return false;
+         }
+
+
+      private boolean verifyEmail(String email)
+         {
+            // try to load the personal data
+            if (app.loadPersonalInformation())
+               {
+                  // try to verify the password
+                  if (app.getEmailAddress().equals(email))
+                     {
+                        return true;
+                     }
+               }
+            return false;
+         }
+
+
+      void createDefaultStorageDirectories()
+         {
+            // check for archive directory
+            File storageDir = new File(app.archiveFilePath);
+            if (!storageDir.exists())
+               storageDir.mkdirs();
+
+            // check for encryption key directory
+            storageDir = new File(app.encryptionKeyFilePath);
+            if (!storageDir.exists())
+               storageDir.mkdirs();
+
+            // check for multimedia directory
+            storageDir = new File(app.multimediaFilePath);
+            if (!storageDir.exists())
+               storageDir.mkdirs();
+
+            // check for profile directory
+            storageDir = new File(app.profileFilePath);
+            if (!storageDir.exists())
+               storageDir.mkdirs();
+
+            // check for wall directory
+            storageDir = new File(app.wallFilePath);
+            if (!storageDir.exists())
+               storageDir.mkdirs();
+         }
+
+
+      public boolean readKeysFromFile(String path, AESEncryption AES)
+         {
+            // declare variables
+            String publicKey = "", privateKey = "";
+            RSAEncryption RSA = app.getRSA();
+
+            // read in the public and private keys from the file
+            try
+               {
+                  // load the file from the path
+                  File file = new File(path + "/keys.key");
+
+                  // open the file
+                  BufferedReader br = new BufferedReader(new FileReader(file));
+
+                  // read in the header lines
+                  br.readLine();
+                  br.readLine();
+
+                  // read in the number of lines from the file (public key)
+                  br.readLine();
+
+                  // parse to the string to get the number of lines (public key)
+                  String line = br.readLine();
+                  String[] split = line.split("\\s+");
+                  int numLines = Integer.parseInt(split[1]);
+
+                  // loop to get the public key string
+                  for (int i = 0; i < numLines; i++)
+                     {
+                        publicKey += br.readLine();
+                     }
+
+                  // create a key from the public key string
+                  byte[] publicKeyByte = Base64.decode(publicKey, Base64.DEFAULT);
+                  X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyByte);
+                  KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                  RSA.setPublicKey(keyFactory.generatePublic(spec));
+
+                  // read in the number of lines from the file (private key)
+                  br.readLine();
+                  line = br.readLine();
+
+                  // parse to the string to get the number of lines (private key)
+                  split = line.split("\\s+");
+                  numLines = Integer.parseInt(split[1]);
+
+                  // loop to get the encrypted private key (encrypted with user's password)
+                  for (int i = 0; i < numLines; i++)
+                     {
+                        privateKey += br.readLine();
+                     }
+
+                  // close the file
+                  br.close();
+
+                  // decrypt the private key
+                  String decryptedPrivateKey = AES.AESDecrypt(privateKey);
+
+                  // create a key from the private key string
+                  if (decryptedPrivateKey != null)
+                     {
+                        byte[] privateKeyBytes = Base64.decode(decryptedPrivateKey, Base64.DEFAULT);
+                        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+                        KeyFactory fact = KeyFactory.getInstance("RSA");
+                        RSA.setPrivateKey(fact.generatePrivate(keySpec));
+                        return true;
+                     }
+               }
+            catch (FileNotFoundException e)
+               {
+                  e.printStackTrace();
+               }
+            catch (NoSuchAlgorithmException e)
+               {
+                  e.printStackTrace();
+               }
+            catch (IOException e)
+               {
+                  e.printStackTrace();
+               }
+            catch (InvalidKeySpecException e)
+               {
+                  e.printStackTrace();
+               }
+            return false;
+         }
+
+
+      public boolean readPasswordVerificationFile(String path, String password)
+         {
+            String encryptedText = "";
+
+            File file = new File(path + "/verify.pass");
+
+            BufferedReader br;
+            try
+               {
+                  br = new BufferedReader(new FileReader(file));
+
+                  br.readLine();
+
+                  String line = br.readLine();
+                  String[] split = line.split("\\s+");
+                  int numLines = Integer.parseInt(split[3]);
+
+                  for (int i = 0; i < numLines; i++)
+                     {
+                        encryptedText += br.readLine();
+                     }
+
+                  br.close();
+
+                  String decryptedString = app.getAES().AESDecrypt(encryptedText);
+                  System.out.println("STRING: " + decryptedString);
+
+                  if (decryptedString != null)
+                     {
+                        if (decryptedString.equals("POSN - SUCCESS"))
+                           {
+                              return true;
+                           }
+                     }
+               }
+            catch (FileNotFoundException e)
+               {
+                  e.printStackTrace();
+               }
+            catch (IOException e)
+               {
+                  e.printStackTrace();
+               }
+
+            return false;
+         }
+
+
+      protected void onResume()
+         {
+            super.onResume();
+
+         }
+
+      private void processURI(Uri uriData)
+         {
+            if (uriData != null)
+               {
+                  //String scheme = data.getScheme(); // "http"
+                 //String host = data.getHost(); // "twitter.com"
+                  List<String> params = uriData.getPathSegments();
+
+                  // check the type of URI
+                  String uriType = params.get(0);
+                  if(uriType.equals("request"))
+                     {
+                        System.out.print("YAY!");
+                        //app.friendList.add(new RequestFriendItem(new Friend(params.get(1) + " " + params.get(2))));
+                     }
+
+                   // "status" //String second = params.get(1); // "1234"
+                 // System.out.println(scheme + " " + host + " | " + params.get(0) + " | " + params.get(1) + " | " + params.get(2));
+               }
+         }
+
+   }

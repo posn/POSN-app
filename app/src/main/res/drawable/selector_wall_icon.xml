@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_wall_blue"
+        android:state_selected="true" />
+    <!-- When selected, use blue -->
+    <item android:drawable="@drawable/ic_wall_blue"
+          android:state_selected="true" />
+    <!-- When not selected, use grey-->
+    <item android:drawable="@drawable/ic_wall_gray" />
+</selector>

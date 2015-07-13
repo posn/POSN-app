@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- currently pressed turning the toggle off -->
+
+    <item android:drawable="@drawable/button_friend_delete_background_selected" android:state_pressed="true"/>
+    <!-- currently pressed turning the toggle on -->
+
+    <item android:drawable="@drawable/button_friend_delete_background"/>
+    <!-- default -->
+
+</selector>

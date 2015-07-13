@@ -1,0 +1,69 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:background="#f7f7f7"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="20dp" >
+
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            layout="@layout/button_dropbox_login"
+            android:clickable="true" />
+
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            layout="@layout/button_google_drive_login"
+            android:clickable="true" />
+
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            layout="@layout/button_one_drive_login"
+            android:clickable="true" />
+
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            layout="@layout/button_mediafire_login"
+            android:clickable="true" />
+
+        <include
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            layout="@layout/button_copy_cloud_login"
+            android:clickable="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="5dp" >
+
+        <Button
+            android:id="@+id/next_button"
+            style="@style/ButtonText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button_clickable"
+            android:text="Next"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+</LinearLayout>

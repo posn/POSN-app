@@ -1,0 +1,85 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:nextFocusDown="@+id/textView1"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="20dp" >
+
+        <ImageView
+            android:id="@+id/profile_photo"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_wall_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp" >
+
+            <Button
+                android:id="@+id/take_photo_button"
+                style="@style/ButtonText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_clickable"
+                android:text="Take\nPhoto"
+                android:textSize="24sp" />
+
+            <Button
+                android:id="@+id/choose_photo_button"
+                style="@style/ButtonText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_clickable"
+                android:text="Choose Photo"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/skip_button"
+                style="@style/ButtonText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_clickable"
+                android:text="Skip"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/next_button"
+                style="@style/ButtonText"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_clickable"
+                android:text="Next"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

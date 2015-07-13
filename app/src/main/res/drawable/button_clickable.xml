@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/button_toggled_background_selected" android:state_checked="true" android:state_pressed="true"/>
+    <!-- currently pressed turning the toggle off -->
+
+    <item android:drawable="@drawable/button_background_selected" android:state_pressed="true"/>
+    <!-- currently pressed turning the toggle on -->
+
+    <item android:drawable="@drawable/button_toggled_background" android:state_checked="true"/>
+    <!-- not pressed default checked state -->
+
+    <item android:drawable="@drawable/button_background"/>
+    <!-- default -->
+
+</selector>
