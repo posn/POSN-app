@@ -55,6 +55,8 @@ public class POSNApplication extends Application
       // Friends Tab data
       public ArrayList<Friend> friendList = new ArrayList<Friend>();
       public ArrayList<Friend> friendRequestsList = new ArrayList<Friend>();
+      public Friend newFriendRequest = null;
+      public Friend newAcceptedFriend = null;
 
 
 

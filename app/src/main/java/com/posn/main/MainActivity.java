@@ -60,33 +60,30 @@ public class MainActivity extends FragmentActivity
                            tab.setIcon(R.drawable.ic_wall_blue);
 
                         }
+                     else if (tab.getPosition() == 1)
+                        {
+                           actionBar.setTitle("Notifications");
+                           tab.setIcon(R.drawable.ic_notification_blue);
+
+                        }
+                     else if (tab.getPosition() == 2)
+                        {
+                           actionBar.setTitle("Messages");
+                           tab.setIcon(R.drawable.ic_message_blue);
+
+                        }
+                     else if (tab.getPosition() == 3)
+                        {
+                           actionBar.setTitle("Friends");
+                           tab.setIcon(R.drawable.ic_friends_blue);
+
+                        }
                      else
-                        if (tab.getPosition() == 1)
-                           {
-                              actionBar.setTitle("Notifications");
-                              tab.setIcon(R.drawable.ic_notification_blue);
+                        {
+                           actionBar.setTitle("Settings");
+                           tab.setIcon(R.drawable.ic_settings_blue);
 
-                           }
-                        else
-                           if (tab.getPosition() == 2)
-                              {
-                                 actionBar.setTitle("Messages");
-                                 tab.setIcon(R.drawable.ic_message_blue);
-
-                              }
-                           else
-                              if (tab.getPosition() == 3)
-                                 {
-                                    actionBar.setTitle("Friends");
-                                    tab.setIcon(R.drawable.ic_friends_blue);
-
-                                 }
-                              else
-                                 {
-                                    actionBar.setTitle("Settings");
-                                    tab.setIcon(R.drawable.ic_settings_blue);
-
-                                 }
+                        }
                   }
 
                @Override
@@ -99,33 +96,30 @@ public class MainActivity extends FragmentActivity
                            tab.setIcon(R.drawable.ic_wall_gray);
 
                         }
+                     else if (tab.getPosition() == 1)
+                        {
+                           actionBar.setTitle("Notifications");
+                           tab.setIcon(R.drawable.ic_notification_gray);
+
+                        }
+                     else if (tab.getPosition() == 2)
+                        {
+                           actionBar.setTitle("Messages");
+                           tab.setIcon(R.drawable.ic_message_gray);
+
+                        }
+                     else if (tab.getPosition() == 3)
+                        {
+                           actionBar.setTitle("Friends");
+                           tab.setIcon(R.drawable.ic_friends_gray);
+
+                        }
                      else
-                        if (tab.getPosition() == 1)
-                           {
-                              actionBar.setTitle("Notifications");
-                              tab.setIcon(R.drawable.ic_notification_gray);
+                        {
+                           actionBar.setTitle("Settings");
+                           tab.setIcon(R.drawable.ic_settings_gray);
 
-                           }
-                        else
-                           if (tab.getPosition() == 2)
-                              {
-                                 actionBar.setTitle("Messages");
-                                 tab.setIcon(R.drawable.ic_message_gray);
-
-                              }
-                           else
-                              if (tab.getPosition() == 3)
-                                 {
-                                    actionBar.setTitle("Friends");
-                                    tab.setIcon(R.drawable.ic_friends_gray);
-
-                                 }
-                              else
-                                 {
-                                    actionBar.setTitle("Settings");
-                                    tab.setIcon(R.drawable.ic_settings_gray);
-
-                                 }
+                        }
                   }
 
                @Override
@@ -137,6 +131,9 @@ public class MainActivity extends FragmentActivity
             // get the application
             app = (POSNApplication) this.getApplication();
 
+            // clear friends list when activity starts
+            app.friendList.clear();
+            app.friendRequestsList.clear();
          }
 
 

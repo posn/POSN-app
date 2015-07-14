@@ -32,6 +32,21 @@ public class Friend
          {
             this.name = name;
             this.status = status;
+            id = "0";
+            phone = "0";
+            email = "0";
+            image_uri = "asd";
+            selected = false;
+         }
+
+      public Friend(String name, String email, int status)
+         {
+            this.name = name;
+            this.email = email;
+            this.status = status;
+            id = "0";
+            phone = "0";
+            image_uri = "asd";
             selected = false;
          }
 
@@ -71,5 +86,17 @@ public class Friend
                {
                   e.printStackTrace();
                }
+         }
+
+      @Override
+      public boolean equals(Object o)
+         {
+            if (!(o instanceof Friend))
+               {
+                  return false;
+               }
+            Friend other = (Friend) o;
+            System.out.println(name + " | " + other.name);
+            return name.equalsIgnoreCase(other.name);
          }
    }

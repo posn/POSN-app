@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
+import com.posn.datatypes.Friend;
 import com.posn.dropbox.DropboxClientUsage;
 import com.posn.encryption.AESEncryption;
 import com.posn.encryption.RSAEncryption;
@@ -457,27 +458,24 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
       protected void onResume()
          {
             super.onResume();
-
          }
 
       private void processURI(Uri uriData)
          {
             if (uriData != null)
                {
-                  //String scheme = data.getScheme(); // "http"
-                 //String host = data.getHost(); // "twitter.com"
                   List<String> params = uriData.getPathSegments();
 
                   // check the type of URI
                   String uriType = params.get(0);
-                  if(uriType.equals("request"))
+                  if (uriType.equals("request"))
                      {
-                        System.out.print("YAY!");
-                        //app.friendList.add(new RequestFriendItem(new Friend(params.get(1) + " " + params.get(2))));
+                        app.newFriendRequest = new Friend(params.get(1) + " " + params.get(2), params.get(3), 2);
                      }
-
-                   // "status" //String second = params.get(1); // "1234"
-                 // System.out.println(scheme + " " + host + " | " + params.get(0) + " | " + params.get(1) + " | " + params.get(2));
+                  else if (uriType.equals("confirm"))
+                     {
+                        app.newAcceptedFriend = new Friend(params.get(1) + " " + params.get(2), params.get(3), 3);
+                     }
                }
          }
 

@@ -107,13 +107,15 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
 
                   case R.id.add_friends_button:
 
-                     if(!contactList.isEmpty())
+                     if (!contactList.isEmpty())
                         {
                            Friend newFriend = contactList.get(0);
 
                            EmailSender test = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
                            // test.sendMail("POSN TEST!", "SUCCESS!\n\nhttp://posn.com/data1/data2/data3_data4", "POSN", "eklukovich92@hotmail.com");
-                           test.sendMail("POSN - New Friend Request", "SUCCESS!\n\nhttp://posn.com/request/" + app.getFirstName() + "/" + app.getLastName() + "/" + app.getEmailAddress(), "POSN", newFriend.email);
+                           //test.sendMail("POSN - New Friend Request", "SUCCESS!\n\nhttp://posn.com/request/" + app.getFirstName() + "/" + app.getLastName() + "/" + app.getEmailAddress(), "POSN", newFriend.email);
+                           test.sendMail("POSN - New Friend Request", "SUCCESS!\n\nhttp://posn.com/request/" + "Eric" + "/" + "Klukovich" + "/" + "eklukovich92@hotmail.com", "POSN", newFriend.email);
+
                            newFriend.status = 3;
                            friendList.add(newFriend);
 
@@ -130,13 +132,14 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                   case R.id.add_button:
                      ContactArrayAdapter adapter = (ContactArrayAdapter) lv.getAdapter();
 
-                     Friend newContact = new Friend();
 
                      if (!isEmpty(name) && !isEmpty(email))
                         {
-                           newContact.name = name.getText().toString();
-                           newContact.email = email.getText().toString();
-                           newContact.selected = true;
+                           Friend newContact = new Friend(name.getText().toString(), email.getText().toString(), 3);
+
+                           //  newContact.name = name.getText().toString();
+                           //  newContact.email = email.getText().toString();
+                             newContact.selected = true;
 
                            adapter.add(newContact);
                            adapter.notifyDataSetChanged();
