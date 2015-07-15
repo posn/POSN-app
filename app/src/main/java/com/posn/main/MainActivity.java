@@ -16,7 +16,13 @@ public class MainActivity extends FragmentActivity
    {
       private ViewPager viewPager;
       private ActionBar actionBar;
+      private MainTabsPagerAdapter tabsAdapter;
       public POSNApplication app;
+
+      public int newWallPostsNum = 2;
+      public int newNotificationNum = 1;
+      public int newMessagesNum = 5;
+      public int newFriendNum = 3;
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -32,18 +38,19 @@ public class MainActivity extends FragmentActivity
             // find the viewpager in the xml file
             viewPager = (ViewPager) findViewById(R.id.system_viewpager);
 
+            tabsAdapter = new MainTabsPagerAdapter(this.getSupportFragmentManager(), this);
+            viewPager.setAdapter(tabsAdapter);
 
-            viewPager.setAdapter(new MainTabsPagerAdapter(this.getSupportFragmentManager(), this));
-
-            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+            final TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
             tabLayout.setupWithViewPager(viewPager);
 
             // set initial values
-            tabLayout.getTabAt(0).setIcon(R.drawable.ic_wall_blue);
-            tabLayout.getTabAt(1).setIcon(R.drawable.ic_notification_gray);
-            tabLayout.getTabAt(2).setIcon(R.drawable.ic_message_gray);
-            tabLayout.getTabAt(3).setIcon(R.drawable.ic_friends_gray);
-            tabLayout.getTabAt(4).setIcon(R.drawable.ic_settings_gray);
+            tabLayout.getTabAt(0).setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_blue, newWallPostsNum, false));
+            tabLayout.getTabAt(1).setCustomView(tabsAdapter.getTabView(R.drawable.ic_notification_gray, newNotificationNum, true));
+            tabLayout.getTabAt(2).setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_gray, newMessagesNum, true)); //setIcon(R.drawable.ic_message_gray);
+            tabLayout.getTabAt(3).setCustomView(tabsAdapter.getTabView(R.drawable.ic_friends_gray, newFriendNum, true));
+            tabLayout.getTabAt(4).setCustomView(tabsAdapter.getTabView(R.drawable.ic_settings_gray, 0, false));
+
             actionBar.setTitle("Wall");
 
             tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
@@ -57,31 +64,36 @@ public class MainActivity extends FragmentActivity
                      if (tab.getPosition() == 0)
                         {
                            actionBar.setTitle("Wall");
-                           tab.setIcon(R.drawable.ic_wall_blue);
+                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_blue, newWallPostsNum, false));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_wall_blue, newWallPostsNum, false);
 
                         }
                      else if (tab.getPosition() == 1)
                         {
                            actionBar.setTitle("Notifications");
-                           tab.setIcon(R.drawable.ic_notification_blue);
+                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_notification_blue, newNotificationNum, false));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_notification_blue, newNotificationNum, false);
 
                         }
                      else if (tab.getPosition() == 2)
                         {
                            actionBar.setTitle("Messages");
-                           tab.setIcon(R.drawable.ic_message_blue);
+                          // tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_blue, newMessagesNum, false));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_message_blue, newMessagesNum, false);
 
                         }
                      else if (tab.getPosition() == 3)
                         {
                            actionBar.setTitle("Friends");
-                           tab.setIcon(R.drawable.ic_friends_blue);
+                          // tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_friends_blue, newFriendNum, false));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_friends_blue, newFriendNum, false);
 
                         }
                      else
                         {
                            actionBar.setTitle("Settings");
-                           tab.setIcon(R.drawable.ic_settings_blue);
+                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_settings_blue, 0, false));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_settings_blue, 0, false);
 
                         }
                   }
@@ -93,32 +105,33 @@ public class MainActivity extends FragmentActivity
                      if (tab.getPosition() == 0)
                         {
                            actionBar.setTitle("Wall");
-                           tab.setIcon(R.drawable.ic_wall_gray);
+                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_gray, newWallPostsNum, true));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_wall_gray, newWallPostsNum, true);
 
                         }
                      else if (tab.getPosition() == 1)
                         {
                            actionBar.setTitle("Notifications");
-                           tab.setIcon(R.drawable.ic_notification_gray);
-
+                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_notification_gray, newNotificationNum, true));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_notification_gray, newNotificationNum, true);
                         }
                      else if (tab.getPosition() == 2)
                         {
                            actionBar.setTitle("Messages");
-                           tab.setIcon(R.drawable.ic_message_gray);
-
+                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_gray, newMessagesNum, true));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_message_gray, newMessagesNum, true);
                         }
                      else if (tab.getPosition() == 3)
                         {
                            actionBar.setTitle("Friends");
-                           tab.setIcon(R.drawable.ic_friends_gray);
-
+                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_friends_gray, newFriendNum, true));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_friends_gray, newFriendNum, true);
                         }
                      else
                         {
                            actionBar.setTitle("Settings");
-                           tab.setIcon(R.drawable.ic_settings_gray);
-
+                          // tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_settings_gray, 0, false));
+                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_settings_gray, 0, false);
                         }
                   }
 
