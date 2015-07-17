@@ -1,41 +1,38 @@
-package com.posn.asynctasks;
+package com.posn.asynctasks.wall;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Friend;
+import com.posn.datatypes.Post;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class SaveFriendsListAsyncTask extends AsyncTask<String, String, String>
+public class SaveWallPostsAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
 
       private Context context;
       private String filePath;
 
-      private ArrayList<Friend> friendList;
-      private ArrayList<Friend> friendRequestsList;
+      private ArrayList<Post> wallData;
 
 
-      public SaveFriendsListAsyncTask(Context context, String filePath, ArrayList<Friend> friendList, ArrayList<Friend> friendRequestsList)
+      public SaveWallPostsAsyncTask(Context context, String filePath, ArrayList<Post> wallData)
          {
             super();
             this.context = context;
             this.filePath = filePath;
 
-            this.friendList = friendList;
-            this.friendRequestsList = friendRequestsList;
+            this.wallData = wallData;
          }
 
 
@@ -55,30 +52,20 @@ public class SaveFriendsListAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("SAVING FRIENDS!!!");
+            System.out.println("SAVING WALL POSTS!!!");
 
-            File wallFile = new File(filePath);
-
-            String line, fileContents;
-
-            JSONArray friendsList = new JSONArray();
+            JSONArray wallPostList = new JSONArray();
 
             try
                {
-                  for(int i = 0; i < friendList.size(); i++)
+                  for(int i = 0; i < wallData.size(); i++)
                      {
-                        Friend friend = friendList.get(i);
-                        friendsList.put(friend.createJOSNObject());
-                     }
-
-                  for(int i = 0; i < friendRequestsList.size(); i++)
-                     {
-                        Friend friend = friendRequestsList.get(i);
-                        friendsList.put(friend.createJOSNObject());
+                        Post post = wallData.get(i);
+                        wallPostList.put(post.createJOSNObject());
                      }
 
                   JSONObject object = new JSONObject();
-                  object.put("friends", friendsList);
+                  object.put("posts", wallPostList);
 
                   String jsonStr = object.toString();
 

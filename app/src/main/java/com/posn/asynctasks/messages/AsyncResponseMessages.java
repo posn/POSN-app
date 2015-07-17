@@ -1,11 +1,11 @@
-package com.posn.asynctasks;
+package com.posn.asynctasks.messages;
 
 import com.posn.datatypes.Friend;
 
 import java.util.ArrayList;
 
 
-public interface AsyncResponse
+public interface AsyncResponseMessages
    {
       void loadingFriendsFinished(ArrayList<Friend> friendList, ArrayList<Friend> friendRequestList);
    }

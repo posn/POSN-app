@@ -1,4 +1,4 @@
-package com.posn.asynctasks;
+package com.posn.asynctasks.wall;
 
 
 import com.posn.datatypes.Post;

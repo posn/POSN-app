@@ -1,9 +1,10 @@
-package com.posn.asynctasks;
+package com.posn.asynctasks.messages;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.posn.asynctasks.friends.AsyncResponseFriends;
 import com.posn.datatypes.Friend;
 
 import org.json.JSONArray;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
+public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
    {
       static final int STATUS_ACCEPTED = 1;
       static final int STATUS_REQUEST = 2;
@@ -32,10 +33,10 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
       private ArrayList<Friend> friendList = new ArrayList<>();
       private ArrayList<Friend> friendRequestsList = new ArrayList<>();
 
-      public AsyncResponse delegate=null;
+      public AsyncResponseFriends delegate=null;
 
 
-      public LoadFriendsListAsyncTask(Context context, String filePath)
+      public LoadMessagesListAsyncTask(Context context, String filePath)
          {
             super();
             this.context = context;

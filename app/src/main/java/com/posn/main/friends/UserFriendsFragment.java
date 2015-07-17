@@ -17,9 +17,9 @@ import android.widget.TableRow;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.asynctasks.AsyncResponse;
-import com.posn.asynctasks.LoadFriendsListAsyncTask;
-import com.posn.asynctasks.SaveFriendsListAsyncTask;
+import com.posn.asynctasks.friends.AsyncResponseFriends;
+import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
+import com.posn.asynctasks.friends.SaveFriendsListAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.email.EmailSender;
 import com.posn.main.MainActivity;
@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 
-public class UserFriendsFragment extends Fragment implements OnClickListener, AsyncResponse
+public class UserFriendsFragment extends Fragment implements OnClickListener, AsyncResponseFriends
    {
       static final int ADD_FRIEND_RESULT = 1;
 
@@ -178,9 +178,13 @@ public class UserFriendsFragment extends Fragment implements OnClickListener, As
             //createFriendsList();
             // saveFriendsList();
 
-            if (friendList.size() == 0)
+            if (friendList.isEmpty())
                {
                   loadFriendsList();
+               }
+            else
+               {
+                  createFriendsList();
                }
 
             adapter = new FriendsArrayAdapter(getActivity(), listViewItems);
@@ -306,6 +310,14 @@ public class UserFriendsFragment extends Fragment implements OnClickListener, As
                   Friend friend = friendRequestsList.get(i);
                   listViewItems.add(new RequestFriendItem(confirmListener, declineListener, friend));
                }
+
+           // HashMap<Integer, Friend> map = new HashMap<>();
+            //map.entrySet()
+           // for (Map.Entry<Integer, Friend> entry : map.entrySet())
+            //   {
+            //      System.out.println(entry.getKey() + "/" + entry.getValue());
+            //   }
+
 
             listViewItems.add(new HeaderItem("Accepted and Pending Friends"));
 

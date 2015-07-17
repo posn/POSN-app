@@ -21,9 +21,9 @@ import android.widget.TableRow;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.asynctasks.AsyncResponseWall;
-import com.posn.asynctasks.LoadWallPostsAsyncTask;
-import com.posn.asynctasks.SaveWallPostsAsyncTask;
+import com.posn.asynctasks.wall.AsyncResponseWall;
+import com.posn.asynctasks.wall.LoadWallPostsAsyncTask;
+import com.posn.asynctasks.wall.SaveWallPostsAsyncTask;
 import com.posn.datatypes.Post;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.posts.ListViewPostItem;

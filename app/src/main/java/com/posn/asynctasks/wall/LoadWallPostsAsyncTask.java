@@ -1,4 +1,4 @@
-package com.posn.asynctasks;
+package com.posn.asynctasks.wall;
 
 import android.app.ProgressDialog;
 import android.content.Context;
