@@ -7,5 +7,5 @@ import java.util.ArrayList;
 
 public interface AsyncResponse
    {
-      void loadingFinished(ArrayList<Friend> friendList, ArrayList<Friend> friendRequestList);
+      void loadingFriendsFinished(ArrayList<Friend> friendList, ArrayList<Friend> friendRequestList);
    }

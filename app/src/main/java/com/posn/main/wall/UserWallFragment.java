@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -22,7 +21,11 @@ import android.widget.TableRow;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
+import com.posn.asynctasks.AsyncResponseWall;
+import com.posn.asynctasks.LoadWallPostsAsyncTask;
+import com.posn.asynctasks.SaveWallPostsAsyncTask;
 import com.posn.datatypes.Post;
+import com.posn.main.MainActivity;
 import com.posn.main.wall.posts.ListViewPostItem;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
@@ -32,17 +35,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener
+public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener, AsyncResponseWall
    {
       int STATUS_RESULT = 1;
 
@@ -57,12 +57,16 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       RelativeLayout statusButton, photoButton, checkInButton;
       ListView lv;
       TableRow statusBar;
+
       ArrayList<ListViewPostItem> wallPostList = new ArrayList<ListViewPostItem>();
+      ArrayList<Post> wallPostData;
       SwipeRefreshLayout swipeLayout;
       WallArrayAdapter adapter;
 
       POSNApplication app;
       private ProgressDialog pDialog;
+
+      LoadWallPostsAsyncTask asyncTask;
 
 
       @Override
@@ -76,6 +80,9 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
             // get the application
             app = (POSNApplication) getActivity().getApplication();
+
+            // get the wall post data from activity
+            wallPostData = ((MainActivity) getActivity()).wallPostData;
 
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
@@ -134,8 +141,14 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             adapter = new WallArrayAdapter(getActivity(), wallPostList);
             lv.setAdapter(adapter);
 
-            new loadWallPosts(getActivity()).execute();
-
+            if(wallPostData.isEmpty())
+               {
+                  loadWallPosts();
+               }
+            else
+               {
+                  createWallPostsList();
+               }
 
             return view;
          }
@@ -196,119 +209,40 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                {
                   Post post = new Post(TYPE_STATUS, app.getFirstName() + " " + app.getLastName(), "Jan 19, 2015 at 1:45 pm", data.getStringExtra("status"));
                   wallPostList.add(0, new StatusPostItem(getActivity(), post));
+                  wallPostData.add(post);
                   adapter.notifyDataSetChanged();
+                  saveWallPosts();
                }
          }
 
-
-      // Background ASYNC Task to login by making HTTP Request
-      class loadWallPosts extends AsyncTask<String, String, String>
-         {
-            Context context;
-
-            public loadWallPosts(Context context)
-               {
-                  super();
-                  this.context = context;
-               }
-
-
-            // Before starting background thread Show Progress Dialog
-            @Override
-            protected void onPreExecute()
-               {
-                  super.onPreExecute();
-                  pDialog = new ProgressDialog(context);
-                  pDialog.setMessage("Loading Data...");
-                  pDialog.setIndeterminate(false);
-                  pDialog.setCancelable(false);
-                  pDialog.show();
-               }
-
-
-            // Checking login in background
-            protected String doInBackground(String... params)
-               {
-                  getWallPosts();
-
-                  return null;
-               }
-
-
-            // After completing background task Dismiss the progress dialog
-            protected void onPostExecute(String file_url)
-               {
-                  adapter.notifyDataSetChanged();
-
-                  // dismiss the dialog once done
-                  pDialog.dismiss();
-               }
-         }
-
-
-      public void getWallPosts()
+      public void createWallPostsList()
          {
             wallPostList.clear();
             System.out.println("GETTING WALL POSTS!!!");
 
-            File wallFile = new File(app.wallFilePath + "/user_wall.txt");
-
-            String line, fileContents;
-
-            // open the file
-            try
+            for (int n = 0; n < wallPostData.size(); n++)
                {
-                  BufferedReader br = new BufferedReader(new FileReader(wallFile));
+                  Post post = wallPostData.get(n);
 
-                  StringBuilder sb = new StringBuilder();
-                  while ((line = br.readLine()) != null)
+                  if (post.type == TYPE_PHOTO)
                      {
-                        sb.append(line);
-                     }
-
-                  br.close();
-                  fileContents = sb.toString();
-
-                  JSONObject data = new JSONObject(fileContents);
-
-                  JSONArray wallPosts = data.getJSONArray("posts");
-
-                  for (int n = 0; n < wallPosts.length(); n++)
-                     {
-                        Post post = new Post();
-                        post.parseJOSNObject(wallPosts.getJSONObject(n));
-
-                        if (post.type == TYPE_PHOTO)
+                        String photoPath = app.multimediaFilePath + "/" + post.content;
+                        File imgFile = new File(photoPath);
+                        if (imgFile.exists())
                            {
-                              String photoPath = app.multimediaFilePath + "/" + post.content;
-                              File imgFile = new File(photoPath);
-                              if (imgFile.exists())
-                                 {
-                                    wallPostList.add(new PhotoPostItem(getActivity(), post, app.multimediaFilePath));
-                                 }
+                              wallPostList.add(new PhotoPostItem(getActivity(), post, app.multimediaFilePath));
                            }
-                        else if (post.type == TYPE_STATUS)
-                              {
-                                 wallPostList.add(new StatusPostItem(getActivity(), post));
-                              }
-                        else if (post.type == TYPE_VIDEO)
-                              {
-                                 wallPostList.add(new VideoPostItem(getActivity(), post, app.multimediaFilePath));
-                              }
+                     }
+                  else if (post.type == TYPE_STATUS)
+                     {
+                        wallPostList.add(new StatusPostItem(getActivity(), post));
+                     }
+                  else if (post.type == TYPE_VIDEO)
+                     {
+                        wallPostList.add(new VideoPostItem(getActivity(), post, app.multimediaFilePath));
                      }
                }
-            catch (FileNotFoundException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
+
          }
 
 
@@ -379,6 +313,30 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                {
                   e.printStackTrace();
                }
+         }
+
+
+      public void saveWallPosts()
+         {
+            new SaveWallPostsAsyncTask(getActivity(), app.wallFilePath + "/user_wall.txt", wallPostData).execute();
+         }
+
+      public void loadWallPosts()
+         {
+            asyncTask = new LoadWallPostsAsyncTask(getActivity(), app.wallFilePath + "/user_wall.txt");
+            asyncTask.delegate = this;
+            asyncTask.execute();
+         }
+
+      public void loadingWallFinished(ArrayList<Post> wallData)
+         {
+            // add the loaded data to the array list and hashmap
+            this.wallPostData.addAll(wallData);
+
+            createWallPostsList();
+
+            // notify the adapter about the data change
+            adapter.notifyDataSetChanged();
          }
 
 

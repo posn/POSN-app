@@ -10,6 +10,9 @@ import android.view.Menu;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
+import com.posn.datatypes.Post;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends FragmentActivity
@@ -19,10 +22,13 @@ public class MainActivity extends FragmentActivity
       private MainTabsPagerAdapter tabsAdapter;
       public POSNApplication app;
 
-      public int newWallPostsNum = 2;
-      public int newNotificationNum = 1;
-      public int newMessagesNum = 5;
-      public int newFriendNum = 3;
+      public int newWallPostsNum = 0;
+      public int newNotificationNum = 0;
+      public int newMessagesNum = 0;
+      public int newFriendNum = 0;
+
+      // data for wall fragment
+      public ArrayList<Post> wallPostData = new ArrayList<>();
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -64,37 +70,27 @@ public class MainActivity extends FragmentActivity
                      if (tab.getPosition() == 0)
                         {
                            actionBar.setTitle("Wall");
-                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_blue, newWallPostsNum, false));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_wall_blue, newWallPostsNum, false);
-
                         }
                      else if (tab.getPosition() == 1)
                         {
                            actionBar.setTitle("Notifications");
-                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_notification_blue, newNotificationNum, false));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_notification_blue, newNotificationNum, false);
-
                         }
                      else if (tab.getPosition() == 2)
                         {
                            actionBar.setTitle("Messages");
-                          // tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_blue, newMessagesNum, false));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_message_blue, newMessagesNum, false);
-
                         }
                      else if (tab.getPosition() == 3)
                         {
                            actionBar.setTitle("Friends");
-                          // tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_friends_blue, newFriendNum, false));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_friends_blue, newFriendNum, false);
-
                         }
                      else
                         {
                            actionBar.setTitle("Settings");
-                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_settings_blue, 0, false));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_settings_blue, 0, false);
-
                         }
                   }
 
@@ -105,32 +101,26 @@ public class MainActivity extends FragmentActivity
                      if (tab.getPosition() == 0)
                         {
                            actionBar.setTitle("Wall");
-                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_gray, newWallPostsNum, true));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_wall_gray, newWallPostsNum, true);
-
                         }
                      else if (tab.getPosition() == 1)
                         {
                            actionBar.setTitle("Notifications");
-                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_notification_gray, newNotificationNum, true));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_notification_gray, newNotificationNum, true);
                         }
                      else if (tab.getPosition() == 2)
                         {
                            actionBar.setTitle("Messages");
-                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_gray, newMessagesNum, true));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_message_gray, newMessagesNum, true);
                         }
                      else if (tab.getPosition() == 3)
                         {
                            actionBar.setTitle("Friends");
-                           //tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_friends_gray, newFriendNum, true));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_friends_gray, newFriendNum, true);
                         }
                      else
                         {
                            actionBar.setTitle("Settings");
-                          // tab.setCustomView(tabsAdapter.getTabView(R.drawable.ic_settings_gray, 0, false));
                            tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_settings_gray, 0, false);
                         }
                   }
@@ -168,8 +158,6 @@ public class MainActivity extends FragmentActivity
       @Override
       public boolean onCreateOptionsMenu(Menu menu)
          {
-            // Inflate the menu; this adds items to the action bar if it is present.
-            // getMenuInflater().inflate(R.menu.display_system, menu);
             return true;
          }
 

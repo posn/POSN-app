@@ -4,7 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Friend;
+import com.posn.datatypes.Post;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,24 +18,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
+public class LoadWallPostsAsyncTask extends AsyncTask<String, String, String>
    {
-      static final int STATUS_ACCEPTED = 1;
-      static final int STATUS_REQUEST = 2;
-      static final int STATUS_PENDING = 3;
-
       private ProgressDialog pDialog;
 
       private Context context;
       private String filePath;
 
-      private ArrayList<Friend> friendList = new ArrayList<>();
-      private ArrayList<Friend> friendRequestsList = new ArrayList<>();
+      private ArrayList<Post> wallPostsData = new ArrayList<>();
+      //private ArrayList<Friend> friendRequestsList = new ArrayList<>();
 
-      public AsyncResponse delegate=null;
+      public AsyncResponseWall delegate = null;
 
 
-      public LoadFriendsListAsyncTask(Context context, String filePath)
+      public LoadWallPostsAsyncTask(Context context, String filePath)
          {
             super();
             this.context = context;
@@ -59,7 +55,7 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("GETTING FRIENDS!!!");
+            System.out.println("GETTING WALL POSTS!!!");
 
             File wallFile = new File(filePath);
 
@@ -81,21 +77,14 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
 
                   JSONObject data = new JSONObject(fileContents);
 
-                  JSONArray friendsList = data.getJSONArray("friends");
+                  JSONArray wallPosts = data.getJSONArray("posts");
 
-                  for (int n = 0; n < friendsList.length(); n++)
+                  for (int n = 0; n < wallPosts.length(); n++)
                      {
-                        Friend friend = new Friend();
-                        friend.parseJOSNObject(friendsList.getJSONObject(n));
+                        Post post = new Post();
+                        post.parseJOSNObject(wallPosts.getJSONObject(n));
 
-                        if (friend.status == STATUS_ACCEPTED || friend.status == STATUS_PENDING )
-                           {
-                              friendList.add(friend);
-                           }
-                        else
-                           {
-                              friendRequestsList.add(friend);
-                           }
+                        wallPostsData.add(post);
                      }
                }
             catch (FileNotFoundException e)
@@ -110,7 +99,6 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
                {
                   e.printStackTrace();
                }
-
             return null;
          }
 
@@ -118,8 +106,9 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
-            delegate.loadingFriendsFinished(friendList, friendRequestsList);
+            delegate.loadingWallFinished(wallPostsData);
 
+            //adapter.notifyDataSetChanged();
 
             // dismiss the dialog once done
             pDialog.dismiss();

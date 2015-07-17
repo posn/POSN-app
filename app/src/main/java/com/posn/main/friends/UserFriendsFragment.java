@@ -340,7 +340,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener, As
             asyncTask.execute();
          }
 
-      public void loadingFinished(ArrayList<Friend> friendList, ArrayList<Friend> friendRequestsList)
+      public void loadingFriendsFinished(ArrayList<Friend> friendList, ArrayList<Friend> friendRequestsList)
          {
             // add the loaded data to the array list and hashmap
             this.friendList.addAll(friendList);
