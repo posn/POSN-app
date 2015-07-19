@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class SaveFriendsListAsyncTask extends AsyncTask<String, String, String>
@@ -24,11 +26,11 @@ public class SaveFriendsListAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<Friend> friendList;
+      private HashMap<String, Friend> friendList;
       private ArrayList<Friend> friendRequestsList;
 
 
-      public SaveFriendsListAsyncTask(Context context, String filePath, ArrayList<Friend> friendList, ArrayList<Friend> friendRequestsList)
+      public SaveFriendsListAsyncTask(Context context, String filePath, HashMap<String, Friend> friendList, ArrayList<Friend> friendRequestsList)
          {
             super();
             this.context = context;
@@ -65,11 +67,10 @@ public class SaveFriendsListAsyncTask extends AsyncTask<String, String, String>
 
             try
                {
-                  for(int i = 0; i < friendList.size(); i++)
+                  for (Map.Entry<String, Friend> entry : friendList.entrySet())
                      {
-                        Friend friend = friendList.get(i);
-                        friendsList.put(friend.createJOSNObject());
-                     }
+                        Friend friend = entry.getValue();
+                        friendsList.put(friend.createJOSNObject());                     }
 
                   for(int i = 0; i < friendRequestsList.size(); i++)
                      {

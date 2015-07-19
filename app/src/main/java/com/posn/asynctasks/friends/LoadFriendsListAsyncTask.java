@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
@@ -29,7 +30,7 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<Friend> friendList = new ArrayList<>();
+      private HashMap<String, Friend> friendList = new HashMap<>();
       private ArrayList<Friend> friendRequestsList = new ArrayList<>();
 
       public AsyncResponseFriends delegate=null;
@@ -49,7 +50,7 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
          {
             super.onPreExecute();
             pDialog = new ProgressDialog(context);
-            pDialog.setMessage("Loading Data...");
+            pDialog.setMessage("Loading Friend Data...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -90,7 +91,7 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
 
                         if (friend.status == STATUS_ACCEPTED || friend.status == STATUS_PENDING )
                            {
-                              friendList.add(friend);
+                              friendList.put(friend.id, friend);
                            }
                         else
                            {
@@ -119,7 +120,6 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
       protected void onPostExecute(String file_url)
          {
             delegate.loadingFriendsFinished(friendList, friendRequestsList);
-
 
             // dismiss the dialog once done
             pDialog.dismiss();

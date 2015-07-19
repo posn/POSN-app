@@ -1,7 +1,6 @@
 package com.posn.main.wall;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,9 +20,7 @@ import android.widget.TableRow;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.asynctasks.wall.AsyncResponseWall;
-import com.posn.asynctasks.wall.LoadWallPostsAsyncTask;
-import com.posn.asynctasks.wall.SaveWallPostsAsyncTask;
+import com.posn.datatypes.Friend;
 import com.posn.datatypes.Post;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.posts.ListViewPostItem;
@@ -42,7 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener, AsyncResponseWall
+public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener
    {
       int STATUS_RESULT = 1;
 
@@ -64,9 +61,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       WallArrayAdapter adapter;
 
       POSNApplication app;
-      private ProgressDialog pDialog;
-
-      LoadWallPostsAsyncTask asyncTask;
+      MainActivity activity;
 
 
       @Override
@@ -81,8 +76,11 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             // get the application
             app = (POSNApplication) getActivity().getApplication();
 
+            // get the main activity
+            activity = (MainActivity) getActivity();
+
             // get the wall post data from activity
-            wallPostData = ((MainActivity) getActivity()).wallPostData;
+            wallPostData = activity.wallPostData;
 
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
@@ -134,31 +132,15 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
             // fill with fake data
             // getNameEmailDetails();
-            // createWallPosts();
+             //createWallPosts();
+           // saveWallPosts();
             // getWallPosts();
 
 
             adapter = new WallArrayAdapter(getActivity(), wallPostList);
             lv.setAdapter(adapter);
 
-            if(wallPostData.isEmpty())
-               {
-                  loadWallPosts();
-               }
-            else
-               {
-                  createWallPostsList();
-               }
-
             return view;
-         }
-
-
-      @Override
-      public void onActivityCreated(Bundle savedInstanceState)
-         {
-            super.onActivityCreated(savedInstanceState);
-            onResume();
          }
 
 
@@ -178,23 +160,15 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
                   case R.id.status_button:
                      Intent intent = new Intent(context, PostStatusActivity.class);
-
-                     // Close all views before launching Employer
-                     // homePage
-                     // startActivity(intent);
                      startActivityForResult(intent, STATUS_RESULT);
-
-                     System.out.println("STATUS!");
 
                      break;
 
                   case R.id.photo_button:
-                     System.out.println("PHOTO!");
 
                      break;
 
                   case R.id.checkin_button:
-                     System.out.println("CHECK IN!");
 
                      break;
 
@@ -208,10 +182,10 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             if (requestCode == STATUS_RESULT && resultCode == Activity.RESULT_OK)
                {
                   Post post = new Post(TYPE_STATUS, app.getFirstName() + " " + app.getLastName(), "Jan 19, 2015 at 1:45 pm", data.getStringExtra("status"));
-                  wallPostList.add(0, new StatusPostItem(getActivity(), post));
+                  wallPostList.add(0, new StatusPostItem(getActivity(), app.getFirstName() + " " + app.getLastName(), post));
                   wallPostData.add(post);
                   adapter.notifyDataSetChanged();
-                  saveWallPosts();
+                  activity.saveWallPosts();
                }
          }
 
@@ -219,10 +193,21 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
          {
             wallPostList.clear();
             System.out.println("GETTING WALL POSTS!!!");
+            String name;
 
             for (int n = 0; n < wallPostData.size(); n++)
                {
                   Post post = wallPostData.get(n);
+
+                  if(post.friend.equals(app.getId()))
+                     {
+                        name = app.getFirstName() + " " + app.getLastName();
+                     }
+                  else
+                     {
+                        Friend friend = activity.masterFriendList.get(post.friend);
+                        name = friend.name;
+                     }
 
                   if (post.type == TYPE_PHOTO)
                      {
@@ -230,16 +215,16 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                         File imgFile = new File(photoPath);
                         if (imgFile.exists())
                            {
-                              wallPostList.add(new PhotoPostItem(getActivity(), post, app.multimediaFilePath));
+                              wallPostList.add(new PhotoPostItem(getActivity(), name, post, app.multimediaFilePath));
                            }
                      }
                   else if (post.type == TYPE_STATUS)
                      {
-                        wallPostList.add(new StatusPostItem(getActivity(), post));
+                        wallPostList.add(new StatusPostItem(getActivity(),name, post));
                      }
                   else if (post.type == TYPE_VIDEO)
                      {
-                        wallPostList.add(new VideoPostItem(getActivity(), post, app.multimediaFilePath));
+                        wallPostList.add(new VideoPostItem(getActivity(), name, post, app.multimediaFilePath));
                      }
                }
 
@@ -267,31 +252,31 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
             try
                {
-                  Post post = new Post(TYPE_STATUS, "Allen Rice", "Jan 19, 2015 at 1:45 pm", "This is a test post from a file.");
+                  Post post = new Post(TYPE_STATUS, "ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm", "This is a test post from a file.");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_PHOTO, "John Hunter", "Jan 19, 2015 at 1:45 pm", "test.jpg");
+                  post = new Post(TYPE_PHOTO, "726e60c84e88dd01b49ecf6f0de42843383bffad", "Jan 19, 2015 at 1:45 pm", "test.jpg");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_STATUS, "Bob Smith", "Jan 19, 2015 at 1:45 pm", "Happy Birthday");
+                  post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_VIDEO, "Daniel Chavez", "Jan 19, 2015 at 1:45 pm", "test.mp4");
+                  post = new Post(TYPE_VIDEO, "dc66ae1b5fa5c84cf12b82e2ec07f6b91233e8d4", "Jan 19, 2015 at 1:45 pm", "test.mp4");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_STATUS, "Cam Rowe", "Jan 19, 2015 at 1:45 pm", "Test! TeSt!! TEST!!!");
+                  post = new Post(TYPE_STATUS, "413e990ba1e5984d8fd41f1a1acaf3d154b21cab", "Jan 19, 2015 at 1:45 pm", "Test! TeSt!! TEST!!!");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_PHOTO, "Rachel Klukovich", "Jan 19, 2015 at 1:45 pm", "test.jpg");
+                  post = new Post(TYPE_PHOTO, "f9febf09f9d7632a7611598bc03baed8d5c7357d", "Jan 19, 2015 at 1:45 pm", "test.jpg");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_STATUS, "Bob Smith", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!");
+                  post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_STATUS, "Bob Smith", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!!");
+                  post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!!");
                   wallPosts.put(post.createJOSNObject());
 
-                  post = new Post(TYPE_PHOTO, "Eric Klukovich", "Jan 19, 2015 at 1:45 pm", "test.jpg");
+                  post = new Post(TYPE_PHOTO, "177ab489aa8cb82323ed02c2adb051c49c0c847d", "Jan 19, 2015 at 1:45 pm", "test.jpg");
                   wallPosts.put(post.createJOSNObject());
 
                   JSONObject object = new JSONObject();
@@ -316,23 +301,8 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
          }
 
 
-      public void saveWallPosts()
+      public void updateWallPosts()
          {
-            new SaveWallPostsAsyncTask(getActivity(), app.wallFilePath + "/user_wall.txt", wallPostData).execute();
-         }
-
-      public void loadWallPosts()
-         {
-            asyncTask = new LoadWallPostsAsyncTask(getActivity(), app.wallFilePath + "/user_wall.txt");
-            asyncTask.delegate = this;
-            asyncTask.execute();
-         }
-
-      public void loadingWallFinished(ArrayList<Post> wallData)
-         {
-            // add the loaded data to the array list and hashmap
-            this.wallPostData.addAll(wallData);
-
             createWallPostsList();
 
             // notify the adapter about the data change

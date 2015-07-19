@@ -19,6 +19,7 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
 
       private Context context;
       private Post postData;
+      private String friendName;
 
       static class ViewHolderItem
          {
@@ -31,10 +32,11 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
          }
 
 
-      public StatusPostItem(Context context, Post postData)
+      public StatusPostItem(Context context, String friendName, Post postData)
          {
             this.context = context;
             this.postData = postData;
+            this.friendName = friendName;
          }
 
 
@@ -77,7 +79,7 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
                }
 
             // set the data into the views
-            viewHolder.nameText.setText(postData.friend);
+            viewHolder.nameText.setText(friendName);
             viewHolder.dateText.setText(postData.date);
             viewHolder.statusText.setText(postData.content);
 

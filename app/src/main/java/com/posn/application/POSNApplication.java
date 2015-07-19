@@ -3,6 +3,8 @@ package com.posn.application;
 import android.app.Application;
 import android.os.Environment;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 import com.posn.datatypes.Friend;
 import com.posn.dropbox.DropboxClientUsage;
 import com.posn.encryption.AESEncryption;
@@ -16,7 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.nio.charset.Charset;
 
 
 public class POSNApplication extends Application
@@ -39,6 +41,18 @@ public class POSNApplication extends Application
       private String gender = null;
       private String cloudProvider = null;
 
+      public String getId()
+         {
+            return id;
+         }
+
+      public void setId(String id)
+         {
+            this.id = id;
+         }
+
+      private String id = null;
+
       // password data
       String password = null;
 
@@ -53,8 +67,6 @@ public class POSNApplication extends Application
 
 
       // Friends Tab data
-      public ArrayList<Friend> friendList = new ArrayList<Friend>();
-      public ArrayList<Friend> friendRequestsList = new ArrayList<Friend>();
       public Friend newFriendRequest = null;
       public Friend newAcceptedFriend = null;
 
@@ -269,6 +281,9 @@ public class POSNApplication extends Application
 
                   // get the cloud provider
                   cloudProvider = data.getString("cloudprovider");
+
+                  final HashCode hashCode = Hashing.sha1().hashString(emailAddress, Charset.defaultCharset());
+                  id = hashCode.toString();
 
                   return true;
                }

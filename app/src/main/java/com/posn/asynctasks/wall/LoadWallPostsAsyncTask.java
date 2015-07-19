@@ -45,7 +45,7 @@ public class LoadWallPostsAsyncTask extends AsyncTask<String, String, String>
          {
             super.onPreExecute();
             pDialog = new ProgressDialog(context);
-            pDialog.setMessage("Loading Data...");
+            pDialog.setMessage("Loading Wall Data...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();

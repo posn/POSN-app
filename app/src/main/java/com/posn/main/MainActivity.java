@@ -2,6 +2,7 @@ package com.posn.main;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
@@ -10,17 +11,29 @@ import android.view.Menu;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
+import com.posn.asynctasks.friends.AsyncResponseFriends;
+import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
+import com.posn.asynctasks.friends.SaveFriendsListAsyncTask;
+import com.posn.asynctasks.wall.AsyncResponseWall;
+import com.posn.asynctasks.wall.LoadWallPostsAsyncTask;
+import com.posn.asynctasks.wall.SaveWallPostsAsyncTask;
+import com.posn.datatypes.Friend;
 import com.posn.datatypes.Post;
+import com.posn.main.friends.UserFriendsFragment;
+import com.posn.main.wall.UserWallFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
-public class MainActivity extends FragmentActivity
+public class MainActivity extends FragmentActivity implements AsyncResponseFriends, AsyncResponseWall
    {
       private ViewPager viewPager;
       private ActionBar actionBar;
       private MainTabsPagerAdapter tabsAdapter;
       public POSNApplication app;
+
+      private boolean firstStart = true;
 
       public int newWallPostsNum = 0;
       public int newNotificationNum = 0;
@@ -29,6 +42,13 @@ public class MainActivity extends FragmentActivity
 
       // data for wall fragment
       public ArrayList<Post> wallPostData = new ArrayList<>();
+
+      // data for master friends list
+      public HashMap<String, Friend> masterFriendList = new HashMap<>();
+      public ArrayList<Friend> masterRequestsList = new ArrayList<>();
+      LoadFriendsListAsyncTask asyncTaskFriend;
+      LoadWallPostsAsyncTask asyncTaskWall;
+
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -43,6 +63,7 @@ public class MainActivity extends FragmentActivity
 
             // find the viewpager in the xml file
             viewPager = (ViewPager) findViewById(R.id.system_viewpager);
+            viewPager.setOffscreenPageLimit(4);
 
             tabsAdapter = new MainTabsPagerAdapter(this.getSupportFragmentManager(), this);
             viewPager.setAdapter(tabsAdapter);
@@ -66,7 +87,6 @@ public class MainActivity extends FragmentActivity
                   {
                      viewPager.setCurrentItem(tab.getPosition(), true);
 
-                     System.out.println(tab.getPosition());
                      if (tab.getPosition() == 0)
                         {
                            actionBar.setTitle("Wall");
@@ -135,8 +155,7 @@ public class MainActivity extends FragmentActivity
             app = (POSNApplication) this.getApplication();
 
             // clear friends list when activity starts
-            app.friendList.clear();
-            app.friendRequestsList.clear();
+            loadFriendsList();
          }
 
 
@@ -160,5 +179,64 @@ public class MainActivity extends FragmentActivity
          {
             return true;
          }
+
+      public void saveFriendsList()
+         {
+            new SaveFriendsListAsyncTask(this, app.wallFilePath + "/user_friends.txt", masterFriendList, masterRequestsList).execute();
+         }
+
+      public void loadFriendsList()
+         {
+            asyncTaskFriend = new LoadFriendsListAsyncTask(this, app.wallFilePath + "/user_friends.txt");
+            asyncTaskFriend.delegate = this;
+            asyncTaskFriend.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+         }
+
+      public void loadingFriendsFinished(HashMap<String, Friend> friendList, ArrayList<Friend> friendRequestList)
+         {
+            this.masterFriendList.putAll(friendList);
+            this.masterRequestsList.addAll(friendRequestList);
+
+
+            UserFriendsFragment fragment = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
+            if (fragment != null)
+               {
+                  fragment.updateFriendList();
+               }
+
+            if (firstStart)
+               {
+                  loadWallPosts();
+               }
+         }
+
+
+      public void saveWallPosts()
+         {
+            SaveWallPostsAsyncTask task = new SaveWallPostsAsyncTask(this, app.wallFilePath + "/user_wall.txt", wallPostData);
+            task.execute();
+         }
+
+      public void loadWallPosts()
+         {
+            asyncTaskWall = new LoadWallPostsAsyncTask(this, app.wallFilePath + "/user_wall.txt");
+            asyncTaskWall.delegate = this;
+            asyncTaskWall.execute();
+         }
+
+      public void loadingWallFinished(ArrayList<Post> wallData)
+         {
+            // add the loaded data to the array list and hashmap
+            this.wallPostData.addAll(wallData);
+
+            UserWallFragment fragment = (UserWallFragment) tabsAdapter.getRegisteredFragment(0);
+            if (fragment != null)
+               {
+                  fragment.updateWallPosts();
+               }
+
+            firstStart = false;
+         }
+
 
    }

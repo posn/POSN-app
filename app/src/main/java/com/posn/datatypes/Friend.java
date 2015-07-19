@@ -2,8 +2,13 @@ package com.posn.datatypes;
 
 import android.graphics.Bitmap;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.nio.charset.Charset;
 
 public class Friend
    {
@@ -27,7 +32,7 @@ public class Friend
             this.name = name;
             selected = false;
          }
-
+/*
       public Friend(String name, int status)
          {
             this.name = name;
@@ -38,13 +43,16 @@ public class Friend
             image_uri = "asd";
             selected = false;
          }
-
+*/
       public Friend(String name, String email, int status)
          {
             this.name = name;
             this.email = email;
             this.status = status;
-            id = "0";
+
+            final HashCode hashCode = Hashing.sha1().hashString(email, Charset.defaultCharset());
+            id = hashCode.toString();
+
             phone = "0";
             image_uri = "asd";
             selected = false;

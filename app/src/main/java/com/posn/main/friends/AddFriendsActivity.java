@@ -21,6 +21,7 @@ import com.posn.email.EmailSender;
 import com.posn.initial_setup.ContactArrayAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class AddFriendsActivity extends FragmentActivity implements OnClickListener
@@ -31,7 +32,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
       EditText name, email;
       ListView lv;
 
-      ArrayList<Friend> friendList;
+      HashMap<String, Friend> friendList;
       ArrayList<Friend> contactList = new ArrayList<Friend>();
 
       POSNApplication app;
@@ -95,7 +96,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
 
             app = (POSNApplication) getApplication();
 
-            friendList = app.friendList;
+//            friendList = app.friendList;
          }
 
 
@@ -117,10 +118,11 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                            test.sendMail("POSN - New Friend Request", "SUCCESS!\n\nhttp://posn.com/request/" + "Eric" + "/" + "Klukovich" + "/" + "eklukovich92@hotmail.com", "POSN", newFriend.email);
 
                            newFriend.status = 3;
-                           friendList.add(newFriend);
+                           friendList.put(newFriend.id, newFriend);
 
                            Intent resultIntent = new Intent();
                            setResult(Activity.RESULT_OK, resultIntent);
+                           resultIntent.putExtra("id", newFriend.id);
                            finish();
                         }
                      else
@@ -136,10 +138,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                      if (!isEmpty(name) && !isEmpty(email))
                         {
                            Friend newContact = new Friend(name.getText().toString(), email.getText().toString(), 3);
-
-                           //  newContact.name = name.getText().toString();
-                           //  newContact.email = email.getText().toString();
-                             newContact.selected = true;
+                           newContact.selected = true;
 
                            adapter.add(newContact);
                            adapter.notifyDataSetChanged();

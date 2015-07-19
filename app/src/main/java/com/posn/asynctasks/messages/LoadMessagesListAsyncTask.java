@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
@@ -30,10 +31,10 @@ public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<Friend> friendList = new ArrayList<>();
+      private HashMap<String, Friend> friendList = new HashMap<>();
       private ArrayList<Friend> friendRequestsList = new ArrayList<>();
 
-      public AsyncResponseFriends delegate=null;
+      public AsyncResponseFriends delegate = null;
 
 
       public LoadMessagesListAsyncTask(Context context, String filePath)
@@ -89,9 +90,9 @@ public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
                         Friend friend = new Friend();
                         friend.parseJOSNObject(friendsList.getJSONObject(n));
 
-                        if (friend.status == STATUS_ACCEPTED || friend.status == STATUS_PENDING )
+                        if (friend.status == STATUS_ACCEPTED || friend.status == STATUS_PENDING)
                            {
-                              friendList.add(friend);
+                              friendList.put(friend.id, friend);
                            }
                         else
                            {
@@ -119,6 +120,8 @@ public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
+            System.out.println("NUM FRIENDS123: " + friendList.size() + " | " + friendRequestsList.size());
+
             delegate.loadingFriendsFinished(friendList, friendRequestsList);
 
 

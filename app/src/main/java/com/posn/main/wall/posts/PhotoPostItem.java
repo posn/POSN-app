@@ -29,6 +29,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
          }
 
       private Context context;
+      private String friendName;
       private Post postData;
       private String directory;
       ViewHolderItem viewHolder;
@@ -37,11 +38,12 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
       int finalHeight, finalWidth;
 
 
-      public PhotoPostItem(Context context, Post postData, String directory)
+      public PhotoPostItem(Context context, String friendName, Post postData, String directory)
          {
             this.context = context;
             this.postData = postData;
             this.directory = directory + "/";
+            this.friendName = friendName;
          }
 
 
@@ -84,7 +86,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                }
 
             // set the data into the views
-            viewHolder.nameText.setText(postData.friend);
+            viewHolder.nameText.setText(friendName);
             viewHolder.dateText.setText(postData.date);
 /*
             ViewTreeObserver vto = viewHolder.photoImage.getViewTreeObserver();

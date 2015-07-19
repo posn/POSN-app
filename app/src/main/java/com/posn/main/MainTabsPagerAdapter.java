@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,21 +22,13 @@ import java.util.ArrayList;
 
 public class MainTabsPagerAdapter extends FragmentPagerAdapter
    {
+      SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
 
       // declare variables
       Fragment wallTab, notificationTab, messagesTab, friendsTabs, settingsTab;
       Context context;
-      private String tabTitles[] = new String[]{"Tab1", "Tab2", "Tab3", "Tab3", "Tab3"};
 
       ArrayList<View> views = new ArrayList<>();
-
-      private int[] imageResId = {
-                                     R.drawable.selector_wall_icon,
-                                     R.layout.icon_test,
-                                     R.drawable.selector_messages_icon,
-                                     R.drawable.selector_friends_icon,
-                                     R.drawable.selector_settings_icon
-      };
 
 
       public MainTabsPagerAdapter(FragmentManager fm, Context context)
@@ -48,7 +41,6 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
       @Override
       public Fragment getItem(int index)
          {
-
             // load the tab that was selected.
             switch (index)
                {
@@ -57,6 +49,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (wallTab == null)
                         {
                            wallTab = new UserWallFragment();
+                           registeredFragments.put(index, wallTab);
                         }
                      return wallTab;
 
@@ -65,6 +58,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (notificationTab == null)
                         {
                            notificationTab = new UserNotificationsFragment();
+                           registeredFragments.put(index, notificationTab);
                         }
                      return notificationTab;
 
@@ -73,6 +67,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (messagesTab == null)
                         {
                            messagesTab = new UserMessagesFragment();
+                           registeredFragments.put(index, messagesTab);
                         }
                      return messagesTab;
 
@@ -81,6 +76,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (friendsTabs == null)
                         {
                            friendsTabs = new UserFriendsFragment();
+                           registeredFragments.put(index, friendsTabs);
                         }
                      return friendsTabs;
 
@@ -89,6 +85,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (settingsTab == null)
                         {
                            settingsTab = new UserSettingsFragment();
+                           registeredFragments.put(index, settingsTab);
                         }
                      return settingsTab;
                }
@@ -109,7 +106,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
             // Given you have a custom layout in `res/layout/custom_tab.xml` with a TextView and ImageView
             View v = LayoutInflater.from(context).inflate(R.layout.icon_test, null);
             TextView tv = (TextView) v.findViewById(R.id.notification_textview);
-            if(showNotifications && numNotifications > 0)
+            if (showNotifications && numNotifications > 0)
                {
                   tv.setVisibility(View.VISIBLE);
                   tv.setText(Integer.toString(numNotifications));
@@ -133,7 +130,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
             View v = views.get(position);
 
             TextView tv = (TextView) v.findViewById(R.id.notification_textview);
-            if(showNotifications && numNotifications > 0)
+            if (showNotifications && numNotifications > 0)
                {
                   tv.setVisibility(View.VISIBLE);
                   tv.setText(Integer.toString(numNotifications));
@@ -147,5 +144,9 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
             img.setImageResource(resource);
          }
 
+      public Fragment getRegisteredFragment(int position)
+         {
+            return registeredFragments.get(position);
+         }
 
    }

@@ -1,39 +1,40 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
     style="@style/AppBaseTheme"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#CFD8DC">
+    android:background="#CFD8DC"
+    android:tag="wall_frag">
 
 
     <View
         android:id="@+id/divider"
         android:layout_width="fill_parent"
         android:layout_height="0.5dip"
+        android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
-        android:background="#8b9dc3"
-        android:layout_alignParentTop="true"/>
+        android:background="#8b9dc3"/>
 
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:layout_below="@id/divider"
+        android:id="@+id/swipe_container"
 
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:layout_below="@id/divider">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <ListView
                 android:id="@+id/listView1"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:divider="@null"
-                android:dividerHeight="0dp" >
+                android:dividerHeight="0dp">
             </ListView>
         </LinearLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
@@ -43,45 +44,45 @@
         android:layout_width="fill_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
-        android:background="#E63b5998" >
+        android:background="#E63b5998">
 
         <include
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
             layout="@layout/button_status"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:background="@android:drawable/list_selector_background"
-            android:clickable="true" />
+            android:clickable="true"/>
 
         <View
             android:layout_width="1dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:background="@android:color/white" />
+            android:background="@android:color/white"/>
 
         <include
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
             layout="@layout/button_photo"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:background="@android:drawable/list_selector_background"
-            android:clickable="true" />
+            android:clickable="true"/>
 
         <View
             android:layout_width="1dp"
             android:layout_height="fill_parent"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:background="@android:color/white" />
+            android:background="@android:color/white"/>
 
         <include
+            layout="@layout/button_check_in"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            layout="@layout/button_check_in"
             android:background="@android:drawable/list_selector_background"
-            android:clickable="true" />
+            android:clickable="true"/>
     </TableRow>
 
 </RelativeLayout>

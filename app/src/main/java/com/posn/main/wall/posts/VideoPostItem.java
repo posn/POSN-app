@@ -39,17 +39,19 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
       private Context context;
       private Post postData;
       private Uri dataLink;
+      private String friendName;
       private MediaPlayer mMediaPlayer;
 
       ViewHolderItem viewHolder;
 
 
 
-      public VideoPostItem(Context context, Post postData, String directory)
+      public VideoPostItem(Context context, String friendName, Post postData, String directory)
          {
             this.context = context;
             this.postData = postData;
             this.dataLink = Uri.fromFile(new File(directory + "/" + postData.content));
+            this.friendName = friendName;
          }
 
 
@@ -92,7 +94,7 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
                }
 
             // set the data into the views
-            viewHolder.nameText.setText(postData.friend);
+            viewHolder.nameText.setText(friendName);
             viewHolder.dateText.setText(postData.date);
 
 
@@ -103,7 +105,6 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
 
       public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
          {
-            System.out.println("ASDASDASD");
             Surface s = new Surface(surface);
 
             try
