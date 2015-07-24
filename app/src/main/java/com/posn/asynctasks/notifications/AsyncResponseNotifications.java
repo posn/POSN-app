@@ -1,11 +1,11 @@
 package com.posn.asynctasks.notifications;
 
-import com.posn.datatypes.Friend;
+import com.posn.datatypes.Notification;
 
 import java.util.ArrayList;
 
 
 public interface AsyncResponseNotifications
    {
-      void loadingFriendsFinished(ArrayList<Friend> friendList, ArrayList<Friend> friendRequestList);
+      void loadingNotificationsFinished(ArrayList<Notification> notificationList);
    }

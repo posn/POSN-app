@@ -13,19 +13,24 @@ import com.posn.application.POSNApplication;
 import com.posn.asynctasks.friends.AsyncResponseFriends;
 import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
 import com.posn.asynctasks.friends.SaveFriendsListAsyncTask;
+import com.posn.asynctasks.notifications.AsyncResponseNotifications;
+import com.posn.asynctasks.notifications.LoadNotificationsAsyncTask;
+import com.posn.asynctasks.notifications.SaveNotificationsAsyncTask;
 import com.posn.asynctasks.wall.AsyncResponseWall;
 import com.posn.asynctasks.wall.LoadWallPostsAsyncTask;
 import com.posn.asynctasks.wall.SaveWallPostsAsyncTask;
 import com.posn.datatypes.Friend;
+import com.posn.datatypes.Notification;
 import com.posn.datatypes.Post;
 import com.posn.main.friends.UserFriendsFragment;
+import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.wall.UserWallFragment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class MainActivity extends FragmentActivity implements AsyncResponseFriends, AsyncResponseWall
+public class MainActivity extends FragmentActivity implements AsyncResponseFriends, AsyncResponseWall, AsyncResponseNotifications
    {
       private ViewPager viewPager;
       private ActionBar actionBar;
@@ -41,13 +46,16 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
 
       // data for wall fragment
       public ArrayList<Post> wallPostData = new ArrayList<>();
+      LoadWallPostsAsyncTask asyncTaskWall;
 
       // data for master friends list
       public HashMap<String, Friend> masterFriendList = new HashMap<>();
       public ArrayList<Friend> masterRequestsList = new ArrayList<>();
       LoadFriendsListAsyncTask asyncTaskFriend;
-      LoadWallPostsAsyncTask asyncTaskWall;
 
+      // data for notification fragment
+      public ArrayList<Notification> notificationData = new ArrayList<>();
+      LoadNotificationsAsyncTask asyncTaskNotification;
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -234,8 +242,39 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                   fragment.updateWallPosts();
                }
 
-            firstStart = false;
+            if (firstStart)
+               {
+                  loadNotifications();
+               }
          }
 
+      public void saveNotifications()
+         {
+            SaveNotificationsAsyncTask task = new SaveNotificationsAsyncTask(this, app.wallFilePath + "/user_notifications.txt", notificationData);
+            task.execute();
+         }
+
+      public void loadNotifications()
+         {
+            asyncTaskNotification = new LoadNotificationsAsyncTask(this, app.wallFilePath + "/user_notifications.txt");
+            asyncTaskNotification.delegate = this;
+            asyncTaskNotification.execute();
+         }
+
+
+      public void loadingNotificationsFinished(ArrayList<Notification> notificationList)
+         {
+            // add the loaded data to the array list and hashmap
+            this.notificationData.addAll(notificationList);
+
+            UserNotificationsFragment fragment = (UserNotificationsFragment) tabsAdapter.getRegisteredFragment(1);
+            if (fragment != null)
+               {
+                  fragment.updateNotifications();
+               }
+
+            firstStart = false;
+
+         }
 
    }

@@ -4,7 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Post;
+import com.posn.datatypes.Notification;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,16 +23,16 @@ public class SaveNotificationsAsyncTask extends AsyncTask<String, String, String
       private Context context;
       private String filePath;
 
-      private ArrayList<Post> wallData;
+      private ArrayList<Notification> notificationData;
 
 
-      public SaveNotificationsAsyncTask(Context context, String filePath, ArrayList<Post> wallData)
+      public SaveNotificationsAsyncTask(Context context, String filePath, ArrayList<Notification> notificationData)
          {
             super();
             this.context = context;
             this.filePath = filePath;
 
-            this.wallData = wallData;
+            this.notificationData = notificationData;
          }
 
 
@@ -52,20 +52,20 @@ public class SaveNotificationsAsyncTask extends AsyncTask<String, String, String
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("SAVING WALL POSTS!!!");
+            System.out.println("SAVING NOTIFICATIONS!!!");
 
-            JSONArray wallPostList = new JSONArray();
+            JSONArray notificationList = new JSONArray();
 
             try
                {
-                  for(int i = 0; i < wallData.size(); i++)
+                  for(int i = 0; i < notificationData.size(); i++)
                      {
-                        Post post = wallData.get(i);
-                        wallPostList.put(post.createJOSNObject());
+                        Notification notification = notificationData.get(i);
+                        notificationList.put(notification.createJOSNObject());
                      }
 
                   JSONObject object = new JSONObject();
-                  object.put("posts", wallPostList);
+                  object.put("notifications", notificationList);
 
                   String jsonStr = object.toString();
 

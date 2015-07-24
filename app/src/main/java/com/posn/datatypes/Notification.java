@@ -9,9 +9,7 @@ public class Notification
 
       public String friend;
       public String date;
-      public String email;
       public String image_uri;
-      public String content;
 
       public boolean selected;
 
@@ -20,12 +18,11 @@ public class Notification
          }
 
 
-      public Notification(int type, String friend, String date, String content)
+      public Notification(int type, String friend, String date)
          {
             this.type = type;
             this.friend = friend;
             this.date = date;
-            this.content = content;
          }
 
       public JSONObject createJOSNObject()
@@ -37,7 +34,6 @@ public class Notification
                   obj.put("type", type);
                   obj.put("friend", friend);
                   obj.put("date", date);
-                  obj.put("content", content);
                }
             catch (JSONException e)
                {
@@ -54,7 +50,6 @@ public class Notification
                   type = obj.getInt("type");
                   friend = obj.getString("friend");
                   date = obj.getString("date");
-                  content = obj.getString("content");
                }
             catch (JSONException e)
                {

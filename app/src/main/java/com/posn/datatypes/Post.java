@@ -9,7 +9,6 @@ public class Post
 
       public String friend;
       public String date;
-      public String email;
       public String image_uri;
       public String content;
 

@@ -47,7 +47,6 @@ public class LinkPostItem implements ListViewPostItem, OnClickListener
       @Override
       public View getView(LayoutInflater inflater, View convertView)
          {
-//  View view = convertView;
             ViewHolderItem viewHolder;
 
             if (convertView == null)

@@ -17,6 +17,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
+import android.widget.Toast;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
@@ -243,11 +244,11 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
          {
             new Handler().postDelayed(new Runnable()
             {
-
                @Override
                public void run()
                   {
                      swipeLayout.setRefreshing(false);
+                     Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
                   }
             }, 2000);
          }

@@ -4,8 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.asynctasks.wall.AsyncResponseWall;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.Notification;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,26 +12,24 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class LoadMessagesAsyncTask extends AsyncTask<String, String, String>
+public class LoadNotificationsAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
 
       private Context context;
       private String filePath;
 
-      private ArrayList<Post> wallPostsData = new ArrayList<>();
-      //private ArrayList<Friend> friendRequestsList = new ArrayList<>();
+      private ArrayList<Notification> notificationData = new ArrayList<>();
 
-      public AsyncResponseWall delegate = null;
+      public AsyncResponseNotifications delegate = null;
 
 
-      public LoadMessagesAsyncTask(Context context, String filePath)
+      public LoadNotificationsAsyncTask(Context context, String filePath)
          {
             super();
             this.context = context;
@@ -56,7 +53,7 @@ public class LoadMessagesAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("GETTING WALL POSTS!!!");
+            System.out.println("GETTING NOTIFICATIONS!!!");
 
             File wallFile = new File(filePath);
 
@@ -78,28 +75,21 @@ public class LoadMessagesAsyncTask extends AsyncTask<String, String, String>
 
                   JSONObject data = new JSONObject(fileContents);
 
-                  JSONArray wallPosts = data.getJSONArray("posts");
+                  JSONArray notifications = data.getJSONArray("notifications");
 
-                  for (int n = 0; n < wallPosts.length(); n++)
+                  for (int n = 0; n < notifications.length(); n++)
                      {
-                        Post post = new Post();
-                        post.parseJOSNObject(wallPosts.getJSONObject(n));
+                        Notification notification = new Notification();
+                        notification.parseJOSNObject(notifications.getJSONObject(n));
 
-                        wallPostsData.add(post);
+                        notificationData.add(notification);
                      }
                }
-            catch (FileNotFoundException e)
+            catch (IOException | JSONException e)
                {
                   e.printStackTrace();
                }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
+
             return null;
          }
 
@@ -107,9 +97,7 @@ public class LoadMessagesAsyncTask extends AsyncTask<String, String, String>
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
-            delegate.loadingWallFinished(wallPostsData);
-
-            //adapter.notifyDataSetChanged();
+            delegate.loadingNotificationsFinished(notificationData);
 
             // dismiss the dialog once done
             pDialog.dismiss();
