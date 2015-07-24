@@ -132,8 +132,7 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
 
       public void updateNotifications()
          {
-            //createNotificationsList();
-
+            System.out.println("CREATING NOTIFICATIONS!!!");
             // notify the adapter about the data change
             adapter.notifyDataSetChanged();
          }

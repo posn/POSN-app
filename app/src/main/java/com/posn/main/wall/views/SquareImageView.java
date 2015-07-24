@@ -6,44 +6,41 @@ import android.widget.ImageView;
 
 
 public class SquareImageView extends ImageView
-	{
+   {
 
-		private int width;
-		boolean allocated = false;
-
-
-		public SquareImageView(Context context)
-			{
-				super(context);
-			}
+      private int width;
+      boolean allocated = false;
 
 
-		public SquareImageView(Context context, AttributeSet attrs)
-			{
-				super(context, attrs);
-			}
+      public SquareImageView(Context context)
+         {
+            super(context);
+         }
 
 
-		public SquareImageView(Context context, AttributeSet attrs, int defStyle)
-			{
-				super(context, attrs, defStyle);
-			}
+      public SquareImageView(Context context, AttributeSet attrs)
+         {
+            super(context, attrs);
+         }
 
 
-		@Override
-		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-			{
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-				System.out.println("HEY!");
-				width = getMeasuredWidth();
-				setMeasuredDimension(width, width);
-
-			}
+      public SquareImageView(Context context, AttributeSet attrs, int defStyle)
+         {
+            super(context, attrs, defStyle);
+         }
 
 
-		public int getViewWidth()
-			{
-				return width;
-			}
-	}
+      @Override
+      protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+         {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            width = getMeasuredWidth();
+            setMeasuredDimension(width, width);
+         }
+
+
+      public int getViewWidth()
+         {
+            return width;
+         }
+   }

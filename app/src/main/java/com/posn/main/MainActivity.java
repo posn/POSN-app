@@ -162,7 +162,7 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
             app = (POSNApplication) this.getApplication();
 
             // clear friends list when activity starts
-            loadFriendsList();
+            //loadFriendsList();
          }
 
 
@@ -171,7 +171,15 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
          {
             super.onResume();
             if (app.getDropbox() != null)
-               app.getDropbox().authenticateDropboxLogin();
+               {
+                  app.getDropbox().authenticateDropboxLogin();
+               }
+
+            if(masterFriendList.isEmpty())
+               {
+                  loadFriendsList();
+                  firstStart = true;
+               }
 
          }
 
