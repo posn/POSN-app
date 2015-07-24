@@ -15,63 +15,90 @@ import com.posn.main.wall.comments.CommentActivity;
 
 
 public class LinkPostItem implements ListViewPostItem, OnClickListener
-	{
+   {
+      private Context context;
+      private Post postData;
+      private String friendName;
 
-		private Post postData;
-		private Context context;
+      static class ViewHolderItem
+         {
+            TextView nameText;
+            TextView dateText;
+            TextView linkText;
 
-		public LinkPostItem(Context context, Post postData)
-			{
-				this.postData = postData;
-			}
+            RelativeLayout commentButton;
+            RelativeLayout shareButton;
+         }
+
+      public LinkPostItem(Context context, String friendName, Post postData)
+         {
+            this.context = context;
+            this.postData = postData;
+            this.friendName = friendName;
+         }
+
+      @Override
+      public int getViewType()
+         {
+            return PostType.LINK_POST_ITEM.ordinal();
+         }
 
 
-		@Override
-		public int getViewType()
-			{
-				return PostType.LINK_POST_ITEM.ordinal();
-			}
+      @Override
+      public View getView(LayoutInflater inflater, View convertView)
+         {
+//  View view = convertView;
+            ViewHolderItem viewHolder;
 
+            if (convertView == null)
+               {
+                  // inflate the layout
+                  convertView = inflater.inflate(R.layout.listview_wall_status_item, null);
 
-		@Override
-		public View getView(LayoutInflater inflater, View convertView)
-			{
-				View view = convertView;
+                  // well set up the ViewHolder
+                  viewHolder = new ViewHolderItem();
+                  viewHolder.nameText = (TextView) convertView.findViewById(R.id.name);
+                  viewHolder.dateText = (TextView) convertView.findViewById(R.id.date);
+                  viewHolder.linkText = (TextView) convertView.findViewById(R.id.status);
 
-				if (view == null)
-					{
-						view = (View) inflater.inflate(R.layout.listview_friend_accepted_item, null);
-					}
-				
-				// get comment and share buttons from the layout
-				RelativeLayout commentButton = (RelativeLayout) view.findViewById(R.id.comment_button);
-				RelativeLayout shareButton = (RelativeLayout) view.findViewById(R.id.share_button);
+                  viewHolder.commentButton = (RelativeLayout) convertView.findViewById(R.id.comment_button);
+                  viewHolder.shareButton = (RelativeLayout) convertView.findViewById(R.id.share_button);
 
-				// set listeners for the buttons
-				commentButton.setOnClickListener(this);
-				shareButton.setOnClickListener(this);
+                  viewHolder.commentButton.setOnClickListener(this);
+                  viewHolder.shareButton.setOnClickListener(this);
 
-				TextView text1 = (TextView) view.findViewById(R.id.name);
-				text1.setText(postData.content);
+                  // store the holder with the view.
+                  convertView.setTag(viewHolder);
+               }
+            else
+               {
+                  viewHolder = (ViewHolderItem) convertView.getTag();
+               }
 
-				return view;
-			}
-		@Override
-		public void onClick(View v)
-			{
-				switch(v.getId())
-				{
-					case R.id.comment_button:
-						
-						// launch comment activity
-						Intent intent = new Intent(context, CommentActivity.class);
-						context.startActivity(intent);
-						
-						break;
+            // set the data into the views
+            viewHolder.nameText.setText(friendName);
+            viewHolder.dateText.setText(postData.date);
+            viewHolder.linkText.setText(postData.content);
 
-					case R.id.share_button:
-						break;
-				}
-			}
+            return convertView;
+         }
 
-	}
+      @Override
+      public void onClick(View v)
+         {
+            switch (v.getId())
+               {
+                  case R.id.comment_button:
+
+                     // launch comment activity
+                     Intent intent = new Intent(context, CommentActivity.class);
+                     context.startActivity(intent);
+
+                     break;
+
+                  case R.id.share_button:
+                     break;
+               }
+         }
+
+   }

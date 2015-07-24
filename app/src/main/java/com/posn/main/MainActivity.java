@@ -2,7 +2,6 @@ package com.posn.main;
 
 import android.app.ActionBar;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
@@ -189,7 +188,7 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
          {
             asyncTaskFriend = new LoadFriendsListAsyncTask(this, app.wallFilePath + "/user_friends.txt");
             asyncTaskFriend.delegate = this;
-            asyncTaskFriend.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            asyncTaskFriend.execute();
          }
 
       public void loadingFriendsFinished(HashMap<String, Friend> friendList, ArrayList<Friend> friendRequestList)

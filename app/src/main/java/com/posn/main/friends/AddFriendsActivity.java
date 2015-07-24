@@ -33,7 +33,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
       ListView lv;
 
       HashMap<String, Friend> friendList;
-      ArrayList<Friend> contactList = new ArrayList<Friend>();
+      ArrayList<Friend> contactList = new ArrayList<>();
 
       POSNApplication app;
 
@@ -118,11 +118,10 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                            test.sendMail("POSN - New Friend Request", "SUCCESS!\n\nhttp://posn.com/request/" + "Eric" + "/" + "Klukovich" + "/" + "eklukovich92@hotmail.com", "POSN", newFriend.email);
 
                            newFriend.status = 3;
-                           friendList.put(newFriend.id, newFriend);
 
                            Intent resultIntent = new Intent();
                            setResult(Activity.RESULT_OK, resultIntent);
-                           resultIntent.putExtra("id", newFriend.id);
+                           resultIntent.putExtra("friend", newFriend);
                            finish();
                         }
                      else
@@ -159,13 +158,6 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
 
       private boolean isEmpty(EditText etText)
          {
-            if (etText.getText().toString().trim().length() > 0)
-               {
-                  return false;
-               }
-            else
-               {
-                  return true;
-               }
+            return (etText.getText().toString().trim().length() > 0);
          }
    }

@@ -40,7 +40,6 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
       private Post postData;
       private Uri dataLink;
       private String friendName;
-      private MediaPlayer mMediaPlayer;
 
       ViewHolderItem viewHolder;
 
@@ -68,7 +67,7 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
             if (convertView == null)
                {
                   // inflate the layout
-                  convertView = (View) inflater.inflate(R.layout.listview_wall_video_item, null);
+                  convertView = inflater.inflate(R.layout.listview_wall_video_item, null);
 
                   // well set up the ViewHolder
                   viewHolder = new ViewHolderItem();
@@ -109,26 +108,14 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
 
             try
                {
-                  mMediaPlayer = new MediaPlayer();
+                  MediaPlayer mMediaPlayer = new MediaPlayer();
                   mMediaPlayer.setDataSource(context, dataLink);
                   mMediaPlayer.setSurface(s);
                   mMediaPlayer.prepare();
                   mMediaPlayer.setVolume(0, 0);
                   mMediaPlayer.start();
                }
-            catch (IllegalArgumentException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (SecurityException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IllegalStateException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
+            catch (SecurityException | IllegalStateException | IllegalArgumentException | IOException e)
                {
                   e.printStackTrace();
                }

@@ -56,7 +56,7 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
             if (convertView == null)
                {
                   // inflate the layout
-                  convertView = (View) inflater.inflate(R.layout.listview_wall_status_item, null);
+                  convertView = inflater.inflate(R.layout.listview_wall_status_item, null);
 
                   // well set up the ViewHolder
                   viewHolder = new ViewHolderItem();

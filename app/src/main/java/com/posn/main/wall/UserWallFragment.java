@@ -23,6 +23,7 @@ import com.posn.application.POSNApplication;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.Post;
 import com.posn.main.MainActivity;
+import com.posn.main.wall.posts.LinkPostItem;
 import com.posn.main.wall.posts.ListViewPostItem;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
@@ -55,7 +56,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       ListView lv;
       TableRow statusBar;
 
-      ArrayList<ListViewPostItem> wallPostList = new ArrayList<ListViewPostItem>();
+      ArrayList<ListViewPostItem> wallPostList = new ArrayList<>();
       ArrayList<Post> wallPostData;
       SwipeRefreshLayout swipeLayout;
       WallArrayAdapter adapter;
@@ -132,8 +133,8 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
             // fill with fake data
             // getNameEmailDetails();
-             //createWallPosts();
-           // saveWallPosts();
+            //createWallPosts();
+            // saveWallPosts();
             // getWallPosts();
 
 
@@ -181,7 +182,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
          {
             if (requestCode == STATUS_RESULT && resultCode == Activity.RESULT_OK)
                {
-                  Post post = new Post(TYPE_STATUS, app.getFirstName() + " " + app.getLastName(), "Jan 19, 2015 at 1:45 pm", data.getStringExtra("status"));
+                  Post post = new Post(TYPE_STATUS, app.getId(), "Jan 19, 2015 at 1:45 pm", data.getStringExtra("status"));
                   wallPostList.add(0, new StatusPostItem(getActivity(), app.getFirstName() + " " + app.getLastName(), post));
                   wallPostData.add(post);
                   adapter.notifyDataSetChanged();
@@ -192,19 +193,21 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       public void createWallPostsList()
          {
             wallPostList.clear();
-            System.out.println("GETTING WALL POSTS!!!");
+            System.out.println("CREATING WALL POSTS!!!");
             String name;
 
             for (int n = 0; n < wallPostData.size(); n++)
                {
                   Post post = wallPostData.get(n);
 
-                  if(post.friend.equals(app.getId()))
+                  //
+                  if (post.friend.equals(app.getId()))
                      {
                         name = app.getFirstName() + " " + app.getLastName();
                      }
                   else
                      {
+                        System.out.println(activity.masterFriendList.size() + " Post:" + post.content);
                         Friend friend = activity.masterFriendList.get(post.friend);
                         name = friend.name;
                      }
@@ -220,7 +223,11 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      }
                   else if (post.type == TYPE_STATUS)
                      {
-                        wallPostList.add(new StatusPostItem(getActivity(),name, post));
+                        wallPostList.add(new StatusPostItem(getActivity(), name, post));
+                     }
+                     else if(post.type == TYPE_LINK)
+                     {
+                        wallPostList.add(new LinkPostItem(getActivity(), name, post));
                      }
                   else if (post.type == TYPE_VIDEO)
                      {
@@ -290,11 +297,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   bw.close();
 
                }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
+            catch (JSONException | IOException e)
                {
                   e.printStackTrace();
                }

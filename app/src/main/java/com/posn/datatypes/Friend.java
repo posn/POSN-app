@@ -1,6 +1,8 @@
 package com.posn.datatypes;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -10,7 +12,7 @@ import org.json.JSONObject;
 
 import java.nio.charset.Charset;
 
-public class Friend
+public class Friend implements Parcelable
    {
       public String id;
       public String name;
@@ -32,18 +34,19 @@ public class Friend
             this.name = name;
             selected = false;
          }
-/*
-      public Friend(String name, int status)
-         {
-            this.name = name;
-            this.status = status;
-            id = "0";
-            phone = "0";
-            email = "0";
-            image_uri = "asd";
-            selected = false;
-         }
-*/
+
+      /*
+            public Friend(String name, int status)
+               {
+                  this.name = name;
+                  this.status = status;
+                  id = "0";
+                  phone = "0";
+                  email = "0";
+                  image_uri = "asd";
+                  selected = false;
+               }
+      */
       public Friend(String name, String email, int status)
          {
             this.name = name;
@@ -106,5 +109,49 @@ public class Friend
             Friend other = (Friend) o;
             System.out.println(name + " | " + other.name);
             return name.equalsIgnoreCase(other.name);
+         }
+
+
+      // Parcelling part
+      public Friend(Parcel in)
+         {
+            this.id = in.readString();
+            this.name = in.readString();
+            this.phone = in.readString();
+            this.email = in.readString();
+            this.image_uri = in.readString();
+            this.status = in.readInt();
+         }
+
+
+
+      @Override
+      public void writeToParcel(Parcel dest, int flags)
+         {
+            dest.writeString(this.id);
+            dest.writeString(this.name);
+            dest.writeString(this.phone);
+            dest.writeString(this.email);
+            dest.writeString(this.image_uri);
+            dest.writeInt(this.status);
+         }
+
+      public static final Parcelable.Creator <Friend> CREATOR = new Parcelable.Creator<Friend>()
+      {
+         public Friend createFromParcel(Parcel in)
+            {
+               return new Friend(in);
+            }
+
+         public Friend[] newArray(int size)
+            {
+               return new Friend[size];
+            }
+      };
+
+      @Override
+      public int describeContents()
+         {
+            return 0;
          }
    }

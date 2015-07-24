@@ -209,8 +209,11 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
          {
             if (requestCode == ADD_FRIEND_RESULT && resultCode == Activity.RESULT_OK)
                {
-                  String friendID = data.getStringExtra("id");
-                  listViewItems.add(new PendingFriendItem(friendList.get(friendID)));
+                  Friend friend = data.getParcelableExtra("friend");
+                  System.out.println(friend.name + " | " + friend.email);
+
+                  friendList.put(friend.id, friend);
+                  listViewItems.add(new PendingFriendItem(friend));
                   sortFriendsList();
                   adapter.notifyDataSetChanged();
                   activity.saveFriendsList();
