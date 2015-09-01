@@ -43,6 +43,11 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
       public void onResume()
          {
             super.onResume();
+
+            if(!notificationsList.isEmpty())
+               {
+                  updateNotifications();
+               }
          }
 
 
@@ -79,7 +84,7 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
       public void onActivityCreated(Bundle savedInstanceState)
          {
             super.onActivityCreated(savedInstanceState);
-            onResume();
+            //onResume();
          }
 
 
@@ -132,7 +137,8 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
 
       public void updateNotifications()
          {
-            System.out.println("CREATING NOTIFICATIONS!!!");
+            System.out.println("CREATING NOTIFICATIONS!!! | " + notificationsList.size());
+
             // notify the adapter about the data change
             adapter.notifyDataSetChanged();
          }

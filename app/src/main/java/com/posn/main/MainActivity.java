@@ -174,12 +174,16 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                {
                   app.getDropbox().authenticateDropboxLogin();
                }
+            System.out.println("ON RESUME Friend: " + masterFriendList.size() + " Wall: " + wallPostData.size());
 
-            if(masterFriendList.isEmpty())
+            if (masterFriendList.isEmpty())
                {
                   loadFriendsList();
                   firstStart = true;
                }
+
+
+            // might need else to call fragment update functions
 
          }
 
