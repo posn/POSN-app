@@ -13,6 +13,9 @@ import com.posn.application.POSNApplication;
 import com.posn.asynctasks.friends.AsyncResponseFriends;
 import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
 import com.posn.asynctasks.friends.SaveFriendsListAsyncTask;
+import com.posn.asynctasks.messages.AsyncResponseMessages;
+import com.posn.asynctasks.messages.LoadMessagesListAsyncTask;
+import com.posn.asynctasks.messages.SaveMessagesAsyncTask;
 import com.posn.asynctasks.notifications.AsyncResponseNotifications;
 import com.posn.asynctasks.notifications.LoadNotificationsAsyncTask;
 import com.posn.asynctasks.notifications.SaveNotificationsAsyncTask;
@@ -20,9 +23,11 @@ import com.posn.asynctasks.wall.AsyncResponseWall;
 import com.posn.asynctasks.wall.LoadWallPostsAsyncTask;
 import com.posn.asynctasks.wall.SaveWallPostsAsyncTask;
 import com.posn.datatypes.Friend;
+import com.posn.datatypes.Message;
 import com.posn.datatypes.Notification;
 import com.posn.datatypes.Post;
 import com.posn.main.friends.UserFriendsFragment;
+import com.posn.main.messages.UserMessagesFragment;
 import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.wall.UserWallFragment;
 
@@ -30,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class MainActivity extends FragmentActivity implements AsyncResponseFriends, AsyncResponseWall, AsyncResponseNotifications
+public class MainActivity extends FragmentActivity implements AsyncResponseFriends, AsyncResponseWall, AsyncResponseNotifications, AsyncResponseMessages
    {
       private ViewPager viewPager;
       private ActionBar actionBar;
@@ -57,6 +62,11 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
       public ArrayList<Notification> notificationData = new ArrayList<>();
       LoadNotificationsAsyncTask asyncTaskNotification;
 
+      // data for message fragment
+      public ArrayList<Message> messageData = new ArrayList<>();
+      LoadMessagesListAsyncTask asyncTaskMessage;
+
+
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
@@ -72,11 +82,14 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
             viewPager = (ViewPager) findViewById(R.id.system_viewpager);
             viewPager.setOffscreenPageLimit(4);
 
+            // create a new pager adapter and assign it to the view pager
             tabsAdapter = new MainTabsPagerAdapter(this.getSupportFragmentManager(), this);
             viewPager.setAdapter(tabsAdapter);
 
             final TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
             tabLayout.setupWithViewPager(viewPager);
+
+            System.out.println("MAIN OnCreate!!!");
 
             // set initial values
             tabLayout.getTabAt(0).setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_blue, newWallPostsNum, false));
@@ -161,10 +174,7 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
             // get the application
             app = (POSNApplication) this.getApplication();
 
-            // clear friends list when activity starts
-            //loadFriendsList();
          }
-
 
       @Override
       protected void onResume()
@@ -174,18 +184,16 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                {
                   app.getDropbox().authenticateDropboxLogin();
                }
-            System.out.println("ON RESUME Friend: " + masterFriendList.size() + " Wall: " + wallPostData.size());
+            System.out.println("MAIN ON RESUME Friend: " + masterFriendList.size() + " Wall: " + wallPostData.size());
+            System.out.println("TabAdapter: " + tabsAdapter.getCount());
 
             if (masterFriendList.isEmpty())
                {
-                  loadFriendsList();
                   firstStart = true;
+                  loadFriendsList();
                }
-
-
-            // might need else to call fragment update functions
-
          }
+
 
       public void onActivityResult(int requestCode, int resultCode, Intent data)
          {
@@ -198,6 +206,8 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
          {
             return true;
          }
+
+
 
       public void saveFriendsList()
          {
@@ -213,6 +223,10 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
 
       public void loadingFriendsFinished(HashMap<String, Friend> friendList, ArrayList<Friend> friendRequestList)
          {
+            if(masterFriendList == null)
+               {
+                  System.out.println("MASTER NULL");
+               }
             this.masterFriendList.putAll(friendList);
             this.masterRequestsList.addAll(friendRequestList);
 
@@ -222,12 +236,17 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                {
                   fragment.updateFriendList();
                }
+            else
+               {
+                  System.out.println("FRIEND NULL");
+               }
 
             if (firstStart)
                {
                   loadWallPosts();
                }
          }
+
 
 
       public void saveWallPosts()
@@ -260,6 +279,8 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                }
          }
 
+
+
       public void saveNotifications()
          {
             SaveNotificationsAsyncTask task = new SaveNotificationsAsyncTask(this, app.wallFilePath + "/user_notifications.txt", notificationData);
@@ -285,8 +306,39 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                   fragment.updateNotifications();
                }
 
-            firstStart = false;
+            if (firstStart)
+               {
+                  loadMessages();
+               }
 
          }
 
+
+
+      public void saveMessages()
+         {
+            SaveMessagesAsyncTask task = new SaveMessagesAsyncTask(this, app.messagesFilePath + "/user_messages.txt", messageData);
+            task.execute();
+         }
+
+      public void loadMessages()
+         {
+            asyncTaskMessage = new LoadMessagesListAsyncTask(this, app.messagesFilePath + "/user_messages.txt");
+            asyncTaskMessage.delegate = this;
+            asyncTaskMessage.execute();
+         }
+
+      public void loadingMessagesFinished(ArrayList<Message> messageList)
+         {
+            // add the loaded data to the array list and hashmap
+            this.messageData.addAll(messageList);
+
+            UserMessagesFragment fragment = (UserMessagesFragment) tabsAdapter.getRegisteredFragment(2);
+            if (fragment != null)
+               {
+                  fragment.updateMessages();
+               }
+
+            firstStart = false;
+         }
    }

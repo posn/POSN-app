@@ -12,6 +12,7 @@ public class Message
       public String email;
       public String image_uri;
       public String content;
+      public String lastMessage;
 
       public boolean selected;
 
@@ -20,12 +21,11 @@ public class Message
          }
 
 
-      public Message(int type, String friend, String date, String content)
+      public Message(String friend, String date, String lastMessage)
          {
-            this.type = type;
             this.friend = friend;
             this.date = date;
-            this.content = content;
+            this.lastMessage = lastMessage;
          }
 
       public JSONObject createJOSNObject()
@@ -34,10 +34,9 @@ public class Message
 
             try
                {
-                  obj.put("type", type);
                   obj.put("friend", friend);
                   obj.put("date", date);
-                  obj.put("content", content);
+                  obj.put("lastMessage", lastMessage);
                }
             catch (JSONException e)
                {
@@ -51,10 +50,9 @@ public class Message
          {
             try
                {
-                  type = obj.getInt("type");
                   friend = obj.getString("friend");
                   date = obj.getString("date");
-                  content = obj.getString("content");
+                  lastMessage = obj.getString("lastMessage");
                }
             catch (JSONException e)
                {

@@ -75,11 +75,7 @@ public class SaveNotificationsAsyncTask extends AsyncTask<String, String, String
                   bw.close();
 
                }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
+            catch (JSONException | IOException e)
                {
                   e.printStackTrace();
                }

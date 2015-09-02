@@ -315,6 +315,12 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
             storageDir = new File(app.wallFilePath);
             if (!storageDir.exists())
                storageDir.mkdirs();
+
+            storageDir = new File(app.messagesFilePath);
+            if (!storageDir.exists())
+               storageDir.mkdirs();
+
+
          }
 
 

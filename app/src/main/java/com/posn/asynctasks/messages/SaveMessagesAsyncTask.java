@@ -4,14 +4,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Friend;
+import com.posn.datatypes.Message;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,18 +23,16 @@ public class SaveMessagesAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<Friend> friendList;
-      private ArrayList<Friend> friendRequestsList;
+      private ArrayList<Message> messageList;
 
 
-      public SaveMessagesAsyncTask(Context context, String filePath, ArrayList<Friend> friendList, ArrayList<Friend> friendRequestsList)
+      public SaveMessagesAsyncTask(Context context, String filePath, ArrayList<Message> messageData)
          {
             super();
             this.context = context;
             this.filePath = filePath;
 
-            this.friendList = friendList;
-            this.friendRequestsList = friendRequestsList;
+            this.messageList = messageData;
          }
 
 
@@ -55,30 +52,20 @@ public class SaveMessagesAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("SAVING FRIENDS!!!");
+            System.out.println("SAVING MESSAGES!!!");
 
-            File wallFile = new File(filePath);
-
-            String line, fileContents;
-
-            JSONArray friendsList = new JSONArray();
+            JSONArray messagesList = new JSONArray();
 
             try
                {
-                  for(int i = 0; i < friendList.size(); i++)
+                  for (int i = 0; i < messageList.size(); i++)
                      {
-                        Friend friend = friendList.get(i);
-                        friendsList.put(friend.createJOSNObject());
-                     }
-
-                  for(int i = 0; i < friendRequestsList.size(); i++)
-                     {
-                        Friend friend = friendRequestsList.get(i);
-                        friendsList.put(friend.createJOSNObject());
+                        Message message = messageList.get(i);
+                        messagesList.put(message.createJOSNObject());
                      }
 
                   JSONObject object = new JSONObject();
-                  object.put("friends", friendsList);
+                  object.put("messages", messagesList);
 
                   String jsonStr = object.toString();
 
@@ -88,11 +75,7 @@ public class SaveMessagesAsyncTask extends AsyncTask<String, String, String>
                   bw.close();
 
                }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
+            catch (JSONException | IOException e)
                {
                   e.printStackTrace();
                }

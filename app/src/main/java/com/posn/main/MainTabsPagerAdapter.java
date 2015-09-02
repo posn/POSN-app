@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 
 public class MainTabsPagerAdapter extends FragmentPagerAdapter
    {
-      SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
+      SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
       // declare variables
       Fragment wallTab, notificationTab, messagesTab, friendsTabs, settingsTab;
@@ -49,8 +50,9 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (wallTab == null)
                         {
                            wallTab = new UserWallFragment();
-                           registeredFragments.put(index, wallTab);
                         }
+                     //registeredFragments.put(index, wallTab);
+
                      return wallTab;
 
                   // notification tab fragment
@@ -58,7 +60,6 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (notificationTab == null)
                         {
                            notificationTab = new UserNotificationsFragment();
-                           registeredFragments.put(index, notificationTab);
                         }
                      return notificationTab;
 
@@ -67,7 +68,6 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (messagesTab == null)
                         {
                            messagesTab = new UserMessagesFragment();
-                           registeredFragments.put(index, messagesTab);
                         }
                      return messagesTab;
 
@@ -76,7 +76,6 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (friendsTabs == null)
                         {
                            friendsTabs = new UserFriendsFragment();
-                           registeredFragments.put(index, friendsTabs);
                         }
                      return friendsTabs;
 
@@ -85,7 +84,6 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                      if (settingsTab == null)
                         {
                            settingsTab = new UserSettingsFragment();
-                           registeredFragments.put(index, settingsTab);
                         }
                      return settingsTab;
                }
@@ -93,6 +91,20 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
             return null;
          }
 
+      @Override
+      public Object instantiateItem(ViewGroup container, int position)
+         {
+            Fragment fragment = (Fragment) super.instantiateItem(container, position);
+            registeredFragments.put(position, fragment);
+            return fragment;
+         }
+
+      @Override
+      public void destroyItem(ViewGroup container, int position, Object object)
+         {
+            registeredFragments.remove(position);
+            super.destroyItem(container, position, object);
+         }
 
       @Override
       public int getCount()

@@ -172,9 +172,11 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             activity = (MainActivity) getActivity();
             app = activity.app;
+            System.out.println("FRIEND ONCREATEVIEW1");
 
             friendList = activity.masterFriendList;
             friendRequestsList = activity.masterRequestsList;
+System.out.println("FRIEND ONCREATEVIEW2");
 
               // createFriendsList();
            //  saveFriendsList();

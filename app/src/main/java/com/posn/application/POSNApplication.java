@@ -31,6 +31,7 @@ public class POSNApplication extends Application
       public String multimediaFilePath = Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia";
       public String profileFilePath = Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/profile";
       public String wallFilePath = Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall";
+      public String messagesFilePath = Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/messages";
 
       // profile information data
       private String firstName = null;
