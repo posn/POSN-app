@@ -11,7 +11,7 @@
             <!-- view background color -->
             <gradient
                 android:angle="270"
-                
+
                 android:endColor="#ffffff"
                 android:startColor="#ffffff" />
 

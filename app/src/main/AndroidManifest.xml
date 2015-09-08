@@ -95,7 +95,7 @@
             android:theme="@style/PopupTheme" >
         </activity>
         <activity
-            android:name="com.posn.main.messages.HelloBubblesActivity"
+            android:name=".main.messages.FriendMessagesActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity

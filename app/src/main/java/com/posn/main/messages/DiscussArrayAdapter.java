@@ -12,42 +12,49 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.posn.R;
+import com.posn.datatypes.ConversationMessage;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
-public class DiscussArrayAdapter extends ArrayAdapter<OneComment>
+public class DiscussArrayAdapter extends ArrayAdapter<ConversationMessage>
    {
+      private final int FRIEND_MESSAGE = 0;
+      private final int USER_MESSAGAGE = 1;
 
-      private TextView countryName;
-      private List<OneComment> countries = new ArrayList<OneComment>();
-      private LinearLayout wrapper;
+      private ArrayList<ConversationMessage> messageList;
 
-
-      @Override
-      public void add(OneComment object)
+      public DiscussArrayAdapter(Context context, ArrayList<ConversationMessage> messageList, int textViewResourceId)
          {
-            countries.add(object);
+            super(context, textViewResourceId);
+            this.messageList = messageList;
+         }
+
+      /*
+      @Override
+      public void add(ConversationMessage object)
+         {
+            messageList.add(object);
             super.add(object);
          }
 
-
-      public DiscussArrayAdapter(Context context, int textViewResourceId)
+      @Override
+      public void insert(ConversationMessage object, int position)
          {
-            super(context, textViewResourceId);
+            messageList.add(position, object);
+            super.add(object);
          }
-
+         */
 
       public int getCount()
          {
-            return this.countries.size();
+            return this.messageList.size();
          }
 
 
-      public OneComment getItem(int index)
+      public ConversationMessage getItem(int index)
          {
-            return this.countries.get(index);
+            return this.messageList.get(index);
          }
 
 
@@ -60,16 +67,20 @@ public class DiscussArrayAdapter extends ArrayAdapter<OneComment>
                   row = inflater.inflate(R.layout.listview_message_converstation_item, parent, false);
                }
 
-            wrapper = (LinearLayout) row.findViewById(R.id.wrapper);
+            LinearLayout wrapper = (LinearLayout) row.findViewById(R.id.wrapper);
+            LinearLayout wrapper2 = (LinearLayout) row.findViewById(R.id.wrapper2);
+            LinearLayout wrapper3 = (LinearLayout) row.findViewById(R.id.wrapper3);
 
-            OneComment coment = getItem(position);
+            ConversationMessage comment = getItem(position);
 
-            countryName = (TextView) row.findViewById(R.id.comment);
+            TextView messageTextView = (TextView) row.findViewById(R.id.comment);
 
-            countryName.setText(coment.comment);
+            messageTextView.setText(comment.message);
 
-            countryName.setBackgroundResource(coment.left ? R.drawable.bubble_yellow : R.drawable.bubble_green);
-            wrapper.setGravity(coment.left ? Gravity.LEFT : Gravity.RIGHT);
+            wrapper2.setBackgroundResource(comment.type == FRIEND_MESSAGE ? R.drawable.out_message_bg : R.drawable.in_message_bg);
+
+            wrapper.setGravity(comment.type == FRIEND_MESSAGE ? Gravity.START : Gravity.END);
+            wrapper3.setGravity(comment.type == FRIEND_MESSAGE ? Gravity.START : Gravity.END);
 
             return row;
          }

@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
+import com.posn.datatypes.Friend;
 import com.posn.datatypes.Message;
 import com.posn.main.MainActivity;
 
@@ -26,6 +27,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class UserMessagesFragment extends Fragment implements OnClickListener
@@ -59,13 +61,15 @@ public class UserMessagesFragment extends Fragment implements OnClickListener
             context = getActivity();
 
             lv = (ListView) view.findViewById(R.id.listView1);
+Date date;
 
+            
             // get the application
             main = (MainActivity) getActivity();
             app = (POSNApplication) getActivity().getApplication();
 
             // fill with fake data
-           // createData();
+            // createData();
 
             messageList = main.messageData;
 
@@ -78,13 +82,15 @@ public class UserMessagesFragment extends Fragment implements OnClickListener
                @Override
                public void onItemClick(AdapterView<?> parent, View view, int position, long id)
                   {
-                     Intent intent = new Intent(context, HelloBubblesActivity.class);
+                     Intent intent = new Intent(context, FriendMessagesActivity.class);
 
                      Message message = (Message) parent.getItemAtPosition(position);
 
-                     String name = message.friend;
+                     String FriendID = message.friend;
+                     Friend friend = main.masterFriendList.get(FriendID);
+                     intent.putExtra("friendID", FriendID);
+                     intent.putExtra("friend", friend);
 
-                     intent.putExtra("name", name);
 
                      context.startActivity(intent);
                   }
@@ -127,7 +133,7 @@ public class UserMessagesFragment extends Fragment implements OnClickListener
                {
                   Message message = new Message("ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm", "Hello");
                   messages.put(message.createJOSNObject());
-                 // messageList.add(message);
+                  // messageList.add(message);
 
                   message = new Message("726e60c84e88dd01b49ecf6f0de42843383bffad", "Jan 19, 2015 at 1:45 pm", "Hey");
                   messages.put(message.createJOSNObject());
