@@ -1,4 +1,4 @@
-package com.posn.clouds.dropbox;
+package com.posn.clouds.DropboxTest;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
