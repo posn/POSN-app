@@ -1,4 +1,4 @@
-package com.posn.clouds.DropboxTest;
+package com.posn.clouds.Dropbox;
 
 import android.content.Context;
 import android.content.SharedPreferences;

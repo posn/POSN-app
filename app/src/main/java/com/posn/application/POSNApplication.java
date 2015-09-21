@@ -5,7 +5,7 @@ import android.os.Environment;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
-import com.posn.clouds.DropboxTest.DropboxClientUsage;
+import com.posn.clouds.Dropbox.DropboxClientUsage;
 import com.posn.datatypes.Friend;
 import com.posn.encryption.AESEncryption;
 import com.posn.encryption.RSAEncryption;
