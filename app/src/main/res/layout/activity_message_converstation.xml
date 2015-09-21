@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="#ffffff"
+
+                android:orientation="vertical">
 
     <ListView
         android:id="@+id/listView1"
@@ -10,11 +12,11 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/form"
         android:layout_alignParentTop="true"
+        android:layout_margin="10dp"
         android:divider="@null"
         android:dividerHeight="0dp"
         android:stackFromBottom="true"
-        android:transcriptMode="normal"
-        android:layout_margin="10dp">
+        android:transcriptMode="normal">
     </ListView>
 
 
@@ -26,7 +28,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <View
             android:id="@+id/view1"
@@ -34,11 +36,13 @@
             android:layout_height="1dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:background="@android:color/darker_gray" />
+            android:background="@android:color/darker_gray"/>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:descendantFocusability="beforeDescendants"
+            android:focusableInTouchMode="true">
 
             <EditText
                 android:id="@+id/editText1"
@@ -49,25 +53,23 @@
                 android:ems="10"
                 android:hint="Write a Message"
                 android:textColor="@android:color/black"
-                android:textSize="14sp" >
+                android:textSize="14sp">
 
-                <requestFocus />
+                <requestFocus/>
             </EditText>
 
             <Button
-                android:id="@+id/decline_button"
+                android:id="@+id/send_button"
                 style="@style/FriendButtonText"
                 android:layout_width="fill_parent"
                 android:layout_height="35dp"
                 android:layout_gravity="center"
                 android:layout_weight=".8"
                 android:background="@drawable/button_friend_clickable"
-                android:text="Post"
-                android:textSize="14sp" />
+                android:text="Send"
+                android:textSize="14sp"/>
         </LinearLayout>
     </LinearLayout>
-
-
 
 
 </RelativeLayout>

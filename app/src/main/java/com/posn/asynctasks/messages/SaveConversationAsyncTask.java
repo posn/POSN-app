@@ -14,6 +14,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class SaveConversationAsyncTask extends AsyncTask<String, String, String>
@@ -23,10 +25,10 @@ public class SaveConversationAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<ConversationMessage> conversationList;
+      private Map<String, ArrayList<ConversationMessage>>  conversationList;
 
 
-      public SaveConversationAsyncTask(Context context, String filePath, ArrayList<ConversationMessage> conversationData)
+      public SaveConversationAsyncTask(Context context, String filePath, Map<String, ArrayList<ConversationMessage>> conversationData)
          {
             super();
             this.context = context;
@@ -58,10 +60,15 @@ public class SaveConversationAsyncTask extends AsyncTask<String, String, String>
 
             try
                {
-                  for (int i = 0; i < conversationList.size(); i++)
+                  for (Map.Entry<String, ArrayList<ConversationMessage>> entry : conversationList.entrySet())
                      {
-                        ConversationMessage message = conversationList.get(i);
-                        messagesList.put(message.createJOSNObject());
+                        ArrayList<ConversationMessage> conversation = entry.getValue();
+
+                        for (int i = 0; i < conversation.size(); i++)
+                           {
+                              ConversationMessage message = conversation.get(i);
+                              messagesList.put(message.createJOSNObject());
+                           }
                      }
 
                   JSONObject object = new JSONObject();

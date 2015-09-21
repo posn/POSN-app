@@ -1,94 +1,52 @@
 package com.posn.main.messages;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import com.posn.R;
-import com.posn.datatypes.ConversationMessage;
 
 import java.util.ArrayList;
 
 
-public class DiscussArrayAdapter extends ArrayAdapter<ConversationMessage>
+public class DiscussArrayAdapter extends ArrayAdapter<ListViewConversationItem>
    {
-      private final int FRIEND_MESSAGE = 0;
-      private final int USER_MESSAGAGE = 1;
+      private LayoutInflater mInflater;
 
-      private ArrayList<ConversationMessage> messageList;
-
-      public DiscussArrayAdapter(Context context, ArrayList<ConversationMessage> messageList, int textViewResourceId)
+      public enum RowType
          {
-            super(context, textViewResourceId);
-            this.messageList = messageList;
+            CONVERSATION_MESSAGE_ITEM, CONVERSATION_HEADER_ITEM
          }
 
-      /*
-      @Override
-      public void add(ConversationMessage object)
+      public DiscussArrayAdapter(Context context, ArrayList<ListViewConversationItem> messageList)
          {
-            messageList.add(object);
-            super.add(object);
+            super(context, 0, messageList);
+            mInflater = LayoutInflater.from(context);
          }
 
       @Override
-      public void insert(ConversationMessage object, int position)
+      public int getViewTypeCount()
          {
-            messageList.add(position, object);
-            super.add(object);
-         }
-         */
+            return RowType.values().length;
 
-      public int getCount()
-         {
-            return this.messageList.size();
          }
 
-
-      public ConversationMessage getItem(int index)
+      @Override
+      public int getItemViewType(int position)
          {
-            return this.messageList.get(index);
+            return getItem(position).getViewType();
          }
 
 
+      @Override
       public View getView(int position, View convertView, ViewGroup parent)
          {
-            View row = convertView;
-            if (row == null)
-               {
-                  LayoutInflater inflater = (LayoutInflater) this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                  row = inflater.inflate(R.layout.listview_message_converstation_item, parent, false);
-               }
-
-            LinearLayout wrapper = (LinearLayout) row.findViewById(R.id.wrapper);
-            LinearLayout wrapper2 = (LinearLayout) row.findViewById(R.id.wrapper2);
-            LinearLayout wrapper3 = (LinearLayout) row.findViewById(R.id.wrapper3);
-
-            ConversationMessage comment = getItem(position);
-
-            TextView messageTextView = (TextView) row.findViewById(R.id.comment);
-
-            messageTextView.setText(comment.message);
-
-            wrapper2.setBackgroundResource(comment.type == FRIEND_MESSAGE ? R.drawable.out_message_bg : R.drawable.in_message_bg);
-
-            wrapper.setGravity(comment.type == FRIEND_MESSAGE ? Gravity.START : Gravity.END);
-            wrapper3.setGravity(comment.type == FRIEND_MESSAGE ? Gravity.START : Gravity.END);
-
-            return row;
+            return getItem(position).getView(mInflater, convertView, parent);
          }
 
-
-      public Bitmap decodeToBitmap(byte[] decodedByte)
+      @Override
+      public boolean isEnabled(int position)
          {
-            return BitmapFactory.decodeByteArray(decodedByte, 0, decodedByte.length);
+            return (!getItem(position).isClickable());
          }
-
    }

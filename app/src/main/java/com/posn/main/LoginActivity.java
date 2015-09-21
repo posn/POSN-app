@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
@@ -23,14 +22,12 @@ import android.widget.Toast;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.datatypes.Friend;
-import com.posn.dropbox.DropboxClientUsage;
 import com.posn.encryption.AESEncryption;
 import com.posn.encryption.RSAEncryption;
 import com.posn.initial_setup.SetupPersonalInfoActivity;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.KeyFactory;
@@ -41,7 +38,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 
 
-public class LoginActivity extends FragmentActivity implements OnClickListener
+public class LoginActivity extends BaseActivity implements OnClickListener
    {
 
       // variable declarations
@@ -194,6 +191,7 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
                      {
                         if (verifyEmail(email))
                            {
+                              /*
                               app.setDropbox(new DropboxClientUsage(context));
                               app.setCloudProvider("Dropbox");
                               app.getDropbox().initializeDropbox();
@@ -205,6 +203,8 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
 
                               // load in profile information
                               loginVerify = true;
+                              */
+
                            }
                      }
 
@@ -219,7 +219,7 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
                   // dismiss the dialog once done
                   pDialog.dismiss();
 
-                  if (loginVerify == true)
+                  if (loginVerify)
                      {
                         // Launch Employer homePage Screen
                         Intent homepage = new Intent(getApplicationContext(), MainActivity.class);
@@ -393,22 +393,11 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
                         return true;
                      }
                }
-            catch (FileNotFoundException e)
+            catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e)
                {
                   e.printStackTrace();
                }
-            catch (NoSuchAlgorithmException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (InvalidKeySpecException e)
-               {
-                  e.printStackTrace();
-               }
+
             return false;
          }
 
@@ -448,22 +437,13 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
                            }
                      }
                }
-            catch (FileNotFoundException e)
-               {
-                  e.printStackTrace();
-               }
             catch (IOException e)
                {
                   e.printStackTrace();
                }
 
+
             return false;
-         }
-
-
-      protected void onResume()
-         {
-            super.onResume();
          }
 
       private void processURI(Uri uriData)
@@ -484,5 +464,4 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
                      }
                }
          }
-
    }

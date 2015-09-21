@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:paddingTop="10dp">
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="1dip"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/separator"
+        android:background="#8b9dc3"
+        android:paddingBottom="5dp"/>
+
+    <TextView
+        android:id="@+id/separator"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="2pt"
+        android:layout_marginLeft="9pt"
+        android:layout_marginRight="9pt"
+        android:text="Wed, 09/09/2015 "
+        android:textAllCaps="true"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:textStyle="bold"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dip"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+
+        android:layout_toRightOf="@id/separator"
+        android:background="#8b9dc3"
+        android:paddingBottom="5dp"/>
+
+</RelativeLayout>

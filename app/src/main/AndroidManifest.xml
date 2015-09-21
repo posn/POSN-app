@@ -4,6 +4,10 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="20" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -15,19 +19,24 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.CwAMERA" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <!--
+ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but are recommended.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="20" />
+    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name="com.posn.application.POSNApplication"
+        android:name=".application.POSNApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.posn.main.LoginActivity"
+            android:name=".main.LoginActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,51 +55,51 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.posn.main.MainActivity"
+            android:name=".main.MainActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.initial_setup.SetupProfilePictureActivity"
+            android:name=".initial_setup.SetupProfilePictureActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.initial_setup.SetupFriendsActivity"
+            android:name=".initial_setup.SetupFriendsActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.initial_setup.SetupAdditionalFriendsActivity"
+            android:name=".initial_setup.SetupAdditionalFriendsActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.main.friends.AddFriendsActivity"
+            android:name=".main.friends.AddFriendsActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.initial_setup.SetupPasswordActivity"
+            android:name=".initial_setup.SetupPasswordActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.initial_setup.SetupPersonalInfoActivity"
+            android:name=".initial_setup.SetupPersonalInfoActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.initial_setup.SetupEncryptionKeysActivity"
+            android:name=".initial_setup.SetupEncryptionKeysActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.initial_setup.SetupCloudProvidersActivity"
+            android:name=".initial_setup.SetupCloudProvidersActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.main.wall.VideoPlayerActivity"
+            android:name=".main.wall.VideoPlayerActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.main.wall.PhotoViewerActivity"
+            android:name=".main.wall.PhotoViewerActivity"
             android:label="@string/main_activity" >
         </activity>
         <activity
-            android:name="com.posn.main.wall.comments.CommentActivity"
+            android:name=".main.wall.comments.CommentActivity"
             android:label="@string/main_activity"
             android:theme="@style/PopupTheme" >
         </activity>
@@ -114,14 +123,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.posn.main.wall.PostStatusActivity"
+            android:name=".main.wall.PostStatusActivity"
             android:label="@string/main_activity" >
         </activity>
+
         <service
-            android:name="CommunicationService"
+            android:name=".CommunicationService"
             android:label="Service" >
         </service>
-    </application>
 
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+    </application>
 
 </manifest>

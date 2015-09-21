@@ -1,12 +1,12 @@
 package com.posn.main.friends;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+
+import java.util.ArrayList;
 
 
 public class FriendsArrayAdapter extends ArrayAdapter<ListViewFriendItem>
@@ -15,12 +15,11 @@ public class FriendsArrayAdapter extends ArrayAdapter<ListViewFriendItem>
 		private LayoutInflater mInflater;
 
 		private ArrayList<ListViewFriendItem> values;
-		ArrayList<ListViewFriendItem> selectedContacts = new ArrayList<ListViewFriendItem>();
 
-
-		public enum RowType {
-			ACCEPTED_FRIEND_ITEM, PENDING_FRIEND_ITEM, REQUEST_FRIEND_ITEM, NO_REQUEST_FRIEND_ITEM, HEADER_ITEM
-		}
+		public enum RowType
+			{
+				ACCEPTED_FRIEND_ITEM, PENDING_FRIEND_ITEM, REQUEST_FRIEND_ITEM, NO_REQUEST_FRIEND_ITEM, HEADER_ITEM
+			}
 
 
 		public FriendsArrayAdapter(Context context, ArrayList<ListViewFriendItem> values)
@@ -29,9 +28,6 @@ public class FriendsArrayAdapter extends ArrayAdapter<ListViewFriendItem>
 				mInflater = LayoutInflater.from(context);
 
 				this.values = values;
-				System.out.println(values.size());
-				System.out.println(this.values.size());
-
 			}
 
 

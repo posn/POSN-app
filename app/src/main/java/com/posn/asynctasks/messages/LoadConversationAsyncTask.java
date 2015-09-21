@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
@@ -24,7 +25,7 @@ public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<ConversationMessage> messagesList = new ArrayList<>();
+      private HashMap<String,ArrayList<ConversationMessage>> messagesList = new HashMap<>();
 
       public AsyncResponseConversation delegate = null;
 
@@ -82,7 +83,18 @@ public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
                         ConversationMessage message = new ConversationMessage();
                         message.parseJOSNObject(messageList.getJSONObject(n));
 
-                        messagesList.add(message);
+                        String key = message.getKeyDateString();
+
+                        if(messagesList.containsKey(key))
+                           {
+                              messagesList.get(key).add(message);
+                           }
+                        else
+                           {
+                              ArrayList<ConversationMessage> conversation = new ArrayList<>();
+                              conversation.add(message);
+                              messagesList.put(key, conversation);
+                           }
                      }
                }
             catch (IOException | JSONException e)

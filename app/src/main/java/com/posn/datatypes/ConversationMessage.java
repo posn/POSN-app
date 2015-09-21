@@ -3,11 +3,16 @@ package com.posn.datatypes;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class ConversationMessage
    {
 
       public int type;
-      public long time;
+      public Date date;
       public String message;
 
       public ConversationMessage()
@@ -15,10 +20,11 @@ public class ConversationMessage
 
          }
 
-      public ConversationMessage(int type, String comment)
+      public ConversationMessage(int type, Date date, String comment)
          {
             super();
             this.type = type;
+            this.date = date;
             this.message = comment;
          }
 
@@ -30,7 +36,11 @@ public class ConversationMessage
             try
                {
                   obj.put("type", type);
-                  obj.put("time", time);
+
+                  SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yyyy hh:mm aa", Locale.US);
+                  String datetime  = dateformat.format(date);
+                  obj.put("date", datetime);
+
                   obj.put("message", message);
                }
             catch (JSONException e)
@@ -46,13 +56,35 @@ public class ConversationMessage
             try
                {
                   type = obj.getInt("type");
-                  time = obj.getLong("time");
+
+                  String datetime = obj.getString("date");
+                  SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yyyy hh:mm aa", Locale.US);
+                  date  = dateformat.parse(datetime);
+
                   message = obj.getString("message");
                }
-            catch (JSONException e)
+            catch (JSONException | ParseException e)
                {
                   e.printStackTrace();
                }
+         }
+
+      public String getHeaderDateString()
+         {
+            SimpleDateFormat dateformat = new SimpleDateFormat("E, MM/dd/yyyy", Locale.US);
+            return dateformat.format(date);
+         }
+
+      public String getKeyDateString()
+         {
+            SimpleDateFormat dateformat = new SimpleDateFormat("MMddyyyy", Locale.US);
+            return dateformat.format(date);
+         }
+
+      public String getTimeString()
+         {
+            SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm aa", Locale.US);
+            return dateformat.format(date);
          }
 
 

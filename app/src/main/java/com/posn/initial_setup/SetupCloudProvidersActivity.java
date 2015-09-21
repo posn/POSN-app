@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.dropbox.DropboxClientUsage;
+import com.posn.clouds.Dropbox.DropboxClientUsage;
 
 
 public class SetupCloudProvidersActivity extends FragmentActivity implements OnClickListener

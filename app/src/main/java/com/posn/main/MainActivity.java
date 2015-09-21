@@ -184,8 +184,6 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                {
                   app.getDropbox().authenticateDropboxLogin();
                }
-            System.out.println("MAIN ON RESUME Friend: " + masterFriendList.size() + " Wall: " + wallPostData.size());
-            System.out.println("TabAdapter: " + tabsAdapter.getCount());
 
             if (masterFriendList.isEmpty())
                {

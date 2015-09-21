@@ -333,14 +333,6 @@ System.out.println("FRIEND ONCREATEVIEW2");
                   listViewItems.add(new RequestFriendItem(confirmListener, declineListener, friend));
                }
 
-            // HashMap<Integer, Friend> map = new HashMap<>();
-            //map.entrySet()
-            // for (Map.Entry<Integer, Friend> entry : map.entrySet())
-            //   {
-            //      System.out.println(entry.getKey() + "/" + entry.getValue());
-            //   }
-
-
             listViewItems.add(new HeaderItem("Accepted and Pending Friends"));
 
             for (Map.Entry<String, Friend> entry : friendList.entrySet())
