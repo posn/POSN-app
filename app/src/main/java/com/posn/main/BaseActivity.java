@@ -60,6 +60,7 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
                {
                   googleDrive.mGoogleApiClient.connect();
                }
+
          }
 
       /**
