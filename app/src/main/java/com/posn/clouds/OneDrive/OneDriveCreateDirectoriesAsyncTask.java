@@ -1,7 +1,6 @@
 package com.posn.clouds.OneDrive;
 
 import android.os.AsyncTask;
-import android.os.Environment;
 
 import com.microsoft.live.LiveOperation;
 import com.microsoft.live.LiveOperationException;
@@ -50,7 +49,7 @@ public class OneDriveCreateDirectoriesAsyncTask extends AsyncTask<Boolean, Void,
 
       protected void onPostExecute(Void result)
          {
-            oneDrive.uploadFile("multimedia", "test.jpg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
+            //oneDrive.uploadFile("multimedia", "test.jpg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
             //oneDrive.uploadFile("multimedia", "test2.txt", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/user_notifications.txt");
             //oneDrive.downloadFile("multimedia", "test2.txt", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test2.txt");
             //oneDrive.downloadFile("multimedia", "test.jpg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test.jpg");

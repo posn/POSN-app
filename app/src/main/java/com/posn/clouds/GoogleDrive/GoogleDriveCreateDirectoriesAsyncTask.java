@@ -1,7 +1,6 @@
 package com.posn.clouds.GoogleDrive;
 
 import android.os.AsyncTask;
-import android.os.Environment;
 
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
@@ -50,7 +49,7 @@ public class GoogleDriveCreateDirectoriesAsyncTask extends AsyncTask<Boolean, Vo
 
       protected void onPostExecute(Void result)
          {
-            googleDrive.uploadFile("multimedia", "testA.jpg", "image/jpeg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
+           // googleDrive.uploadFile("multimedia", "testA.jpg", "image/jpeg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
             // googleDrive.uploadFile("multimedia", "test2.txt", "text/plain", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/user_notifications.txt");
             //googleDrive.downloadFile("multimedia", "test2.txt", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test2.txt");
          }

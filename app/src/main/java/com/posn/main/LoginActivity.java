@@ -191,7 +191,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                      {
                         if (verifyEmail(email))
                            {
-/*
+    /*
                               app.setDropbox(new DropboxClientUsage(context));
                               app.setCloudProvider("Dropbox");
                               app.getDropbox().initializeDropbox();
@@ -322,8 +322,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             storageDir = new File(app.messagesFilePath);
             if (!storageDir.exists())
                storageDir.mkdirs();
-
-
          }
 
 

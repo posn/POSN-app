@@ -4,12 +4,13 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
+import com.posn.asynctasks.AsyncResponseIntialize;
+import com.posn.asynctasks.InitializeAsyncTask;
 import com.posn.asynctasks.friends.AsyncResponseFriends;
 import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
 import com.posn.asynctasks.friends.SaveFriendsListAsyncTask;
@@ -22,6 +23,7 @@ import com.posn.asynctasks.notifications.SaveNotificationsAsyncTask;
 import com.posn.asynctasks.wall.AsyncResponseWall;
 import com.posn.asynctasks.wall.LoadWallPostsAsyncTask;
 import com.posn.asynctasks.wall.SaveWallPostsAsyncTask;
+import com.posn.clouds.OneDrive.OneDriveClientUsage;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.Message;
 import com.posn.datatypes.Notification;
@@ -35,7 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class MainActivity extends FragmentActivity implements AsyncResponseFriends, AsyncResponseWall, AsyncResponseNotifications, AsyncResponseMessages
+public class MainActivity extends BaseActivity implements AsyncResponseFriends, AsyncResponseWall, AsyncResponseNotifications, AsyncResponseMessages, AsyncResponseIntialize
    {
       private ViewPager viewPager;
       private ActionBar actionBar;
@@ -48,6 +50,8 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
       public int newNotificationNum = 0;
       public int newMessagesNum = 0;
       public int newFriendNum = 0;
+
+      InitializeAsyncTask asyncTaskInitialize;
 
       // data for wall fragment
       public ArrayList<Post> wallPostData = new ArrayList<>();
@@ -174,6 +178,16 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
             // get the application
             app = (POSNApplication) this.getApplication();
 
+            // sign into the cloud
+           // cloud = new DropboxClientUsage(this);
+           // cloud = new GoogleDriveClientUsage(this);
+            cloud = new OneDriveClientUsage(this);
+            cloud.initializeCloud();
+
+            asyncTaskInitialize = new InitializeAsyncTask(this);
+            asyncTaskInitialize.delegate = this;
+            asyncTaskInitialize.execute();
+
          }
 
       @Override
@@ -182,14 +196,9 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
             super.onResume();
             if (app.getDropbox() != null)
                {
-                  app.getDropbox().authenticateDropboxLogin();
+                 // app.getDropbox().authenticateDropboxLogin();
                }
 
-            if (masterFriendList.isEmpty())
-               {
-                  firstStart = true;
-                  loadFriendsList();
-               }
          }
 
 
@@ -203,6 +212,35 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
       public boolean onCreateOptionsMenu(Menu menu)
          {
             return true;
+         }
+
+
+      public void initializingFileDataFinished()
+         {
+            UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
+            if (friendFrag != null)
+               {
+                  friendFrag.updateFriendList();
+               }
+
+            UserWallFragment wallFrag = (UserWallFragment) tabsAdapter.getRegisteredFragment(0);
+            if (wallFrag != null)
+               {
+                  wallFrag.updateWallPosts();
+               }
+
+            UserMessagesFragment messagesFrag = (UserMessagesFragment) tabsAdapter.getRegisteredFragment(2);
+            if (messagesFrag != null)
+               {
+                  messagesFrag.updateMessages();
+               }
+
+            UserNotificationsFragment notificationFrag = (UserNotificationsFragment) tabsAdapter.getRegisteredFragment(1);
+            if (notificationFrag != null)
+               {
+                  notificationFrag.updateNotifications();
+               }
+
          }
 
 
@@ -336,7 +374,6 @@ public class MainActivity extends FragmentActivity implements AsyncResponseFrien
                {
                   fragment.updateMessages();
                }
-
             firstStart = false;
          }
    }

@@ -1,37 +1,25 @@
 package com.posn.main;
 
 import android.content.Intent;
-import android.content.IntentSender;
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.microsoft.live.LiveAuthException;
-import com.microsoft.live.LiveAuthListener;
-import com.microsoft.live.LiveConnectClient;
-import com.microsoft.live.LiveConnectSession;
-import com.microsoft.live.LiveStatus;
 import com.posn.application.POSNApplication;
-import com.posn.clouds.GoogleDrive.GoogleDriveClientUsage;
-import com.posn.clouds.OneDrive.OneDriveClientUsage;
-
-import java.util.Arrays;
+import com.posn.clouds.CloudProvider;
 
 
-public abstract class BaseActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+public abstract class BaseActivity extends FragmentActivity
    {
       private static final String TAG = "BaseDriveActivity";
 
       protected static final int REQUEST_CODE_RESOLUTION = 1;
       protected static final int NEXT_AVAILABLE_REQUEST_CODE = 2;
 
-      private GoogleDriveClientUsage googleDrive = null;
+      public CloudProvider cloud;
 
-      private OneDriveClientUsage oneDrive = null;
+      //  private GoogleDriveClientUsage googleDrive = null;
+
+    //  private OneDriveClientUsage oneDrive = null;
 
       public POSNApplication app;
 
@@ -46,6 +34,8 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
          {
             super.onResume();
 
+
+
 /*
             if (googleDrive == null)
                {
@@ -59,7 +49,7 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
                }
             googleDrive.mGoogleApiClient.connect();
 */
-
+/*
             if (oneDrive == null)
                {
                   oneDrive = new OneDriveClientUsage(this);
@@ -123,89 +113,17 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
                               }
                         }
                   });
-               }
+               }*/
          }
 
-      /**
-       * Handles resolution callbacks.
-       */
+
       @Override
       protected void onActivityResult(int requestCode, int resultCode, Intent data)
          {
             super.onActivityResult(requestCode, resultCode, data);
-            if (requestCode == REQUEST_CODE_RESOLUTION && resultCode == RESULT_OK)
-               {
-                  googleDrive.mGoogleApiClient.connect();
-               }
 
+            cloud.activityResult(requestCode, resultCode, data);
          }
 
-      /**
-       * Called when activity gets invisible. Connection to Drive service needs to
-       * be disconnected as soon as an activity is invisible.
-       */
-      @Override
-      protected void onPause()
-         {
-           /* if (googleDrive.mGoogleApiClient != null)
-               {
-                  googleDrive.mGoogleApiClient.disconnect();
-               }
-               */
-            super.onPause();
-         }
 
-      /**
-       * Called when {@code mGoogleApiClient} is connected.
-       */
-      @Override
-      public void onConnected(Bundle connectionHint)
-         {
-            Log.i(TAG, "GoogleApiClient connected");
-
-            System.out.println("Starting FOLDERS!!");
-
-            googleDrive.createStorageDirectories();
-
-            app = (POSNApplication) getApplication();
-         }
-
-      /**
-       * Called when {@code mGoogleApiClient} is disconnected.
-       */
-      @Override
-      public void onConnectionSuspended(int cause)
-         {
-            Log.i(TAG, "GoogleApiClient connection suspended");
-         }
-
-      /**
-       * Called when {@code mGoogleApiClient} is trying to connect but failed.
-       * Handle {@code result.getResolution()} if there is a resolution is
-       * available.
-       */
-      @Override
-      public void onConnectionFailed(ConnectionResult result)
-         {
-            Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
-            if (!result.hasResolution())
-               {
-                  // show the localized error dialog.
-                  GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, 0).show();
-                  return;
-               }
-            try
-               {
-                  result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
-               }
-            catch (IntentSender.SendIntentException e)
-               {
-                  Log.e(TAG, "Exception while starting resolution activity", e);
-               }
-         }
-
-      private void showToast(String message)
-         {
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-         }
    }

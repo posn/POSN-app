@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.clouds.Dropbox.DropboxClientUsage;
 
 
 public class SetupCloudProvidersActivity extends FragmentActivity implements OnClickListener
@@ -60,7 +59,7 @@ public class SetupCloudProvidersActivity extends FragmentActivity implements OnC
 				super.onResume();
 				if (app.getDropbox() != null){
 					System.out.println("HELLO!!!!");
-					app.getDropbox().authenticateDropboxLogin();
+					//app.getDropbox().authenticateDropboxLogin();
 				}
 			}
 
@@ -86,9 +85,9 @@ public class SetupCloudProvidersActivity extends FragmentActivity implements OnC
 
 					case R.id.dropbox_button:
 
-						app.setDropbox(new DropboxClientUsage(this));
-						app.setCloudProvider("Dropbox");
-						app.getDropbox().initializeDropbox();
+						//app.setDropbox(new DropboxClientUsage(this));
+						//app.setCloudProvider("Dropbox");
+						//app.getDropbox().initializeDropbox();
 
 						// app.getDropbox().uploadFile("/multimedia/Test.jpg", app.multimediaFilePath + "/Test2.jpg");
 
