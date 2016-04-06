@@ -7,6 +7,7 @@ import com.microsoft.live.LiveOperation;
 import com.microsoft.live.LiveOperationException;
 import com.microsoft.live.OverwriteOption;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public class OneDriveUploadAsyncTask extends AsyncTask<Boolean, Void, Void>
       String destFolderID;
       String fileName;
       String inputPath;
+      String directLink;
 
       public OneDriveUploadAsyncTask(OneDriveClientUsage oneDrive, String destFolderID, String fileName, String inputPath)
          {
@@ -32,6 +34,7 @@ public class OneDriveUploadAsyncTask extends AsyncTask<Boolean, Void, Void>
       @Override
       protected Void doInBackground(Boolean... arg0)
          {
+            System.out.println("UPLOADING!");
             // open the file to be uploaded
             File file = new File(inputPath);
 
@@ -51,11 +54,21 @@ public class OneDriveUploadAsyncTask extends AsyncTask<Boolean, Void, Void>
                      }
                   else
                      {
+                        if (object.has("source"))
+                           {
+                              // get the direct download link:
+                              directLink = object.getString("source");
+                              System.out.println("LINK: " + directLink);
+                           }
+                        else
+                           {
+                              directLink = null;
+                           }
                         // upload succeed, set the upload has been performed
                         Log.i("Sky drive", "File Uploaded");
                      }
                }
-            catch (LiveOperationException e)
+            catch (LiveOperationException | JSONException e)
                {
                   // upload failed, try to upload again
                   e.printStackTrace();

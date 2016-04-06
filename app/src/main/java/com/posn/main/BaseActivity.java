@@ -46,20 +46,19 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
          {
             super.onResume();
 
-            /*
+/*
             if (googleDrive == null)
                {
                   googleDrive = new GoogleDriveClientUsage(this);
                   googleDrive.mGoogleApiClient = new GoogleApiClient.Builder(this)
                                                      .addApi(Drive.API)
                                                      .addScope(Drive.SCOPE_FILE)
-                                                     .addScope(Drive.SCOPE_APPFOLDER) // required for App Folder sample
                                                      .addConnectionCallbacks(this)
                                                      .addOnConnectionFailedListener(this)
                                                      .build();
                }
             googleDrive.mGoogleApiClient.connect();
-            */
+*/
 
             if (oneDrive == null)
                {
@@ -148,10 +147,11 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
       @Override
       protected void onPause()
          {
-            if (googleDrive.mGoogleApiClient != null)
+           /* if (googleDrive.mGoogleApiClient != null)
                {
                   googleDrive.mGoogleApiClient.disconnect();
                }
+               */
             super.onPause();
          }
 
@@ -162,6 +162,8 @@ public abstract class BaseActivity extends FragmentActivity implements GoogleApi
       public void onConnected(Bundle connectionHint)
          {
             Log.i(TAG, "GoogleApiClient connected");
+
+            System.out.println("Starting FOLDERS!!");
 
             googleDrive.createStorageDirectories();
 

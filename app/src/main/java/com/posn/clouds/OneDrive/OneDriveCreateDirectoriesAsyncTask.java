@@ -50,10 +50,10 @@ public class OneDriveCreateDirectoriesAsyncTask extends AsyncTask<Boolean, Void,
 
       protected void onPostExecute(Void result)
          {
-            //oneDrive.uploadFile("multimedia", "test.jpg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
+            oneDrive.uploadFile("multimedia", "test.jpg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
             //oneDrive.uploadFile("multimedia", "test2.txt", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/user_notifications.txt");
             //oneDrive.downloadFile("multimedia", "test2.txt", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test2.txt");
-            oneDrive.downloadFile("multimedia", "test.jpg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test.jpg");
+            //oneDrive.downloadFile("multimedia", "test.jpg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test.jpg");
          }
 
 
@@ -139,7 +139,6 @@ public class OneDriveCreateDirectoriesAsyncTask extends AsyncTask<Boolean, Void,
 
                               // get all of the json objects
                               JSONObject list = fileList.getResult();
-                              System.out.println(list.toString());
                               JSONArray data = list.optJSONArray("data");
 
                               // loop through the objects to find the right folder

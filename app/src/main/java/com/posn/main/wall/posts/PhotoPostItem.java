@@ -2,9 +2,12 @@ package com.posn.main.wall.posts;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -14,6 +17,8 @@ import com.posn.main.wall.PhotoViewerActivity;
 import com.posn.main.wall.WallArrayAdapter.PostType;
 import com.posn.main.wall.comments.CommentActivity;
 import com.posn.main.wall.views.SquareImageView;
+
+import java.io.File;
 
 
 public class PhotoPostItem implements ListViewPostItem, OnClickListener
@@ -88,7 +93,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
             // set the data into the views
             viewHolder.nameText.setText(friendName);
             viewHolder.dateText.setText(postData.date);
-/*
+
             ViewTreeObserver vto = viewHolder.photoImage.getViewTreeObserver();
             vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
             {
@@ -119,7 +124,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                      return true;
                   }
             });
-*/
+
             return convertView;
          }
 

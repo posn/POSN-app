@@ -191,19 +191,22 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                      {
                         if (verifyEmail(email))
                            {
-                              /*
+/*
                               app.setDropbox(new DropboxClientUsage(context));
                               app.setCloudProvider("Dropbox");
                               app.getDropbox().initializeDropbox();
                               app.getDropbox().authenticateDropboxLogin();
 
                               // check dropbox folders
-                              app.getDropbox().createDropboxStorageDirectories();
-                              // app.getDropbox().uploadFile("/multimedia/Test.jpg", app.multimediaFilePath + "/Test2.jpg");
+                             // app.getDropbox().createDropboxStorageDirectories();
+
+                              app.getDropbox().uploadFile("/multimedia/Test.jpg", app.multimediaFilePath + "/test.jpg");
+
+*/
 
                               // load in profile information
                               loginVerify = true;
-                              */
+
 
                            }
                      }

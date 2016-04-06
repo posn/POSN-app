@@ -50,9 +50,9 @@ public class GoogleDriveCreateDirectoriesAsyncTask extends AsyncTask<Boolean, Vo
 
       protected void onPostExecute(Void result)
          {
-            //googleDrive.uploadFile("multimedia", "test.jpg", "image/jpeg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
+            googleDrive.uploadFile("multimedia", "testA.jpg", "image/jpeg", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/multimedia" + "/test.jpg");
             // googleDrive.uploadFile("multimedia", "test2.txt", "text/plain", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/user_notifications.txt");
-            googleDrive.downloadFile("multimedia", "test2.txt", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test2.txt");
+            //googleDrive.downloadFile("multimedia", "test2.txt", Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/wall" + "/test2.txt");
          }
 
 
