@@ -70,12 +70,12 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
                   for (Map.Entry<String, Friend> entry : friendList.entrySet())
                      {
                         Friend friend = entry.getValue();
-                        friendsList.put(friend.createJOSNObject());                     }
+                        friendsList.put(friend.createJSONObject());                     }
 
                   for(int i = 0; i < friendRequestsList.size(); i++)
                      {
                         Friend friend = friendRequestsList.get(i);
-                        friendsList.put(friend.createJOSNObject());
+                        friendsList.put(friend.createJSONObject());
                      }
 
                   JSONObject object = new JSONObject();

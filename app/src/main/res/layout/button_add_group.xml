@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/add_friend_button"
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="20dp"
+    android:layout_gravity="center_horizontal"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+
+        <TextView
+            android:id="@+id/test_button_text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/test_button_image"
+            android:text="Add Group"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:textStyle="bold">
+        </TextView>
+    </RelativeLayout>
+
+</RelativeLayout>

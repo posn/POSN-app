@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.Toast;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.datatypes.Friend;
@@ -66,6 +67,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       MainActivity activity;
 
 
+
       @Override
       public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
          {
@@ -82,7 +84,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             activity = (MainActivity) getActivity();
 
             // get the wall post data from activity
-            wallPostData = activity.wallPostData;
+            wallPostData = activity.wallPostList.wallPosts;
 
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
@@ -187,7 +189,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   wallPostList.add(0, new StatusPostItem(getActivity(), app.getFirstName() + " " + app.getLastName(), post));
                   wallPostData.add(post);
                   adapter.notifyDataSetChanged();
-                  activity.saveWallPosts();
+                  activity.wallPostList.saveWallPostsToFileAsyncTask(Constants.wallFilePath + "/user_wall.txt");
                }
          }
 
@@ -208,7 +210,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      }
                   else
                      {
-                        Friend friend = activity.masterFriendList.get(post.friend);
+                        Friend friend = activity.masterFriendList.currentFriends.get(post.friend);
                         name = friend.name;
                      }
 
@@ -260,31 +262,31 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             try
                {
                   Post post = new Post(TYPE_STATUS, "ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm", "This is a test post from a file.");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_PHOTO, "726e60c84e88dd01b49ecf6f0de42843383bffad", "Jan 19, 2015 at 1:45 pm", "test.jpg");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_VIDEO, "dc66ae1b5fa5c84cf12b82e2ec07f6b91233e8d4", "Jan 19, 2015 at 1:45 pm", "test.mp4");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_STATUS, "413e990ba1e5984d8fd41f1a1acaf3d154b21cab", "Jan 19, 2015 at 1:45 pm", "Test! TeSt!! TEST!!!");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_PHOTO, "f9febf09f9d7632a7611598bc03baed8d5c7357d", "Jan 19, 2015 at 1:45 pm", "test.jpg");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!!");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_PHOTO, "177ab489aa8cb82323ed02c2adb051c49c0c847d", "Jan 19, 2015 at 1:45 pm", "test.jpg");
-                  wallPosts.put(post.createJOSNObject());
+                  wallPosts.put(post.createJSONObject());
 
                   JSONObject object = new JSONObject();
                   object.put("posts", wallPosts);

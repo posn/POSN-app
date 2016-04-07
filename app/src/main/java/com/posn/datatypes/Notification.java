@@ -25,7 +25,7 @@ public class Notification
             this.date = date;
          }
 
-      public JSONObject createJOSNObject()
+      public JSONObject createJSONObject()
          {
             JSONObject obj = new JSONObject();
 
@@ -43,7 +43,7 @@ public class Notification
             return obj;
          }
 
-      public void parseJOSNObject(JSONObject obj)
+      public void parseJSONObject(JSONObject obj)
          {
             try
                {

@@ -14,10 +14,10 @@ import android.widget.ListView;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.asynctasks.messages.AsyncResponseConversation;
-import com.posn.asynctasks.messages.LoadConversationAsyncTask;
-import com.posn.asynctasks.messages.SaveConversationAsyncTask;
-import com.posn.datatypes.ConversationMessage;
+import com.posn.asynctasks.conversations.AsyncResponseConversation;
+import com.posn.asynctasks.conversations.LoadMessagesAsyncTask;
+import com.posn.asynctasks.conversations.SaveMessagesAsyncTask;
+import com.posn.datatypes.Message;
 import com.posn.datatypes.Friend;
 
 import java.util.ArrayList;
@@ -38,10 +38,10 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
 
       private POSNApplication app;
 
-      LoadConversationAsyncTask asyncTaskConversation;
+      LoadMessagesAsyncTask asyncTaskConversation;
 
       private ArrayList<ListViewConversationItem> messageList = new ArrayList<>();
-      private Map<String, ArrayList<ConversationMessage>> conversationMessages;
+      private Map<String, ArrayList<Message>> conversationMessages;
 
       String friendID;
 
@@ -75,7 +75,7 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
                            Date date = new Date();
 
                            // add the message to the hashmap and listview
-                           addNewMessage(new ConversationMessage(USER_MESSAGAGE, date, messageEditText.getText().toString()));
+                           addNewMessage(new Message(USER_MESSAGAGE, date, messageEditText.getText().toString()));
 
                            // clear the edit text
                            messageEditText.setText("");
@@ -132,18 +132,18 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
 
       public void saveConversation()
          {
-            SaveConversationAsyncTask task = new SaveConversationAsyncTask(this, app.messagesFilePath + "/" + friendID + ".txt", conversationMessages);
+            SaveMessagesAsyncTask task = new SaveMessagesAsyncTask(this, app.messagesFilePath + "/" + friendID + ".txt", conversationMessages);
             task.execute();
          }
 
       public void loadConversation()
          {
-            asyncTaskConversation = new LoadConversationAsyncTask(this, app.messagesFilePath + "/" + friendID + ".txt");
+            asyncTaskConversation = new LoadMessagesAsyncTask(this, app.messagesFilePath + "/" + friendID + ".txt");
             asyncTaskConversation.delegate = this;
             asyncTaskConversation.execute();
          }
 
-      public void loadingConversationFinished(HashMap<String, ArrayList<ConversationMessage>> messageList)
+      public void loadingConversationFinished(HashMap<String, ArrayList<Message>> messageList)
          {
             this.conversationMessages = new TreeMap<>(messageList);
 
@@ -153,10 +153,10 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
       public void createConversation()
          {
             // loop through all the dates
-            for (Map.Entry<String, ArrayList<ConversationMessage>> entry : conversationMessages.entrySet())
+            for (Map.Entry<String, ArrayList<Message>> entry : conversationMessages.entrySet())
                {
                   // get the messages for the date
-                  ArrayList<ConversationMessage> conversation = entry.getValue();
+                  ArrayList<Message> conversation = entry.getValue();
 
                   // add the date header
                   messageList.add(new ConversationHeaderItem(conversation.get(0).getHeaderDateString()));
@@ -172,7 +172,7 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
             adapter.notifyDataSetChanged();
          }
 
-      public void addNewMessage(ConversationMessage message)
+      public void addNewMessage(Message message)
          {
             String key = message.getKeyDateString();
 
@@ -185,7 +185,7 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
             else
                {
                   // if it does not then create a key arraylist
-                  ArrayList<ConversationMessage> conversation = new ArrayList<>();
+                  ArrayList<Message> conversation = new ArrayList<>();
 
                   // add the message to the list
                   conversation.add(message);
@@ -213,7 +213,7 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
                      Date date = new Date();
 
                      // add the message to the hashmap and listview
-                     addNewMessage(new ConversationMessage(USER_MESSAGAGE, date, messageEditText.getText().toString()));
+                     addNewMessage(new Message(USER_MESSAGAGE, date, messageEditText.getText().toString()));
 
                      // clear the edit text
                      messageEditText.setText("");

@@ -61,7 +61,7 @@ public class SaveNotificationsAsyncTask extends AsyncTask<String, String, String
                   for(int i = 0; i < notificationData.size(); i++)
                      {
                         Notification notification = notificationData.get(i);
-                        notificationList.put(notification.createJOSNObject());
+                        notificationList.put(notification.createJSONObject());
                      }
 
                   JSONObject object = new JSONObject();

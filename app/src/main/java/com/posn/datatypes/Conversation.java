@@ -3,28 +3,29 @@ package com.posn.datatypes;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Post
+public class Conversation
    {
       public int type;
 
       public String friend;
       public String date;
+      public String email;
       public String image_uri;
       public String content;
+      public String lastMessage;
 
       public boolean selected;
 
-      public Post()
+      public Conversation()
          {
          }
 
 
-      public Post(int type, String friend, String date, String content)
+      public Conversation(String friend, String date, String lastMessage)
          {
-            this.type = type;
             this.friend = friend;
             this.date = date;
-            this.content = content;
+            this.lastMessage = lastMessage;
          }
 
       public JSONObject createJSONObject()
@@ -33,10 +34,9 @@ public class Post
 
             try
                {
-                  obj.put("type", type);
                   obj.put("friend", friend);
                   obj.put("date", date);
-                  obj.put("content", content);
+                  obj.put("lastMessage", lastMessage);
                }
             catch (JSONException e)
                {
@@ -50,10 +50,9 @@ public class Post
          {
             try
                {
-                  type = obj.getInt("type");
                   friend = obj.getString("friend");
                   date = obj.getString("date");
-                  content = obj.getString("content");
+                  lastMessage = obj.getString("lastMessage");
                }
             catch (JSONException e)
                {

@@ -1,10 +1,10 @@
-package com.posn.asynctasks.messages;
+package com.posn.asynctasks.conversations;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Message;
+import com.posn.datatypes.Conversation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,23 +16,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class SaveMessagesAsyncTask extends AsyncTask<String, String, String>
+public class SaveConversationsAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
 
       private Context context;
       private String filePath;
 
-      private ArrayList<Message> messageList;
+      private ArrayList<Conversation> conversationList;
 
 
-      public SaveMessagesAsyncTask(Context context, String filePath, ArrayList<Message> messageData)
+      public SaveConversationsAsyncTask(Context context, String filePath, ArrayList<Conversation> conversationData)
          {
             super();
             this.context = context;
             this.filePath = filePath;
 
-            this.messageList = messageData;
+            this.conversationList = conversationData;
          }
 
 
@@ -58,10 +58,10 @@ public class SaveMessagesAsyncTask extends AsyncTask<String, String, String>
 
             try
                {
-                  for (int i = 0; i < messageList.size(); i++)
+                  for (int i = 0; i < conversationList.size(); i++)
                      {
-                        Message message = messageList.get(i);
-                        messagesList.put(message.createJOSNObject());
+                        Conversation conversation = conversationList.get(i);
+                        messagesList.put(conversation.createJSONObject());
                      }
 
                   JSONObject object = new JSONObject();

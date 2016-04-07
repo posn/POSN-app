@@ -55,6 +55,7 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
       public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
          {
             super.onCreate(savedInstanceState);
+            System.out.println("NOTIFICATIONS ON CREATE!!!!!!!!!!!!!!");
 
             // load the system tab layout
             View view = inflater.inflate(R.layout.fragment_user_notifications, container, false);
@@ -67,7 +68,7 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
 
-            notificationsList = main.notificationData;
+            notificationsList = main.notificationList.notifications;
 
             // fill with fake data
             //createNotifications();
@@ -75,6 +76,7 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
 
             adapter = new NotificationArrayAdapter(getActivity(), notificationsList);
             lv.setAdapter(adapter);
+
 
             return view;
          }
@@ -110,13 +112,13 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
                {
 
                   Notification notification = new Notification(TYPE_COMMENT, "ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm");
-                  notifications.put(notification.createJOSNObject());
+                  notifications.put(notification.createJSONObject());
 
                   notification = new Notification(TYPE_FRIEND_ACCEPTED, "413e990ba1e5984d8fd41f1a1acaf3d154b21cab", "Jan 19, 2015 at 1:45 pm");
-                  notifications.put(notification.createJOSNObject());
+                  notifications.put(notification.createJSONObject());
 
                   notification = new Notification(TYPE_FRIEND_REQUEST, "dc66ae1b5fa5c84cf12b82e2ec07f6b91233e8d4", "Jan 19, 2015 at 1:45 pm");
-                  notifications.put(notification.createJOSNObject());
+                  notifications.put(notification.createJSONObject());
 
                   JSONObject studentsObj = new JSONObject();
                   studentsObj.put("notifications", notifications);

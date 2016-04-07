@@ -6,19 +6,23 @@ import android.os.Parcelable;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class Group implements Parcelable
    {
-      public String id;
+      public String ID;
       public String name;
 
       public String groupFileLink;
       public String groupFileKey;
+
+      public ArrayList<String> groupMembers = new ArrayList<>();
 
       public boolean selected;
 
@@ -42,7 +46,7 @@ public class Group implements Parcelable
             String timeDate = c.toString();
 
             final HashCode hashCode = Hashing.sha256().hashString(name + timeDate, Charset.defaultCharset());
-            id = hashCode.toString();
+            ID = hashCode.toString();
 
             this.groupFileLink = groupFileLink;
             this.groupFileKey = groupFileKey;
@@ -50,16 +54,21 @@ public class Group implements Parcelable
             selected = false;
          }
 
-      public JSONObject createJOSNObject()
+      public JSONObject createJSONObject()
          {
             JSONObject obj = new JSONObject();
 
             try
                {
-                  obj.put("id", id);
+                  obj.put("id", ID);
                   obj.put("name", name);
                   obj.put("groupFileLink", groupFileLink);
                   obj.put("groupFileKey", groupFileKey);
+
+                  JSONArray jsArray = new JSONArray(groupMembers);
+
+                  obj.put("groupMembers", jsArray);
+
                }
             catch (JSONException e)
                {
@@ -69,14 +78,22 @@ public class Group implements Parcelable
             return obj;
          }
 
-      public void parseJOSNObject(JSONObject obj)
+      public void parseJSONObject(JSONObject obj)
          {
             try
                {
-                  id = obj.getString("id");
+                  ID = obj.getString("id");
                   name = obj.getString("name");
                   groupFileLink = obj.getString("groupFileLink");
                   groupFileKey = obj.getString("groupFileKey");
+
+                  JSONArray groupMemberList = obj.getJSONArray("groupMembers");
+
+                  for (int n = 0; n < groupMemberList.length(); n++)
+                     {
+                        String friendID = groupMemberList.getString(n);
+                        groupMembers.add(friendID);
+                     }
                }
             catch (JSONException e)
                {
@@ -100,7 +117,7 @@ public class Group implements Parcelable
       // Parcelling part
       public Group(Parcel in)
          {
-            this.id = in.readString();
+            this.ID = in.readString();
             this.name = in.readString();
             this.groupFileLink = in.readString();
             this.groupFileKey = in.readString();
@@ -108,17 +125,16 @@ public class Group implements Parcelable
          }
 
 
-
       @Override
       public void writeToParcel(Parcel dest, int flags)
          {
-            dest.writeString(this.id);
+            dest.writeString(this.ID);
             dest.writeString(this.name);
             dest.writeString(this.groupFileLink);
             dest.writeString(this.groupFileKey);
          }
 
-      public static final Creator <Group> CREATOR = new Creator<Group>()
+      public static final Creator<Group> CREATOR = new Creator<Group>()
       {
          public Group createFromParcel(Parcel in)
             {

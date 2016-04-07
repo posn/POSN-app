@@ -11,40 +11,23 @@ import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.AsyncResponseIntialize;
 import com.posn.asynctasks.InitializeAsyncTask;
-import com.posn.asynctasks.friends.AsyncResponseFriends;
-import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
-import com.posn.asynctasks.friends.SaveFriendsListAsyncTask;
-import com.posn.asynctasks.messages.AsyncResponseMessages;
-import com.posn.asynctasks.messages.LoadMessagesListAsyncTask;
-import com.posn.asynctasks.messages.SaveMessagesAsyncTask;
-import com.posn.asynctasks.notifications.AsyncResponseNotifications;
-import com.posn.asynctasks.notifications.LoadNotificationsAsyncTask;
-import com.posn.asynctasks.notifications.SaveNotificationsAsyncTask;
-import com.posn.asynctasks.wall.AsyncResponseWall;
-import com.posn.asynctasks.wall.LoadWallPostsAsyncTask;
-import com.posn.asynctasks.wall.SaveWallPostsAsyncTask;
-import com.posn.clouds.OneDrive.OneDriveClientUsage;
-import com.posn.datatypes.Friend;
-import com.posn.datatypes.Message;
-import com.posn.datatypes.Notification;
-import com.posn.datatypes.Post;
+import com.posn.clouds.Dropbox.DropboxClientUsage;
+import com.posn.datatypes.ConversationList;
+import com.posn.datatypes.FriendList;
+import com.posn.datatypes.NotificationList;
+import com.posn.datatypes.WallPostList;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.main.messages.UserMessagesFragment;
 import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.wall.UserWallFragment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 
-
-public class MainActivity extends BaseActivity implements AsyncResponseFriends, AsyncResponseWall, AsyncResponseNotifications, AsyncResponseMessages, AsyncResponseIntialize
+public class MainActivity extends BaseActivity implements AsyncResponseIntialize
    {
       private ViewPager viewPager;
       private ActionBar actionBar;
       private MainTabsPagerAdapter tabsAdapter;
       public POSNApplication app;
-
-      private boolean firstStart = true;
 
       public int newWallPostsNum = 0;
       public int newNotificationNum = 0;
@@ -54,21 +37,16 @@ public class MainActivity extends BaseActivity implements AsyncResponseFriends, 
       InitializeAsyncTask asyncTaskInitialize;
 
       // data for wall fragment
-      public ArrayList<Post> wallPostData = new ArrayList<>();
-      LoadWallPostsAsyncTask asyncTaskWall;
+      public WallPostList wallPostList;
 
       // data for master friends list
-      public HashMap<String, Friend> masterFriendList = new HashMap<>();
-      public ArrayList<Friend> masterRequestsList = new ArrayList<>();
-      LoadFriendsListAsyncTask asyncTaskFriend;
+      public FriendList masterFriendList;
 
       // data for notification fragment
-      public ArrayList<Notification> notificationData = new ArrayList<>();
-      LoadNotificationsAsyncTask asyncTaskNotification;
+      public NotificationList notificationList;
 
       // data for message fragment
-      public ArrayList<Message> messageData = new ArrayList<>();
-      LoadMessagesListAsyncTask asyncTaskMessage;
+      public ConversationList conversationList;
 
 
       @Override
@@ -179,25 +157,31 @@ public class MainActivity extends BaseActivity implements AsyncResponseFriends, 
             app = (POSNApplication) this.getApplication();
 
             // sign into the cloud
-           // cloud = new DropboxClientUsage(this);
+            cloud = new DropboxClientUsage(this);
            // cloud = new GoogleDriveClientUsage(this);
-            cloud = new OneDriveClientUsage(this);
+            //cloud = new OneDriveClientUsage(this);
             cloud.initializeCloud();
+
+            wallPostList = new WallPostList();
+            masterFriendList = new FriendList();
+            notificationList = new NotificationList();
+            conversationList = new ConversationList();
 
             asyncTaskInitialize = new InitializeAsyncTask(this);
             asyncTaskInitialize.delegate = this;
             asyncTaskInitialize.execute();
-
          }
 
       @Override
       protected void onResume()
          {
             super.onResume();
+            /*
             if (app.getDropbox() != null)
                {
-                 // app.getDropbox().authenticateDropboxLogin();
+                  app.getDropbox().authenticateDropboxLogin();
                }
+            */
 
          }
 
@@ -217,6 +201,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseFriends, 
 
       public void initializingFileDataFinished()
          {
+
             UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
             if (friendFrag != null)
                {
@@ -241,139 +226,5 @@ public class MainActivity extends BaseActivity implements AsyncResponseFriends, 
                   notificationFrag.updateNotifications();
                }
 
-         }
-
-
-
-      public void saveFriendsList()
-         {
-            new SaveFriendsListAsyncTask(this, app.wallFilePath + "/user_friends.txt", masterFriendList, masterRequestsList).execute();
-         }
-
-      public void loadFriendsList()
-         {
-            asyncTaskFriend = new LoadFriendsListAsyncTask(this, app.wallFilePath + "/user_friends.txt");
-            asyncTaskFriend.delegate = this;
-            asyncTaskFriend.execute();
-         }
-
-      public void loadingFriendsFinished(HashMap<String, Friend> friendList, ArrayList<Friend> friendRequestList)
-         {
-            if(masterFriendList == null)
-               {
-                  System.out.println("MASTER NULL");
-               }
-            this.masterFriendList.putAll(friendList);
-            this.masterRequestsList.addAll(friendRequestList);
-
-
-            UserFriendsFragment fragment = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
-            if (fragment != null)
-               {
-                  fragment.updateFriendList();
-               }
-            else
-               {
-                  System.out.println("FRIEND NULL");
-               }
-
-            if (firstStart)
-               {
-                  loadWallPosts();
-               }
-         }
-
-
-
-      public void saveWallPosts()
-         {
-            SaveWallPostsAsyncTask task = new SaveWallPostsAsyncTask(this, app.wallFilePath + "/user_wall.txt", wallPostData);
-            task.execute();
-         }
-
-      public void loadWallPosts()
-         {
-            asyncTaskWall = new LoadWallPostsAsyncTask(this, app.wallFilePath + "/user_wall.txt");
-            asyncTaskWall.delegate = this;
-            asyncTaskWall.execute();
-         }
-
-      public void loadingWallFinished(ArrayList<Post> wallData)
-         {
-            // add the loaded data to the array list and hashmap
-            this.wallPostData.addAll(wallData);
-
-            UserWallFragment fragment = (UserWallFragment) tabsAdapter.getRegisteredFragment(0);
-            if (fragment != null)
-               {
-                  fragment.updateWallPosts();
-               }
-
-            if (firstStart)
-               {
-                  loadNotifications();
-               }
-         }
-
-
-
-      public void saveNotifications()
-         {
-            SaveNotificationsAsyncTask task = new SaveNotificationsAsyncTask(this, app.wallFilePath + "/user_notifications.txt", notificationData);
-            task.execute();
-         }
-
-      public void loadNotifications()
-         {
-            asyncTaskNotification = new LoadNotificationsAsyncTask(this, app.wallFilePath + "/user_notifications.txt");
-            asyncTaskNotification.delegate = this;
-            asyncTaskNotification.execute();
-         }
-
-
-      public void loadingNotificationsFinished(ArrayList<Notification> notificationList)
-         {
-            // add the loaded data to the array list and hashmap
-            this.notificationData.addAll(notificationList);
-
-            UserNotificationsFragment fragment = (UserNotificationsFragment) tabsAdapter.getRegisteredFragment(1);
-            if (fragment != null)
-               {
-                  fragment.updateNotifications();
-               }
-
-            if (firstStart)
-               {
-                  loadMessages();
-               }
-
-         }
-
-
-
-      public void saveMessages()
-         {
-            SaveMessagesAsyncTask task = new SaveMessagesAsyncTask(this, app.messagesFilePath + "/user_messages.txt", messageData);
-            task.execute();
-         }
-
-      public void loadMessages()
-         {
-            asyncTaskMessage = new LoadMessagesListAsyncTask(this, app.messagesFilePath + "/user_messages.txt");
-            asyncTaskMessage.delegate = this;
-            asyncTaskMessage.execute();
-         }
-
-      public void loadingMessagesFinished(ArrayList<Message> messageList)
-         {
-            // add the loaded data to the array list and hashmap
-            this.messageData.addAll(messageList);
-
-            UserMessagesFragment fragment = (UserMessagesFragment) tabsAdapter.getRegisteredFragment(2);
-            if (fragment != null)
-               {
-                  fragment.updateMessages();
-               }
-            firstStart = false;
          }
    }

@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.ConversationMessage;
+import com.posn.datatypes.Message;
 import com.posn.main.messages.DiscussArrayAdapter.RowType;
 
 
@@ -18,12 +18,12 @@ public class ConversationMessageItem implements ListViewConversationItem
       private final int FRIEND_MESSAGE = 0;
       private final int USER_MESSAGAGE = 1;
 
-      private ConversationMessage comment;
+      private Message comment;
       private boolean isClickable = true;
       private View.OnClickListener deleteListener;
       private Button deleteButton;
 
-      public ConversationMessageItem(ConversationMessage comment)
+      public ConversationMessageItem(Message comment)
          {
             this.comment = comment;
          }

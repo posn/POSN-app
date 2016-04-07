@@ -71,7 +71,7 @@ public class NotificationArrayAdapter extends ArrayAdapter<Notification>
 
             // get the Main Activity to look up which friend
             MainActivity main = (MainActivity) context;
-            Friend friend = main.masterFriendList.get(notification.friend);
+            Friend friend = main.masterFriendList.currentFriends.get(notification.friend);
 
             // add bold HTML tag to make the friend name bold
             friendName = "<b>" + friend.name + "</b>";

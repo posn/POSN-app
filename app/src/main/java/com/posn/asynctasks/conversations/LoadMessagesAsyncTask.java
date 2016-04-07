@@ -1,4 +1,4 @@
-package com.posn.asynctasks.messages;
+package com.posn.asynctasks.conversations;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,21 +15,22 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
-public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
+public class LoadMessagesAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
 
       private Context context;
       private String filePath;
 
-      private ArrayList<Message> messagesList = new ArrayList<>();
+      private HashMap<String,ArrayList<Message>> messagesList = new HashMap<>();
 
-      public AsyncResponseMessages delegate = null;
+      public AsyncResponseConversation delegate = null;
 
 
-      public LoadMessagesListAsyncTask(Context context, String filePath)
+      public LoadMessagesAsyncTask(Context context, String filePath)
          {
             super();
             this.context = context;
@@ -43,7 +44,7 @@ public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
          {
             super.onPreExecute();
             pDialog = new ProgressDialog(context);
-            pDialog.setMessage("Loading Data...");
+            pDialog.setMessage("Loading Conversation...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -53,7 +54,7 @@ public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("GETTING MESSAGES!!!");
+            System.out.println("GETTING CONVERSATION!!!");
 
             File wallFile = new File(filePath);
 
@@ -75,14 +76,25 @@ public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
 
                   JSONObject data = new JSONObject(fileContents);
 
-                  JSONArray messageList = data.getJSONArray("messages");
+                  JSONArray messageList = data.getJSONArray("conversations");
 
                   for (int n = 0; n < messageList.length(); n++)
                      {
                         Message message = new Message();
-                        message.parseJOSNObject(messageList.getJSONObject(n));
+                        message.parseJSONObject(messageList.getJSONObject(n));
 
-                        messagesList.add(message);
+                        String key = message.getKeyDateString();
+
+                        if(messagesList.containsKey(key))
+                           {
+                              messagesList.get(key).add(message);
+                           }
+                        else
+                           {
+                              ArrayList<Message> conversation = new ArrayList<>();
+                              conversation.add(message);
+                              messagesList.put(key, conversation);
+                           }
                      }
                }
             catch (IOException | JSONException e)
@@ -100,7 +112,7 @@ public class LoadMessagesListAsyncTask extends AsyncTask<String, String, String>
          {
             //System.out.println("NUM FRIENDS123: " + friendList.size() + " | " + friendRequestsList.size());
 
-            delegate.loadingMessagesFinished(messagesList);
+            delegate.loadingConversationFinished(messagesList);
 
 
             // dismiss the dialog once done

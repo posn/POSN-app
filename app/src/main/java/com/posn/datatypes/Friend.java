@@ -61,7 +61,7 @@ public class Friend implements Parcelable
             selected = false;
          }
 
-      public JSONObject createJOSNObject()
+      public JSONObject createJSONObject()
          {
             JSONObject obj = new JSONObject();
 
@@ -82,7 +82,7 @@ public class Friend implements Parcelable
             return obj;
          }
 
-      public void parseJOSNObject(JSONObject obj)
+      public void parseJSONObject(JSONObject obj)
          {
             try
                {

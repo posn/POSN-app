@@ -82,7 +82,7 @@ public class LoadWallPostsAsyncTask extends AsyncTask<String, String, String>
                   for (int n = 0; n < wallPosts.length(); n++)
                      {
                         Post post = new Post();
-                        post.parseJOSNObject(wallPosts.getJSONObject(n));
+                        post.parseJSONObject(wallPosts.getJSONObject(n));
 
                         wallPostsData.add(post);
                      }

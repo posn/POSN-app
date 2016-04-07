@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
@@ -52,7 +53,6 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
       LoadFriendsListAsyncTask asyncTask;
 
-
       OnClickListener confirmListener = new OnClickListener()
       {
          @Override
@@ -71,7 +71,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                sortFriendsList();
                adapter.notifyDataSetChanged();
 
-               activity.saveFriendsList();
+               activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
 
                EmailSender test = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
                // test.sendMail("POSN TEST!", "SUCCESS!\n\nhttp://posn.com/data1/data2/data3_data4", "POSN", "eklukovich92@hotmail.com");
@@ -94,7 +94,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                sortFriendsList();
                adapter.notifyDataSetChanged();
 
-               activity.saveFriendsList();
+               activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
 
 
                // SEND NOTIFICATION TO FRIEND ABOUT DECLINE
@@ -115,7 +115,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                sortFriendsList();
                adapter.notifyDataSetChanged();
 
-               activity.saveFriendsList();
+               activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
             }
       };
 
@@ -129,6 +129,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       @Override
       public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
          {
+            System.out.println("FRIENDS ON CREATE!!!!!!!!!!!!!!");
+
             super.onCreate(savedInstanceState);
 
             // load the friend tab layout
@@ -152,11 +154,9 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   {
                   }
 
-
                @Override
                public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
                   {
-
                      if (mLastFirstVisibleItem < firstVisibleItem)
                         {
                            statusBar.setVisibility(View.GONE);
@@ -166,31 +166,14 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                            statusBar.setVisibility(View.VISIBLE);
                         }
                      mLastFirstVisibleItem = firstVisibleItem;
-
                   }
             });
 
             activity = (MainActivity) getActivity();
             app = activity.app;
-            System.out.println("FRIEND ONCREATEVIEW1");
 
-            friendList = activity.masterFriendList;
-            friendRequestsList = activity.masterRequestsList;
-System.out.println("FRIEND ONCREATEVIEW2");
-
-              // createFriendsList();
-           //  saveFriendsList();
-
-/*
-            if (friendList.isEmpty())
-               {
-                  loadFriendsList();
-               }
-            else
-               {
-                  createFriendsList();
-               }
-*/
+            friendList = activity.masterFriendList.currentFriends;
+            friendRequestsList = activity.masterFriendList.friendRequests;
 
             adapter = new FriendsArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
@@ -218,7 +201,7 @@ System.out.println("FRIEND ONCREATEVIEW2");
                   listViewItems.add(new PendingFriendItem(friend));
                   sortFriendsList();
                   adapter.notifyDataSetChanged();
-                  activity.saveFriendsList();
+                  activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
                }
          }
 
@@ -321,7 +304,7 @@ System.out.println("FRIEND ONCREATEVIEW2");
 
             if (modified)
                {
-                  activity.saveFriendsList();
+                  activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
                }
 
             listViewItems.clear();

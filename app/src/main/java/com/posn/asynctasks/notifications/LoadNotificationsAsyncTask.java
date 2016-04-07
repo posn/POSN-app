@@ -80,7 +80,7 @@ public class LoadNotificationsAsyncTask extends AsyncTask<String, String, String
                   for (int n = 0; n < notifications.length(); n++)
                      {
                         Notification notification = new Notification();
-                        notification.parseJOSNObject(notifications.getJSONObject(n));
+                        notification.parseJSONObject(notifications.getJSONObject(n));
 
                         notificationData.add(notification);
                      }

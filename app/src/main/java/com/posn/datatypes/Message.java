@@ -3,40 +3,45 @@ package com.posn.datatypes;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class Message
    {
+
       public int type;
-
-      public String friend;
-      public String date;
-      public String email;
-      public String image_uri;
-      public String content;
-      public String lastMessage;
-
-      public boolean selected;
+      public Date date;
+      public String message;
 
       public Message()
          {
+
          }
 
-
-      public Message(String friend, String date, String lastMessage)
+      public Message(int type, Date date, String comment)
          {
-            this.friend = friend;
+            super();
+            this.type = type;
             this.date = date;
-            this.lastMessage = lastMessage;
+            this.message = comment;
          }
 
-      public JSONObject createJOSNObject()
+
+      public JSONObject createJSONObject()
          {
             JSONObject obj = new JSONObject();
 
             try
                {
-                  obj.put("friend", friend);
-                  obj.put("date", date);
-                  obj.put("lastMessage", lastMessage);
+                  obj.put("type", type);
+
+                  SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yyyy hh:mm aa", Locale.US);
+                  String datetime  = dateformat.format(date);
+                  obj.put("date", datetime);
+
+                  obj.put("message", message);
                }
             catch (JSONException e)
                {
@@ -46,17 +51,41 @@ public class Message
             return obj;
          }
 
-      public void parseJOSNObject(JSONObject obj)
+      public void parseJSONObject(JSONObject obj)
          {
             try
                {
-                  friend = obj.getString("friend");
-                  date = obj.getString("date");
-                  lastMessage = obj.getString("lastMessage");
+                  type = obj.getInt("type");
+
+                  String datetime = obj.getString("date");
+                  SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yyyy hh:mm aa", Locale.US);
+                  date  = dateformat.parse(datetime);
+
+                  message = obj.getString("message");
                }
-            catch (JSONException e)
+            catch (JSONException | ParseException e)
                {
                   e.printStackTrace();
                }
          }
+
+      public String getHeaderDateString()
+         {
+            SimpleDateFormat dateformat = new SimpleDateFormat("E, MM/dd/yyyy", Locale.US);
+            return dateformat.format(date);
+         }
+
+      public String getKeyDateString()
+         {
+            SimpleDateFormat dateformat = new SimpleDateFormat("MMddyyyy", Locale.US);
+            return dateformat.format(date);
+         }
+
+      public String getTimeString()
+         {
+            SimpleDateFormat dateformat = new SimpleDateFormat("hh:mm aa", Locale.US);
+            return dateformat.format(date);
+         }
+
+
    }

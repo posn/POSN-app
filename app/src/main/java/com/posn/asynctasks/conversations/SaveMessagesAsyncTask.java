@@ -1,10 +1,10 @@
-package com.posn.asynctasks.messages;
+package com.posn.asynctasks.conversations;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.ConversationMessage;
+import com.posn.datatypes.Message;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,21 +14,20 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 
-public class SaveConversationAsyncTask extends AsyncTask<String, String, String>
+public class SaveMessagesAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
 
       private Context context;
       private String filePath;
 
-      private Map<String, ArrayList<ConversationMessage>>  conversationList;
+      private Map<String, ArrayList<Message>>  conversationList;
 
 
-      public SaveConversationAsyncTask(Context context, String filePath, Map<String, ArrayList<ConversationMessage>> conversationData)
+      public SaveMessagesAsyncTask(Context context, String filePath, Map<String, ArrayList<Message>> conversationData)
          {
             super();
             this.context = context;
@@ -60,14 +59,14 @@ public class SaveConversationAsyncTask extends AsyncTask<String, String, String>
 
             try
                {
-                  for (Map.Entry<String, ArrayList<ConversationMessage>> entry : conversationList.entrySet())
+                  for (Map.Entry<String, ArrayList<Message>> entry : conversationList.entrySet())
                      {
-                        ArrayList<ConversationMessage> conversation = entry.getValue();
+                        ArrayList<Message> conversation = entry.getValue();
 
                         for (int i = 0; i < conversation.size(); i++)
                            {
-                              ConversationMessage message = conversation.get(i);
-                              messagesList.put(message.createJOSNObject());
+                              Message message = conversation.get(i);
+                              messagesList.put(message.createJSONObject());
                            }
                      }
 
@@ -80,7 +79,6 @@ public class SaveConversationAsyncTask extends AsyncTask<String, String, String>
                   BufferedWriter bw = new BufferedWriter(fw);
                   bw.write(jsonStr);
                   bw.close();
-
                }
             catch (JSONException | IOException e)
                {

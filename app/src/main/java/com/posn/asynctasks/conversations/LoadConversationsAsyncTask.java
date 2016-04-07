@@ -1,10 +1,10 @@
-package com.posn.asynctasks.messages;
+package com.posn.asynctasks.conversations;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.ConversationMessage;
+import com.posn.datatypes.Conversation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,22 +15,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
-public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
+public class LoadConversationsAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
 
       private Context context;
       private String filePath;
 
-      private HashMap<String,ArrayList<ConversationMessage>> messagesList = new HashMap<>();
+      private ArrayList<Conversation> messagesList = new ArrayList<>();
 
-      public AsyncResponseConversation delegate = null;
+      public AsyncResponseMessages delegate = null;
 
 
-      public LoadConversationAsyncTask(Context context, String filePath)
+      public LoadConversationsAsyncTask(Context context, String filePath)
          {
             super();
             this.context = context;
@@ -44,7 +43,7 @@ public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
          {
             super.onPreExecute();
             pDialog = new ProgressDialog(context);
-            pDialog.setMessage("Loading Conversation...");
+            pDialog.setMessage("Loading Data...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -54,7 +53,7 @@ public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("GETTING CONVERSATION!!!");
+            System.out.println("GETTING MESSAGES!!!");
 
             File wallFile = new File(filePath);
 
@@ -76,25 +75,14 @@ public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
 
                   JSONObject data = new JSONObject(fileContents);
 
-                  JSONArray messageList = data.getJSONArray("conversations");
+                  JSONArray messageList = data.getJSONArray("messages");
 
                   for (int n = 0; n < messageList.length(); n++)
                      {
-                        ConversationMessage message = new ConversationMessage();
-                        message.parseJOSNObject(messageList.getJSONObject(n));
+                        Conversation conversation = new Conversation();
+                        conversation.parseJSONObject(messageList.getJSONObject(n));
 
-                        String key = message.getKeyDateString();
-
-                        if(messagesList.containsKey(key))
-                           {
-                              messagesList.get(key).add(message);
-                           }
-                        else
-                           {
-                              ArrayList<ConversationMessage> conversation = new ArrayList<>();
-                              conversation.add(message);
-                              messagesList.put(key, conversation);
-                           }
+                        messagesList.add(conversation);
                      }
                }
             catch (IOException | JSONException e)
@@ -112,7 +100,7 @@ public class LoadConversationAsyncTask extends AsyncTask<String, String, String>
          {
             //System.out.println("NUM FRIENDS123: " + friendList.size() + " | " + friendRequestsList.size());
 
-            delegate.loadingConversationFinished(messagesList);
+            delegate.loadingMessagesFinished(messagesList);
 
 
             // dismiss the dialog once done

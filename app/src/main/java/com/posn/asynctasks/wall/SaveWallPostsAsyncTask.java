@@ -54,35 +54,7 @@ public class SaveWallPostsAsyncTask extends AsyncTask<String, String, String>
          {
             System.out.println("SAVING WALL POSTS!!!");
 
-            JSONArray wallPostList = new JSONArray();
 
-            try
-               {
-                  for(int i = 0; i < wallData.size(); i++)
-                     {
-                        Post post = wallData.get(i);
-                        wallPostList.put(post.createJOSNObject());
-                     }
-
-                  JSONObject object = new JSONObject();
-                  object.put("posts", wallPostList);
-
-                  String jsonStr = object.toString();
-
-                  FileWriter fw = new FileWriter(filePath);
-                  BufferedWriter bw = new BufferedWriter(fw);
-                  bw.write(jsonStr);
-                  bw.close();
-
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
 
             return null;
          }

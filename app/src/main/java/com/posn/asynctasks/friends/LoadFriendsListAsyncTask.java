@@ -87,7 +87,7 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
                   for (int n = 0; n < friendsList.length(); n++)
                      {
                         Friend friend = new Friend();
-                        friend.parseJOSNObject(friendsList.getJSONObject(n));
+                        friend.parseJSONObject(friendsList.getJSONObject(n));
 
                         if (friend.status == STATUS_ACCEPTED || friend.status == STATUS_PENDING )
                            {

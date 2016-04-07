@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.Message;
+import com.posn.datatypes.Conversation;
 import com.posn.main.MainActivity;
 
 import java.text.SimpleDateFormat;
@@ -27,16 +27,16 @@ class MessageViewHolder
    }
 
 
-public class MessageArrayAdapter extends ArrayAdapter<Message>
+public class MessageArrayAdapter extends ArrayAdapter<Conversation>
    {
 
       private final Context context;
-      private ArrayList<Message> values;
-      ArrayList<Message> selectedContacts = new ArrayList<Message>();
+      private ArrayList<Conversation> values;
+      ArrayList<Conversation> selectedContacts = new ArrayList<Conversation>();
       MessageViewHolder mViewHolder = null;
 
 
-      public MessageArrayAdapter(Context context, ArrayList<Message> values)
+      public MessageArrayAdapter(Context context, ArrayList<Conversation> values)
          {
             super(context, R.layout.listview_message_item, values);
             this.context = context;
@@ -71,8 +71,8 @@ public class MessageArrayAdapter extends ArrayAdapter<Message>
                   mViewHolder = (MessageViewHolder) convertView.getTag();
 
                }
-            Message message = values.get(position);
-            String friendName = ((MainActivity)context).masterFriendList.get(message.friend).name;
+            Conversation conversation = values.get(position);
+            String friendName = ((MainActivity)context).masterFriendList.currentFriends.get(conversation.friend).name;
 
 
             friendName = "<b>" + friendName + "</b>";
@@ -82,8 +82,8 @@ public class MessageArrayAdapter extends ArrayAdapter<Message>
             SimpleDateFormat ft = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
 
            // mViewHolder.time.setText(ft.format(message.date));
-            mViewHolder.time.setText(message.date);
-            mViewHolder.lastMessage.setText(message.lastMessage);
+            mViewHolder.time.setText(conversation.date);
+            mViewHolder.lastMessage.setText(conversation.lastMessage);
 
             return convertView;
          }
