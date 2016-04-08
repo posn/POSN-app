@@ -1,6 +1,6 @@
 package com.posn.datatypes;
 
-import com.posn.utility.FileManager;
+import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,7 +23,7 @@ public class NotificationList
             // open the file
             try
                {
-                  JSONObject data = FileManager.loadJSONObjectFromFile(fileName);
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
 
                   JSONArray notificationsArray = data.getJSONArray("notifications");
 
@@ -56,7 +56,7 @@ public class NotificationList
                   object.put("notifications", notificationList);
 
 
-                  FileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeJSONToFile(object, devicePath);
 
                }
             catch (JSONException e)

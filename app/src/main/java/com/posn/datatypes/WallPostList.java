@@ -2,7 +2,7 @@ package com.posn.datatypes;
 
 import android.os.AsyncTask;
 
-import com.posn.utility.FileManager;
+import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,9 +22,11 @@ public class WallPostList
 
       public void loadWallPostsFromFile(String fileName)
          {
+            wallPosts.clear();
+
             try
                {
-                  JSONObject data = FileManager.loadJSONObjectFromFile(fileName);
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
 
                   JSONArray wallPostsArray = data.getJSONArray("posts");
 
@@ -69,7 +71,7 @@ public class WallPostList
                   JSONObject object = new JSONObject();
                   object.put("posts", wallPostList);
 
-                  FileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeJSONToFile(object, devicePath);
                }
             catch (JSONException e)
                {

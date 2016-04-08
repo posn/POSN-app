@@ -1,13 +1,5 @@
 package com.posn.initial_setup;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,8 +15,15 @@ import android.widget.Toast;
 
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.encryption.AESEncryption;
-import com.posn.encryption.RSAEncryption;
+import com.posn.encryption.AsymmetricKeyManager;
+import com.posn.encryption.SymmetricKeyManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class SetupEncryptionKeysActivity extends FragmentActivity implements OnClickListener
@@ -160,23 +159,21 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 
 		public boolean createEncryptionKeys(int seed)
 			{
-				AESEncryption AES = app.getAES();
-				RSAEncryption RSA = app.getRSA();
 				String password = app.getPassword();
 				boolean status;
 				
 				System.out.println("PASS: " + password);
 
-				// create a new AES Key from the user's password
-				status = AES.createAESKey(password);
-				if (!status)
+				// create a new Symmetric Key from the user's password
+				String key = SymmetricKeyManager.createKeyFromString(password);
+				if (key == null)
 					{
 						Toast.makeText(this, "Failed to create AES Key.", Toast.LENGTH_SHORT).show();
 						return false;
 					}
 
 				// create a password verification file
-				status = createPasswordVerificationFile(app.encryptionKeyFilePath, AES, password);
+				status = createPasswordVerificationFile(app.encryptionKeyFilePath, key, password);
 				if (!status)
 					{
 						Toast.makeText(this, "Failed to create password verification file.", Toast.LENGTH_SHORT).show();
@@ -184,7 +181,7 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 					}
 				
 				// create a new RSA Public and Private key based on the random input
-				status = RSA.createRSAKeys(numEncryptBits, seed);
+				status = AsymmetricKeyManager.createKeys(numEncryptBits, seed);
 				if (!status)
 					{
 						Toast.makeText(this, "Failed to create RSA Key.", Toast.LENGTH_SHORT).show();
@@ -192,7 +189,7 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 					}
 
 				// save the public and private key to a file on the device
-				status = saveKeysToFile(app.encryptionKeyFilePath, RSA, AES);
+				status = saveKeysToFile(app.encryptionKeyFilePath, key);
 				if (!status)
 					{
 						Toast.makeText(this, "Failed to save keys to file.", Toast.LENGTH_SHORT).show();
@@ -203,7 +200,7 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 			}
 
 
-		public boolean saveKeysToFile(String path, RSAEncryption RSA, AESEncryption AES)
+		public boolean saveKeysToFile(String path, String key)
 			{
 				try
 					{
@@ -218,7 +215,7 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 
 						PrintWriter printWriter = new PrintWriter(file);
 
-						byte[] publicKeyBytes = RSA.getPublicKey().getEncoded();
+						byte[] publicKeyBytes = AsymmetricKeyManager.getPublicKey().getEncoded();
 						String publicKey = Base64.encodeToString(publicKeyBytes, Base64.DEFAULT);
 
 						SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.US);
@@ -236,10 +233,10 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 						// put the public key in the file
 						printWriter.println(publicKey);
 
-						byte[] privateKeyBytes = RSA.getPrivateKey().getEncoded();
+						byte[] privateKeyBytes = AsymmetricKeyManager.getPrivateKey().getEncoded();
 						String privateKey = Base64.encodeToString(privateKeyBytes, Base64.DEFAULT);
 
-						String encryptedPrivateKey = AES.AESEncrypt(privateKey);
+						String encryptedPrivateKey = SymmetricKeyManager.encrypt(key, privateKey);
 
 						// get the number of lines in the private key
 						numLines = countLines(encryptedPrivateKey);
@@ -256,19 +253,16 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 							}
 						return true;
 					}
-				catch (FileNotFoundException e)
-					{
-						e.printStackTrace();
-					}
 				catch (IOException e)
 					{
 						e.printStackTrace();
 					}
+
 				return false;
 			}
 
 
-		public boolean createPasswordVerificationFile(String path, AESEncryption AES, String password)
+		public boolean createPasswordVerificationFile(String path, String key, String password)
 			{
 				// create a new file for the password verification.
 				File file = new File(path + "/verify.pass");
@@ -293,7 +287,7 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 						printWriter.println("Comment: password-verification-" + currentDate);
 
 						// encrypt verification string
-						String encryptedText = AES.AESEncrypt("POSN - SUCCESS");
+						String encryptedText = SymmetricKeyManager.encrypt(key, "POSN - SUCCESS");
 
 						// get the number of lines in the string
 						int numLines = countLines(encryptedText);

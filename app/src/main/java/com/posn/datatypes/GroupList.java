@@ -2,7 +2,7 @@ package com.posn.datatypes;
 
 import android.os.AsyncTask;
 
-import com.posn.utility.FileManager;
+import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +26,7 @@ public class GroupList
             try
                {
                   // load friends list into JSON object
-                  JSONObject data = FileManager.loadJSONObjectFromFile(fileName);
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
 
                   // get array of friends
                   JSONArray groupList = data.getJSONArray("groups");
@@ -80,7 +80,7 @@ public class GroupList
                   object.put("groups", groupList);
 
                   // write the JSON object to a file
-                  FileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeJSONToFile(object, devicePath);
                }
             catch (JSONException e)
                {

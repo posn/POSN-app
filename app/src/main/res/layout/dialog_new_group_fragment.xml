@@ -1,0 +1,126 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="#CFD8DC"
+              android:focusable="true"
+              android:focusableInTouchMode="true"
+              android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/myTheme.ActionBar.Text"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="#FF607D8B"
+        android:contentDescription="@string/app_name"
+        android:gravity="center_vertical"
+        android:paddingLeft="17dp"
+        android:scaleType="center"
+        android:text="Create New Group"
+        android:textAlignment="center"
+        android:textSize="22sp"
+        android:textStyle="bold"/>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="2dip"
+        android:layout_centerVertical="true"
+
+        android:background="#ffffff"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="5pt">
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2pt"
+            android:layout_marginLeft="4pt"
+            android:layout_marginRight="4pt"
+            android:text="New Group"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#263238"
+            android:textStyle="bold"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="4pt"
+            android:layout_marginRight="4pt"
+            android:background="#607D8B"/>
+    </LinearLayout>
+
+
+    <EditText
+        android:id="@+id/category"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5pt"
+        android:background="@drawable/textview_background_selector"
+        android:hint="Group Name"
+        android:inputType="textCapSentences"
+        android:paddingBottom="10dp"
+        android:paddingLeft="15dp"
+        android:paddingTop="10dp"
+        android:textSize="20sp"
+
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:layout_centerVertical="true"
+            android:background="#ffffff"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:background="#FF607D8B"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/negative_button"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:text="Cancel"
+                android:textColor="#ffffff"
+                android:textSize="17sp"
+                />
+
+            <View
+                android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:layout_centerVertical="true"
+                android:background="#ffffff"/>
+
+            <Button
+                android:id="@+id/positive_button"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:background="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:text="Submit"
+                android:textColor="#ffffff"
+                android:textSize="17sp"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

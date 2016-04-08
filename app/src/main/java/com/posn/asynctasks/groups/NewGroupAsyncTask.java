@@ -1,43 +1,28 @@
 package com.posn.asynctasks.groups;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Friend;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import com.posn.Constants;
+import com.posn.datatypes.Group;
+import com.posn.encryption.SymmetricKeyManager;
+import com.posn.main.MainActivity;
+import com.posn.utility.CloudFileManager;
+import com.posn.utility.IDGenerator;
 
 
 public class NewGroupAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
 
-      private Context context;
-      private String filePath;
+      private MainActivity main;
+      private String newGroup;
 
-      private HashMap<String, Friend> friendList;
-      private ArrayList<Friend> friendRequestsList;
-
-
-      public NewGroupAsyncTask(Context context, String filePath, HashMap<String, Friend> friendList, ArrayList<Friend> friendRequestsList)
+      public NewGroupAsyncTask(MainActivity mainActivity, String groupName)
          {
             super();
-            this.context = context;
-            this.filePath = filePath;
-
-            this.friendList = friendList;
-            this.friendRequestsList = friendRequestsList;
+            main = mainActivity;
+            newGroup = groupName;
          }
 
 
@@ -46,8 +31,8 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
       protected void onPreExecute()
          {
             super.onPreExecute();
-            pDialog = new ProgressDialog(context);
-            pDialog.setMessage("Saving Data...");
+            pDialog = new ProgressDialog(main);
+            pDialog.setMessage("Creating Group...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -57,46 +42,27 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            System.out.println("SAVING FRIENDS!!!");
+            // generate group ID
+            String groupID = IDGenerator.generate(newGroup);
 
-            File wallFile = new File(filePath);
+            // generate group wall and archive key
+            String groupWallKey = SymmetricKeyManager.createRandomKey();
 
-            String line, fileContents;
+            // create empty group wall file
+            String fileName = newGroup + "_0";
+            String deviceFilepath = Constants.wallFilePath + "/" + fileName;
+            CloudFileManager.createGroupWallFile(deviceFilepath, groupWallKey);
 
-            JSONArray friendsList = new JSONArray();
+            // upload group wall to cloud and get direct link
 
-            try
-               {
-                  for (Map.Entry<String, Friend> entry : friendList.entrySet())
-                     {
-                        Friend friend = entry.getValue();
-                        friendsList.put(friend.createJSONObject());                     }
+            String directLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
-                  for(int i = 0; i < friendRequestsList.size(); i++)
-                     {
-                        Friend friend = friendRequestsList.get(i);
-                        friendsList.put(friend.createJSONObject());
-                     }
+            // create new group object and add to group list
+            Group group = new Group(groupID, newGroup, directLink, groupWallKey);
+            main.groupList.groups.put(groupID, group);
 
-                  JSONObject object = new JSONObject();
-                  object.put("friends", friendsList);
-
-                  String jsonStr = object.toString();
-
-                  FileWriter fw = new FileWriter(filePath);
-                  BufferedWriter bw = new BufferedWriter(fw);
-                  bw.write(jsonStr);
-                  bw.close();
-
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
+            // save group list to device
+            main.groupList.saveGroupsToFile(Constants.wallFilePath + "/user_groups.txt");
 
             return null;
          }

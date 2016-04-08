@@ -22,6 +22,7 @@ import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.email.EmailSender;
 import com.posn.main.MainActivity;
+import com.posn.main.groups.CreateGroupDialogFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,11 +33,7 @@ import java.util.Map;
 
 public class UserFriendsFragment extends Fragment implements OnClickListener
    {
-      static final int ADD_FRIEND_RESULT = 1;
 
-      static final int STATUS_ACCEPTED = 1;
-      static final int STATUS_REQUEST = 2;
-      static final int STATUS_PENDING = 3;
 
 
       // declare variables
@@ -45,6 +42,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       ListView lv;
       TableRow statusBar;
       RelativeLayout addFriendButton;
+      RelativeLayout addGroupButton;
+
       HashMap<String, Friend> friendList;
       ArrayList<Friend> friendRequestsList;
       ArrayList<ListViewFriendItem> listViewItems = new ArrayList<>();
@@ -64,7 +63,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
                listViewItems.remove(new RequestFriendItem(confirmListener, declineListener, friend));
 
-               friend.status = STATUS_ACCEPTED;
+               friend.status = Constants.STATUS_ACCEPTED;
                friendList.put(friend.id, friend);
                listViewItems.add(new AcceptedFriendItem(deleteListener, friend));
 
@@ -140,6 +139,9 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             addFriendButton = (RelativeLayout) view.findViewById(R.id.add_friend_button);
             addFriendButton.setOnClickListener(this);
 
+            addGroupButton = (RelativeLayout) view.findViewById(R.id.add_group_button);
+            addGroupButton.setOnClickListener(this);
+
             lv = (ListView) view.findViewById(R.id.listView1);
 
             // get the status bar
@@ -192,7 +194,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       @Override
       public void onActivityResult(int requestCode, int resultCode, Intent data)
          {
-            if (requestCode == ADD_FRIEND_RESULT && resultCode == Activity.RESULT_OK)
+            if (requestCode == Constants.ADD_FRIEND_RESULT && resultCode == Activity.RESULT_OK)
                {
                   Friend friend = data.getParcelableExtra("friend");
                   System.out.println(friend.name + " | " + friend.email);
@@ -222,7 +224,13 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   case R.id.add_friend_button:
 
                      Intent intent = new Intent(getActivity(), AddFriendsActivity.class);
-                     startActivityForResult(intent, ADD_FRIEND_RESULT);
+                     startActivityForResult(intent, Constants.ADD_FRIEND_RESULT);
+                     break;
+
+                  case R.id.add_group_button:
+
+                     CreateGroupDialogFragment groupFrag = new CreateGroupDialogFragment();
+                     groupFrag.show(getActivity().getFragmentManager(), "group");
                      break;
                }
          }
@@ -265,23 +273,23 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                {
                   System.out.println("CREATING asd!!");
 
-                  Friend friend = new Friend("Daniel Chavez", "testuser1@gmail.com", STATUS_REQUEST);
+                  Friend friend = new Friend("Daniel Chavez", "testuser1@gmail.com", Constants.STATUS_REQUEST);
                   friendRequestsList.add(friend);
-                  friend = new Friend("Cam Rowe", "testuser2@gmail.com", STATUS_REQUEST);
+                  friend = new Friend("Cam Rowe", "testuser2@gmail.com", Constants.STATUS_REQUEST);
                   friendRequestsList.add(friend);
-                  friend = new Friend("Allen Rice", "testuser3@gmail.com", STATUS_ACCEPTED);
+                  friend = new Friend("Allen Rice", "testuser3@gmail.com", Constants.STATUS_ACCEPTED);
                   friendList.put(friend.id, friend);
-                  friend = new Friend("Wes Hudson", "testuser4@gmail.com", STATUS_PENDING);
+                  friend = new Friend("Wes Hudson", "testuser4@gmail.com", Constants.STATUS_PENDING);
                   friendList.put(friend.id, friend);
-                  friend = new Friend("Ryan Rice", "testuser5@gmail.com", STATUS_ACCEPTED);
+                  friend = new Friend("Ryan Rice", "testuser5@gmail.com", Constants.STATUS_ACCEPTED);
                   friendList.put(friend.id, friend);
-                  friend = new Friend("Tim Walker", "testuser6@gmail.com", STATUS_ACCEPTED);
+                  friend = new Friend("Tim Walker", "testuser6@gmail.com", Constants.STATUS_ACCEPTED);
                   friendList.put(friend.id, friend);
-                  friend = new Friend("Jack Denzeler", "testuser7@gmail.com", STATUS_ACCEPTED);
+                  friend = new Friend("Jack Denzeler", "testuser7@gmail.com", Constants.STATUS_ACCEPTED);
                   friendList.put(friend.id, friend);
-                  friend = new Friend("Bob Smith", "testuser8@gmail.com", STATUS_PENDING);
+                  friend = new Friend("Bob Smith", "testuser8@gmail.com", Constants.STATUS_PENDING);
                   friendList.put(friend.id, friend);
-                  friend = new Friend("John Hunter", "testuser9@gmail.com", STATUS_ACCEPTED);
+                  friend = new Friend("John Hunter", "testuser9@gmail.com", Constants.STATUS_ACCEPTED);
                   friendList.put(friend.id, friend);
                }
 
@@ -289,7 +297,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                {
                   //int i = friendList.indexOf(app.newAcceptedFriend);
                   //System.out.println("INDEX: " + i);
-                  app.newAcceptedFriend.status = STATUS_ACCEPTED;
+                  app.newAcceptedFriend.status = Constants.STATUS_ACCEPTED;
                   friendList.put(app.newAcceptedFriend.id, app.newAcceptedFriend);
                   app.newAcceptedFriend = null;
                   modified = true;
@@ -323,7 +331,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   Friend friend = entry.getValue();
                   int type = friend.status;
 
-                  if (type == STATUS_ACCEPTED)
+                  if (type == Constants.STATUS_ACCEPTED)
                      {
                         listViewItems.add(new AcceptedFriendItem(deleteListener, friend));
                      }

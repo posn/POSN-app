@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class FileManager
+public class DeviceFileManager
    {
       public static JSONObject loadJSONObjectFromFile(String devicePath)
          {

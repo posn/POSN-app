@@ -1,7 +1,6 @@
 package com.posn.main;
 
 import android.app.ActionBar;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -14,12 +13,14 @@ import com.posn.asynctasks.InitializeAsyncTask;
 import com.posn.clouds.Dropbox.DropboxClientUsage;
 import com.posn.datatypes.ConversationList;
 import com.posn.datatypes.FriendList;
+import com.posn.datatypes.GroupList;
 import com.posn.datatypes.NotificationList;
 import com.posn.datatypes.WallPostList;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.main.messages.UserMessagesFragment;
 import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.wall.UserWallFragment;
+import com.posn.utility.IDGenerator;
 
 
 public class MainActivity extends BaseActivity implements AsyncResponseIntialize
@@ -37,16 +38,19 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       InitializeAsyncTask asyncTaskInitialize;
 
       // data for wall fragment
-      public WallPostList wallPostList;
+      public WallPostList wallPostList = new WallPostList();
 
       // data for master friends list
-      public FriendList masterFriendList;
+      public FriendList masterFriendList = new FriendList();
 
       // data for notification fragment
-      public NotificationList notificationList;
+      public NotificationList notificationList = new NotificationList();
 
       // data for message fragment
-      public ConversationList conversationList;
+      public ConversationList conversationList = new ConversationList();
+
+      // data for groups
+      public GroupList groupList = new GroupList();
 
 
       @Override
@@ -162,34 +166,11 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             //cloud = new OneDriveClientUsage(this);
             cloud.initializeCloud();
 
-            wallPostList = new WallPostList();
-            masterFriendList = new FriendList();
-            notificationList = new NotificationList();
-            conversationList = new ConversationList();
-
             asyncTaskInitialize = new InitializeAsyncTask(this);
             asyncTaskInitialize.delegate = this;
             asyncTaskInitialize.execute();
          }
 
-      @Override
-      protected void onResume()
-         {
-            super.onResume();
-            /*
-            if (app.getDropbox() != null)
-               {
-                  app.getDropbox().authenticateDropboxLogin();
-               }
-            */
-
-         }
-
-
-      public void onActivityResult(int requestCode, int resultCode, Intent data)
-         {
-            super.onActivityResult(requestCode, resultCode, data);
-         }
 
 
       @Override
@@ -201,7 +182,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
 
       public void initializingFileDataFinished()
          {
-
             UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
             if (friendFrag != null)
                {
@@ -225,6 +205,14 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                {
                   notificationFrag.updateNotifications();
                }
+         }
+
+      public void createNewGroup(String groupName)
+         {
+            // generate group ID based on the group name
+
+
 
          }
    }
+

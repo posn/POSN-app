@@ -57,10 +57,10 @@ public class SetupCloudProvidersActivity extends FragmentActivity implements OnC
 		protected void onResume()
 			{
 				super.onResume();
-				if (app.getDropbox() != null){
-					System.out.println("HELLO!!!!");
+				//if (app.getDropbox() != null){
+				//	System.out.println("HELLO!!!!");
 					//app.getDropbox().authenticateDropboxLogin();
-				}
+				//}
 			}
 
 

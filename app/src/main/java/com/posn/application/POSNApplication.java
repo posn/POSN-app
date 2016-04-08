@@ -5,10 +5,9 @@ import android.os.Environment;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
-import com.posn.clouds.Dropbox.DropboxClientUsage;
 import com.posn.datatypes.Friend;
-import com.posn.encryption.AESEncryption;
-import com.posn.encryption.RSAEncryption;
+import com.posn.encryption.AsymmetricKeyManager;
+import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
 
 
@@ -57,53 +55,15 @@ public class POSNApplication extends Application
       // password data
       String password = null;
 
-      // encryption data
-      private RSAEncryption RSA = null;
-      private AESEncryption AES = null;
-
-      // Dropbox data
-      private DropboxClientUsage dropbox = null;
-
-
       // Friends Tab data
       public Friend newFriendRequest = null;
       public Friend newAcceptedFriend = null;
-
 
 
       @Override
       public void onCreate()
          {
             super.onCreate();
-
-            // initialize data structures
-            RSA = new RSAEncryption();
-            AES = new AESEncryption();
-
-         }
-
-
-      public DropboxClientUsage getDropbox()
-         {
-            return dropbox;
-         }
-
-
-      public void setDropbox(DropboxClientUsage dropbox)
-         {
-            this.dropbox = dropbox;
-         }
-
-
-      public RSAEncryption getRSA()
-         {
-            return RSA;
-         }
-
-
-      public AESEncryption getAES()
-         {
-            return AES;
          }
 
 
@@ -194,7 +154,6 @@ public class POSNApplication extends Application
       public void savePersonalInformation()
          {
             String fileContents;
-            File file = new File(profileFilePath + "/personalInfo.txt");
 
             // store personal data
             JSONObject user = new JSONObject();
@@ -211,29 +170,13 @@ public class POSNApplication extends Application
                }
             catch (JSONException e)
                {
-                  // TODO Auto-generated catch block
                   e.printStackTrace();
                }
 
             // encrypt fileContents
-            fileContents = RSA.Encrypt(user.toString());
+            fileContents = AsymmetricKeyManager.encrypt(user.toString());
 
-            try
-               {
-                  // if file doesnt exists, then create it
-                  if (!file.exists())
-                     {
-                        file.createNewFile();
-                     }
-
-                  PrintWriter printWriter = new PrintWriter(file);
-                  printWriter.print(fileContents);
-                  printWriter.close();
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
+            DeviceFileManager.writeStringToFile(fileContents, profileFilePath + "/personalInfo.txt");
          }
 
 
@@ -256,7 +199,7 @@ public class POSNApplication extends Application
                   fileContents = sb.toString();
 
                   // decrypt the file contents
-                  fileContents = RSA.Decrypt(fileContents);
+                  fileContents = AsymmetricKeyManager.decrypt(fileContents);
 
                   JSONObject data = new JSONObject(fileContents);
 
@@ -286,15 +229,11 @@ public class POSNApplication extends Application
 
                   return true;
                }
-            catch (IOException e)
+            catch (IOException | JSONException e)
                {
                   e.printStackTrace();
                }
-            catch (JSONException e)
-               {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
-               }
+
 
             return false;
          }

@@ -211,6 +211,8 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   else
                      {
                         Friend friend = activity.masterFriendList.currentFriends.get(post.friend);
+                        System.out.println("SIZE: " + post.friend);
+
                         name = friend.name;
                      }
 

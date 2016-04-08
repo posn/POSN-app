@@ -3,16 +3,11 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class Group implements Parcelable
    {
@@ -37,19 +32,14 @@ public class Group implements Parcelable
             selected = false;
          }
 
-      public Group(String name, String groupFileLink, String groupFileKey)
+      public Group(String ID, String name, String groupFileLink, String groupFileKey)
          {
             this.name = name;
-
-            // create group ID based on group name and created time
-            Calendar c = Calendar.getInstance();
-            String timeDate = c.toString();
-
-            final HashCode hashCode = Hashing.sha256().hashString(name + timeDate, Charset.defaultCharset());
-            ID = hashCode.toString();
-
+            this.ID = ID;
             this.groupFileLink = groupFileLink;
             this.groupFileKey = groupFileKey;
+
+            groupMembers.clear();
 
             selected = false;
          }

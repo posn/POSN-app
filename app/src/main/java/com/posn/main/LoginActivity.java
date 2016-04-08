@@ -22,8 +22,8 @@ import android.widget.Toast;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.datatypes.Friend;
-import com.posn.encryption.AESEncryption;
-import com.posn.encryption.RSAEncryption;
+import com.posn.encryption.AsymmetricKeyManager;
+import com.posn.encryption.SymmetricKeyManager;
 import com.posn.initial_setup.SetupPersonalInfoActivity;
 
 import java.io.BufferedReader;
@@ -96,6 +96,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener
 
 
             processURI(getIntent().getData());
+
+
 
 
          }
@@ -261,14 +263,13 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             app.setPassword(password);
 
             // create AES key from password
-            AESEncryption AES = app.getAES();
-            AES.createAESKey(password);
+            String passwordKey = SymmetricKeyManager.createKeyFromString(password);
 
             // check if the keys were read in from the file
-            if (readKeysFromFile(app.encryptionKeyFilePath, AES))
+            if (readKeysFromFile(app.encryptionKeyFilePath, passwordKey))
                {
                   // check if the password is valid
-                  if (readPasswordVerificationFile(app.encryptionKeyFilePath, password))
+                  if (readPasswordVerificationFile(app.encryptionKeyFilePath, password, passwordKey))
                      {
                         return true;
                      }
@@ -325,11 +326,10 @@ public class LoginActivity extends BaseActivity implements OnClickListener
          }
 
 
-      public boolean readKeysFromFile(String path, AESEncryption AES)
+      public boolean readKeysFromFile(String path, String key)
          {
             // declare variables
             String publicKey = "", privateKey = "";
-            RSAEncryption RSA = app.getRSA();
 
             // read in the public and private keys from the file
             try
@@ -362,7 +362,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                   byte[] publicKeyByte = Base64.decode(publicKey, Base64.DEFAULT);
                   X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyByte);
                   KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                  RSA.setPublicKey(keyFactory.generatePublic(spec));
+                  AsymmetricKeyManager.setPublicKey(keyFactory.generatePublic(spec));
 
                   // read in the number of lines from the file (private key)
                   br.readLine();
@@ -382,7 +382,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                   br.close();
 
                   // decrypt the private key
-                  String decryptedPrivateKey = AES.AESDecrypt(privateKey);
+                  String decryptedPrivateKey = SymmetricKeyManager.decrypt(key, privateKey);
 
                   // create a key from the private key string
                   if (decryptedPrivateKey != null)
@@ -390,7 +390,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                         byte[] privateKeyBytes = Base64.decode(decryptedPrivateKey, Base64.DEFAULT);
                         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
                         KeyFactory fact = KeyFactory.getInstance("RSA");
-                        RSA.setPrivateKey(fact.generatePrivate(keySpec));
+                        AsymmetricKeyManager.setPrivateKey(fact.generatePrivate(keySpec));
                         return true;
                      }
                }
@@ -403,7 +403,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
          }
 
 
-      public boolean readPasswordVerificationFile(String path, String password)
+      public boolean readPasswordVerificationFile(String path, String password, String key)
          {
             String encryptedText = "";
 
@@ -427,7 +427,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
 
                   br.close();
 
-                  String decryptedString = app.getAES().AESDecrypt(encryptedText);
+                  String decryptedString = SymmetricKeyManager.decrypt(key, encryptedText);
                   System.out.println("STRING: " + decryptedString);
 
                   if (decryptedString != null)
