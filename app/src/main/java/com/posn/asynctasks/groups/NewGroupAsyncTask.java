@@ -48,8 +48,8 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
             // generate group wall and archive key
             String groupWallKey = SymmetricKeyManager.createRandomKey();
 
-            // create empty group wall file
-            String fileName = newGroup + "_0";
+            // create empty group wall file on device to upload to cloud
+            String fileName = "group_" + newGroup.toLowerCase() + "_0.txt";
             String deviceFilepath = Constants.wallFilePath + "/" + fileName;
             CloudFileManager.createGroupWallFile(deviceFilepath, groupWallKey);
 
@@ -62,7 +62,7 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
             main.groupList.groups.put(groupID, group);
 
             // save group list to device
-            main.groupList.saveGroupsToFile(Constants.wallFilePath + "/user_groups.txt");
+            main.groupList.saveGroupsToFile(Constants.applicationDataFilePath + Constants.groupListFile);
 
             return null;
          }

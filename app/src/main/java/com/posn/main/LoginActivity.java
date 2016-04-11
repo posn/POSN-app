@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,22 +18,18 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.datatypes.Friend;
-import com.posn.encryption.AsymmetricKeyManager;
 import com.posn.encryption.SymmetricKeyManager;
 import com.posn.initial_setup.SetupPersonalInfoActivity;
+import com.posn.utility.DeviceFileManager;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 
 
@@ -67,22 +62,22 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             signupButton.setOnClickListener(this);
 
             passwordText.setOnEditorActionListener(new OnEditorActionListener()
-            {
+               {
 
-               @Override
-               public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
-                  {
-                     if (actionId == EditorInfo.IME_ACTION_DONE)
-                        {
-                           // Clear focus here from edittext
-                           passwordText.setCursorVisible(false);
-                           InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                           imm.hideSoftInputFromWindow(passwordText.getWindowToken(), 0);
-                           passwordText.clearFocus();
-                        }
-                     return false;
-                  }
-            });
+                  @Override
+                  public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+                     {
+                        if (actionId == EditorInfo.IME_ACTION_DONE)
+                           {
+                              // Clear focus here from edittext
+                              passwordText.setCursorVisible(false);
+                              InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                              imm.hideSoftInputFromWindow(passwordText.getWindowToken(), 0);
+                              passwordText.clearFocus();
+                           }
+                        return false;
+                     }
+               });
 
             // get the action bar and set the page title
             ActionBar actionBar = getActionBar();
@@ -96,8 +91,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener
 
 
             processURI(getIntent().getData());
-
-
 
 
          }
@@ -295,34 +288,13 @@ public class LoginActivity extends BaseActivity implements OnClickListener
 
       void createDefaultStorageDirectories()
          {
-            // check for archive directory
-            File storageDir = new File(app.archiveFilePath);
-            if (!storageDir.exists())
-               storageDir.mkdirs();
-
-            // check for encryption key directory
-            storageDir = new File(app.encryptionKeyFilePath);
-            if (!storageDir.exists())
-               storageDir.mkdirs();
-
-            // check for multimedia directory
-            storageDir = new File(app.multimediaFilePath);
-            if (!storageDir.exists())
-               storageDir.mkdirs();
-
-            // check for profile directory
-            storageDir = new File(app.profileFilePath);
-            if (!storageDir.exists())
-               storageDir.mkdirs();
-
-            // check for wall directory
-            storageDir = new File(app.wallFilePath);
-            if (!storageDir.exists())
-               storageDir.mkdirs();
-
-            storageDir = new File(app.messagesFilePath);
-            if (!storageDir.exists())
-               storageDir.mkdirs();
+            DeviceFileManager.createDirectory(Constants.archiveFilePath);
+            DeviceFileManager.createDirectory(Constants.encryptionKeyFilePath);
+            DeviceFileManager.createDirectory(Constants.multimediaFilePath);
+            DeviceFileManager.createDirectory(Constants.profileFilePath);
+            DeviceFileManager.createDirectory(Constants.wallFilePath);
+            DeviceFileManager.createDirectory(Constants.messagesFilePath);
+            DeviceFileManager.createDirectory(Constants.applicationDataFilePath);
          }
 
 
@@ -359,10 +331,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                      }
 
                   // create a key from the public key string
-                  byte[] publicKeyByte = Base64.decode(publicKey, Base64.DEFAULT);
-                  X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyByte);
-                  KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                  AsymmetricKeyManager.setPublicKey(keyFactory.generatePublic(spec));
+                  app.publicKey = publicKey;
 
                   // read in the number of lines from the file (private key)
                   br.readLine();
@@ -382,19 +351,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                   br.close();
 
                   // decrypt the private key
-                  String decryptedPrivateKey = SymmetricKeyManager.decrypt(key, privateKey);
+                  app.privateKey = SymmetricKeyManager.decrypt(key, privateKey);
 
-                  // create a key from the private key string
-                  if (decryptedPrivateKey != null)
-                     {
-                        byte[] privateKeyBytes = Base64.decode(decryptedPrivateKey, Base64.DEFAULT);
-                        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-                        KeyFactory fact = KeyFactory.getInstance("RSA");
-                        AsymmetricKeyManager.setPrivateKey(fact.generatePrivate(keySpec));
-                        return true;
-                     }
+                  return true;
                }
-            catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e)
+            catch (IOException e)
                {
                   e.printStackTrace();
                }

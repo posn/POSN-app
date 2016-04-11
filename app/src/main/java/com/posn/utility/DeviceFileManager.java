@@ -1,11 +1,14 @@
 package com.posn.utility;
 
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -133,5 +136,18 @@ public class DeviceFileManager
                }
          }
 
+      public static void createDirectory(String path)
+         {
+            // check if directory exists
+            File storageDir = new File(path);
+            if (!storageDir.exists())
+               {
+                 boolean status = storageDir.mkdirs();
+                  if(!status)
+                     {
+                        Log.d("DeviceFileManager", "Failed to created device directory: " + path);
+                     }
+               }
+         }
 
    }

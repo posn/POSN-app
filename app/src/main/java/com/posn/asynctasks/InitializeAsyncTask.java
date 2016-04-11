@@ -40,19 +40,19 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
          {
             // get the friend list file
             System.out.println("GETTING FRIENDS!!!");
-            main.masterFriendList.loadFriendsListFromFile(Constants.wallFilePath + "/user_friends.txt");
+            main.masterFriendList.loadFriendsListFromFile(Constants.applicationDataFilePath + "/user_friends.txt");
 
             // get the wall post file
             System.out.println("GETTING WALL POSTS!!!");
-            main.wallPostList.loadWallPostsFromFile(Constants.wallFilePath + "/user_wall.txt");
+            main.wallPostList.loadWallPostsFromFile(Constants.applicationDataFilePath + "/user_wall.txt");
 
             // get the notifications file
             System.out.println("GETTING NOTIFICATIONS!!!");
-            main.notificationList.loadNotificationsFromFile(Constants.wallFilePath + "/user_notifications.txt");
+            main.notificationList.loadNotificationsFromFile(Constants.applicationDataFilePath + "/user_notifications.txt");
 
             // get the messages file
             System.out.println("GETTING MESSAGES!!!");
-            main.conversationList.loadConversationsFromFile(Constants.messagesFilePath + "/user_messages.txt");
+            main.conversationList.loadConversationsFromFile(Constants.applicationDataFilePath + "/user_messages.txt");
 
             // check/create cloud storage directories
             main.cloud.createStorageDirectoriesOnCloud();

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
-import android.util.Base64;
+import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -181,15 +181,15 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 					}
 				
 				// create a new RSA Public and Private key based on the random input
-				status = AsymmetricKeyManager.createKeys(numEncryptBits, seed);
-				if (!status)
+				Pair<String, String> keyPair = AsymmetricKeyManager.generateKeys(numEncryptBits, seed);
+				if (keyPair == null)
 					{
 						Toast.makeText(this, "Failed to create RSA Key.", Toast.LENGTH_SHORT).show();
 						return false;
 					}
 
 				// save the public and private key to a file on the device
-				status = saveKeysToFile(app.encryptionKeyFilePath, key);
+				status = saveKeysToFile(app.encryptionKeyFilePath, keyPair, key);
 				if (!status)
 					{
 						Toast.makeText(this, "Failed to save keys to file.", Toast.LENGTH_SHORT).show();
@@ -200,7 +200,7 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 			}
 
 
-		public boolean saveKeysToFile(String path, String key)
+		public boolean saveKeysToFile(String path, Pair<String, String> keyPair, String passwordKey)
 			{
 				try
 					{
@@ -215,8 +215,7 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 
 						PrintWriter printWriter = new PrintWriter(file);
 
-						byte[] publicKeyBytes = AsymmetricKeyManager.getPublicKey().getEncoded();
-						String publicKey = Base64.encodeToString(publicKeyBytes, Base64.DEFAULT);
+						String publicKey = keyPair.first;
 
 						SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.US);
 						String currentDateandTime = sdf.format(new Date());
@@ -233,10 +232,9 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 						// put the public key in the file
 						printWriter.println(publicKey);
 
-						byte[] privateKeyBytes = AsymmetricKeyManager.getPrivateKey().getEncoded();
-						String privateKey = Base64.encodeToString(privateKeyBytes, Base64.DEFAULT);
+						String privateKey = keyPair.second;
 
-						String encryptedPrivateKey = SymmetricKeyManager.encrypt(key, privateKey);
+						String encryptedPrivateKey = SymmetricKeyManager.encrypt(passwordKey, privateKey);
 
 						// get the number of lines in the private key
 						numLines = countLines(encryptedPrivateKey);

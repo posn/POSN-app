@@ -40,6 +40,9 @@ public class POSNApplication extends Application
       private String gender = null;
       private String cloudProvider = null;
 
+      public String publicKey = null;
+      public String privateKey = null;
+
       public String getId()
          {
             return id;
@@ -174,7 +177,7 @@ public class POSNApplication extends Application
                }
 
             // encrypt fileContents
-            fileContents = AsymmetricKeyManager.encrypt(user.toString());
+            fileContents = AsymmetricKeyManager.encrypt(publicKey, user.toString());
 
             DeviceFileManager.writeStringToFile(fileContents, profileFilePath + "/personalInfo.txt");
          }
@@ -199,7 +202,7 @@ public class POSNApplication extends Application
                   fileContents = sb.toString();
 
                   // decrypt the file contents
-                  fileContents = AsymmetricKeyManager.decrypt(fileContents);
+                  fileContents = AsymmetricKeyManager.decrypt(privateKey, fileContents);
 
                   JSONObject data = new JSONObject(fileContents);
 

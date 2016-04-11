@@ -1,13 +1,20 @@
 package com.posn.encryption;
 
+import android.util.Base64;
+import android.util.Pair;
+
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
@@ -18,23 +25,7 @@ import javax.crypto.NoSuchPaddingException;
 
 public class AsymmetricKeyManager
    {
-
-      // variable declarations
-      private static PublicKey publicKey;
-      private static PrivateKey privateKey;
-
-      public static void setPublicKey(PublicKey pubKey)
-         {
-            publicKey = pubKey;
-         }
-
-      public static void setPrivateKey(PrivateKey privKey)
-         {
-            privateKey = privKey;
-         }
-
-
-      public static boolean createKeys(int bitLength, int seed)
+      public static Pair<String, String> generateKeys(int bitLength, int seed)
          {
             try
                {
@@ -50,23 +41,28 @@ public class AsymmetricKeyManager
 
                   // generate and store the public and private keys
                   KeyPair keyPair = keyPairGenerator.genKeyPair();
-                  publicKey = keyPair.getPublic();
+                  PublicKey publicKey = keyPair.getPublic();
                   System.out.println(publicKey.getFormat());
-                  privateKey = keyPair.getPrivate();
+                  PrivateKey privateKey = keyPair.getPrivate();
                   System.out.println(privateKey.getFormat());
 
+                  byte[] publicKeyBytes = publicKey.getEncoded();
+                  String pubKeyString = Base64.encodeToString(publicKeyBytes, Base64.DEFAULT);
+
+                  byte[] privateKeyBytes = privateKey.getEncoded();
+                  String privKeyString = Base64.encodeToString(privateKeyBytes, Base64.DEFAULT);
+
+                  return Pair.create(pubKeyString, privKeyString);
                }
             catch (NoSuchAlgorithmException e)
                {
                   e.printStackTrace();
-                  return false;
                }
-
-            return true;
+            return null;
          }
 
 
-      public static String encrypt(String plain)
+      public static String encrypt(String publicKey, String plain)
          {
             // declare variables
             String encryptedString = null;
@@ -74,13 +70,18 @@ public class AsymmetricKeyManager
             // try to encrypt the string using the public key
             try
                {
+                  byte[] publicKeyByte = Base64.decode(publicKey, Base64.DEFAULT);
+                  X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyByte);
+                  KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                  PublicKey key = keyFactory.generatePublic(spec);
+
                   Cipher cipher = Cipher.getInstance("RSA");
-                  cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+                  cipher.init(Cipher.ENCRYPT_MODE, key);
                   byte[] encryptedBytes = cipher.doFinal(plain.getBytes());
 
                   encryptedString = bytesToString(encryptedBytes);
                }
-            catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e)
+            catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e)
                {
                   e.printStackTrace();
                }
@@ -90,7 +91,7 @@ public class AsymmetricKeyManager
          }
 
 
-      public static String decrypt(String result)
+      public static String decrypt(String privateKey, String result)
          {
             // declare variables
             String decryptedString = null;
@@ -98,12 +99,17 @@ public class AsymmetricKeyManager
             // try to decrypt the string using the private key
             try
                {
+                  byte[] privateKeyBytes = Base64.decode(privateKey, Base64.DEFAULT);
+                  PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+                  KeyFactory fact = KeyFactory.getInstance("RSA");
+                  PrivateKey key = fact.generatePrivate(keySpec);
+
                   Cipher cipher1 = Cipher.getInstance("RSA");
-                  cipher1.init(Cipher.DECRYPT_MODE, privateKey);
+                  cipher1.init(Cipher.DECRYPT_MODE, key);
                   byte[] decryptedBytes = cipher1.doFinal(stringToBytes(result));
                   decryptedString = new String(decryptedBytes);
                }
-            catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e)
+            catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException e)
                {
                   e.printStackTrace();
                }
@@ -127,16 +133,5 @@ public class AsymmetricKeyManager
             return Arrays.copyOfRange(b2, 1, b2.length);
          }
 
-
-      public static PublicKey getPublicKey()
-         {
-            return publicKey;
-         }
-
-
-      public static PrivateKey getPrivateKey()
-         {
-            return privateKey;
-         }
 
    }
