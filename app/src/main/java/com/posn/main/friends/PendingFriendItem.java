@@ -5,18 +5,18 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.Friend;
+import com.posn.datatypes.RequestedFriend;
 import com.posn.main.friends.FriendsArrayAdapter.RowType;
 
 
 public class PendingFriendItem implements ListViewFriendItem
    {
 
-      private final Friend friend;
+      private final RequestedFriend friend;
       private boolean isClickable = false;
 
 
-      public PendingFriendItem(Friend friend)
+      public PendingFriendItem(RequestedFriend friend)
          {
             this.friend = friend;
          }

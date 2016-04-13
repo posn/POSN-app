@@ -1,11 +1,13 @@
 package com.posn.main;
 
 import android.app.ActionBar;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.AsyncResponseIntialize;
@@ -15,12 +17,18 @@ import com.posn.datatypes.ConversationList;
 import com.posn.datatypes.FriendList;
 import com.posn.datatypes.GroupList;
 import com.posn.datatypes.NotificationList;
+import com.posn.datatypes.RequestedFriend;
 import com.posn.datatypes.WallPostList;
+import com.posn.encryption.AsymmetricKeyManager;
+import com.posn.encryption.SymmetricKeyManager;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.main.messages.UserMessagesFragment;
 import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.wall.UserWallFragment;
-import com.posn.utility.IDGenerator;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.List;
 
 
 public class MainActivity extends BaseActivity implements AsyncResponseIntialize
@@ -52,6 +60,8 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       // data for groups
       public GroupList groupList = new GroupList();
 
+      public RequestedFriend requestedFriend = null;
+
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -61,8 +71,19 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             // load the xml file for the logs
             setContentView(R.layout.activity_main);
 
-            // get the action bar to set the title
-            actionBar = getActionBar();
+            // get the application
+            app = (POSNApplication) this.getApplication();
+
+            // attempt to get any new friend requests
+            if (getIntent().hasExtra("uri"))
+               {
+                  processURI(Uri.parse(getIntent().getExtras().getString("uri")));
+
+                  //requestedFriend = (RequestedFriend) getIntent().getExtras().get("newFriend");
+               }
+
+               // get the action bar to set the title
+               actionBar = getActionBar();
 
             // find the viewpager in the xml file
             viewPager = (ViewPager) findViewById(R.id.system_viewpager);
@@ -87,82 +108,31 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             actionBar.setTitle("Wall");
 
             tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
-            {
-               @Override
-               public void onTabSelected(TabLayout.Tab tab)
-                  {
-                     viewPager.setCurrentItem(tab.getPosition(), true);
+               {
+                  @Override
+                  public void onTabSelected(TabLayout.Tab tab)
+                     {
+                        viewPager.setCurrentItem(tab.getPosition(), true);
+                        updateTab(tab.getPosition(), true);
+                     }
 
-                     if (tab.getPosition() == 0)
-                        {
-                           actionBar.setTitle("Wall");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_wall_blue, newWallPostsNum, false);
-                        }
-                     else if (tab.getPosition() == 1)
-                        {
-                           actionBar.setTitle("Notifications");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_notification_blue, newNotificationNum, false);
-                        }
-                     else if (tab.getPosition() == 2)
-                        {
-                           actionBar.setTitle("Messages");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_message_blue, newMessagesNum, false);
-                        }
-                     else if (tab.getPosition() == 3)
-                        {
-                           actionBar.setTitle("Friends");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_friends_blue, newFriendNum, false);
-                        }
-                     else
-                        {
-                           actionBar.setTitle("Settings");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_settings_blue, 0, false);
-                        }
-                  }
+                  @Override
+                  public void onTabUnselected(TabLayout.Tab tab)
+                     {
+                        updateTab(tab.getPosition(), false);
+                     }
 
-               @Override
-               public void onTabUnselected(TabLayout.Tab tab)
-                  {
+                  @Override
+                  public void onTabReselected(TabLayout.Tab tab)
+                     {
+                     }
+               });
 
-                     if (tab.getPosition() == 0)
-                        {
-                           actionBar.setTitle("Wall");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_wall_gray, newWallPostsNum, true);
-                        }
-                     else if (tab.getPosition() == 1)
-                        {
-                           actionBar.setTitle("Notifications");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_notification_gray, newNotificationNum, true);
-                        }
-                     else if (tab.getPosition() == 2)
-                        {
-                           actionBar.setTitle("Messages");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_message_gray, newMessagesNum, true);
-                        }
-                     else if (tab.getPosition() == 3)
-                        {
-                           actionBar.setTitle("Friends");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_friends_gray, newFriendNum, true);
-                        }
-                     else
-                        {
-                           actionBar.setTitle("Settings");
-                           tabsAdapter.updateTab(tab.getPosition(), R.drawable.ic_settings_gray, 0, false);
-                        }
-                  }
 
-               @Override
-               public void onTabReselected(TabLayout.Tab tab)
-                  {
-                  }
-            });
-
-            // get the application
-            app = (POSNApplication) this.getApplication();
 
             // sign into the cloud
             cloud = new DropboxClientUsage(this);
-           // cloud = new GoogleDriveClientUsage(this);
+            // cloud = new GoogleDriveClientUsage(this);
             //cloud = new OneDriveClientUsage(this);
             cloud.initializeCloud();
 
@@ -170,7 +140,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             asyncTaskInitialize.delegate = this;
             asyncTaskInitialize.execute();
          }
-
 
 
       @Override
@@ -186,6 +155,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             if (friendFrag != null)
                {
                   friendFrag.updateFriendList();
+                  tabsAdapter.updateTab(3, R.drawable.ic_friends_gray, newFriendNum, true);
                }
 
             UserWallFragment wallFrag = (UserWallFragment) tabsAdapter.getRegisteredFragment(0);
@@ -207,12 +177,125 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                }
          }
 
-      public void createNewGroup(String groupName)
+
+      public void updateTab(int position, boolean selected)
          {
-            // generate group ID based on the group name
+            if (position == 0)
+               {
+                  actionBar.setTitle("Wall");
+                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_wall_blue : R.drawable.ic_wall_gray), newWallPostsNum, true);
+               }
+            else if (position == 1)
+               {
+                  actionBar.setTitle("Notifications");
+                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_notification_blue : R.drawable.ic_notification_gray), newNotificationNum, true);
+               }
+            else if (position == 2)
+               {
+                  actionBar.setTitle("Messages");
+                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_message_blue : R.drawable.ic_message_gray), newMessagesNum, true);
+               }
+            else if (position == 3)
+               {
+                  actionBar.setTitle("Friends");
+                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_friends_blue : R.drawable.ic_friends_gray), newFriendNum, true);
+               }
+            else
+               {
+                  actionBar.setTitle("Settings");
+                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_settings_blue : R.drawable.ic_settings_gray), 0, false);
+               }
+         }
+
+      private void processURI(Uri uriData)
+         {
+            if (uriData != null)
+               {
+                  requestedFriend = new RequestedFriend();
+
+                  // get the path segments of the URI
+                  List<String> params = uriData.getPathSegments();
+
+                  // check the type of URI
+                  String uriType = params.get(0);
+
+                  System.out.println("TYPE: " + uriType);
+
+                  if (uriType.equals("request"))
+                     {
+                        try
+                           {
+                              // set friend status
+                              requestedFriend.status = Constants.STATUS_REQUEST;
+
+                              // get ID
+                              requestedFriend.ID = params.get(1);
+
+                              // get email
+                              requestedFriend.email = params.get(2);
+
+                              // get first and last name
+                              requestedFriend.name = params.get(3) + " " + params.get(4);
+
+                              // get public key
+                              requestedFriend.publicKey = URLDecoder.decode(params.get(5), "UTF-8");
+                              requestedFriend.publicKey = requestedFriend.publicKey.replace("%2B", "+");
+
+                              // get file link
+                              requestedFriend.fileLink = URLDecoder.decode(params.get(6), "UTF-8");
+
+                              // get nonce
+                              requestedFriend.nonce = params.get(7);
+                           }
+                        catch (UnsupportedEncodingException e)
+                           {
+                              e.printStackTrace();
+                           }
+                     }
+                  else if (uriType.equals("accept"))
+                     {
+                        // get encrypted key
+                        String encryptedSymmetricKey = params.get(1);
+
+                        // decrypt symmetric key
+                        String key = AsymmetricKeyManager.decrypt(app.privateKey, encryptedSymmetricKey);
+
+                        // decrypt URI data
+                        String encryptedURI = params.get(2);
+
+                        String URI = SymmetricKeyManager.decrypt(key, encryptedURI);
+                        String[] paths = URI.split("/");
+
+                        try
+                           {
+                              // set friend status
+                              requestedFriend.status = Constants.STATUS_ACCEPTED;
+
+                              // get ID
+                              requestedFriend.ID = paths[0];
+
+                              // get first and last name
+                              requestedFriend.name = paths[1] + " " + paths[2];
+
+                              // get public key
+                              requestedFriend.publicKey = URLDecoder.decode(paths[3], "UTF-8");
+                              requestedFriend.publicKey = requestedFriend.publicKey.replace("%2B", "+");
+
+                              // get file link
+                              requestedFriend.fileLink = URLDecoder.decode(paths[4], "UTF-8");
+
+                              // get nonces
+                              requestedFriend.nonce = paths[5];
+                              requestedFriend.nonce2 = paths[6];
+                           }
+                        catch (UnsupportedEncodingException e)
+                           {
+                              e.printStackTrace();
+                           }
 
 
-
+                     }
+               }
          }
    }
 

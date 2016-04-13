@@ -2,7 +2,6 @@ package com.posn.datatypes;
 
 import android.os.AsyncTask;
 
-import com.posn.Constants;
 import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
@@ -17,7 +16,7 @@ import java.util.Map;
 public class FriendList
    {
       public HashMap<String, Friend> currentFriends;
-      public ArrayList<Friend> friendRequests;
+      public ArrayList<RequestedFriend> friendRequests;
 
       public FriendList()
          {
@@ -43,17 +42,17 @@ public class FriendList
                         // parse the friend
                         Friend friend = new Friend();
                         friend.parseJSONObject(friendsList.getJSONObject(n));
-
-                        // put into request or current friend list based on status
-                        if (friend.status == Constants.STATUS_ACCEPTED || friend.status == Constants.STATUS_PENDING)
-                           {
-                              currentFriends.put(friend.id, friend);
-                           }
-                        else
-                           {
-                              friendRequests.add(friend);
-                           }
+                        currentFriends.put(friend.id, friend);
                      }
+
+                  JSONArray requestedFriendsList = data.getJSONArray("requests");
+                  for (int n = 0; n < requestedFriendsList.length(); n++)
+                     {
+                        RequestedFriend friend = new RequestedFriend();
+                        friend.parseJSONObject(requestedFriendsList.getJSONObject(n));
+                        friendRequests.add(friend);
+                     }
+
                }
             catch (JSONException e)
                {
@@ -65,39 +64,46 @@ public class FriendList
          {
             // create new AsyncTask to execute function off main UI thread
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     saveFriendsListToFile(devicePath);
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        saveFriendsListToFile(devicePath);
+                        return null;
+                     }
+               }.execute();
          }
 
       public void saveFriendsListToFile(String devicePath)
          {
-            JSONArray friendsList = new JSONArray();
             Friend friend;
-
+            RequestedFriend requestedFriend;
             try
                {
+                  JSONObject object = new JSONObject();
+                  JSONArray friendsList = new JSONArray();
+
+
                   // add all of the friends in the current friends list into the JSON array
                   for (Map.Entry<String, Friend> entry : currentFriends.entrySet())
                      {
                         friend = entry.getValue();
                         friendsList.put(friend.createJSONObject());
                      }
+                  object.put("friends", friendsList);
+
 
                   // add all of the friends in the friend request list into the JSON array
+                  JSONArray requestedFriendsList = new JSONArray();
+
+                  System.out.println("SIZE: " + friendRequests.size());
                   for (int i = 0; i < friendRequests.size(); i++)
                      {
-                        friend = friendRequests.get(i);
-                        friendsList.put(friend.createJSONObject());
+                        requestedFriend = friendRequests.get(i);
+                        requestedFriendsList.put(requestedFriend.createJSONObject());
                      }
+                  object.put("requests", requestedFriendsList);
 
                   // create new JSON object and put the JSON array into it
-                  JSONObject object = new JSONObject();
-                  object.put("friends", friendsList);
 
                   // write the JSON object to a file
                   DeviceFileManager.writeJSONToFile(object, devicePath);

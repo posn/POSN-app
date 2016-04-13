@@ -10,32 +10,39 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.posn.Constants;
 import com.posn.R;
+import com.posn.adapters.FriendGroupArrayAdapter;
 import com.posn.application.POSNApplication;
-import com.posn.datatypes.Friend;
-import com.posn.email.EmailSender;
-import com.posn.initial_setup.ContactArrayAdapter;
+import com.posn.datatypes.Group;
+import com.posn.datatypes.RequestedFriend;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class AddFriendsActivity extends FragmentActivity implements OnClickListener
    {
 
       // declare variables
-      Button add, addFriends;
+      Button addFriend;
       EditText name, email;
       ListView lv;
 
-      HashMap<String, Friend> friendList;
-      ArrayList<Friend> contactList = new ArrayList<>();
+      ArrayList<Group> groupList;
+      int type;
+
+      RequestedFriend requestedFriend;
 
       POSNApplication app;
+
+      FriendGroupArrayAdapter adapter;
 
 
       @Override
@@ -44,8 +51,30 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
             super.onCreate(savedInstanceState);
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
+            // get the group list from the intent extras
+            groupList = getIntent().getExtras().getParcelableArrayList("groups");
+            type = getIntent().getExtras().getInt("type");
+
             // get the XML layout
-            setContentView(R.layout.activity_add_friends);
+            if (type == Constants.TYPE_FRIEND_INFO)
+               {
+                  setContentView(R.layout.activity_add_friends);
+                  requestedFriend = new RequestedFriend();
+               }
+            else
+               {
+                  setContentView(R.layout.activity_add_groups);
+                  requestedFriend = (RequestedFriend) getIntent().getExtras().get("requestedFriend");
+               }
+
+            // sort the grouplist by group name
+            Collections.sort(groupList, new Comparator<Group>()
+               {
+                  public int compare(Group o1, Group o2)
+                     {
+                        return o1.name.compareTo(o2.name);
+                     }
+               });
 
             // get the listview from the layout
             lv = (ListView) findViewById(R.id.listView1);
@@ -55,48 +84,54 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
             email = (EditText) findViewById(R.id.email_text);
 
             // get the buttons from the layout
-            add = (Button) findViewById(R.id.add_button);
-            addFriends = (Button) findViewById(R.id.add_friends_button);
+            addFriend = (Button) findViewById(R.id.add_friend_button);
 
             // set onclick listener for each button
-            addFriends.setOnClickListener(this);
-            add.setOnClickListener(this);
+            addFriend.setOnClickListener(this);
 
             // get all the phone contacts.
 
             lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             lv.setItemsCanFocus(true);
 
+
             // create a custom adapter for each contact item in the listview
-            final ContactArrayAdapter adapter = new ContactArrayAdapter(this, contactList);
+            adapter = new FriendGroupArrayAdapter(this, groupList, requestedFriend);
 
             // set the adapter to the listview
             lv.setAdapter(adapter);
 
             // set onItemClick listener
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
-            {
+               {
 
-               @Override
-               public void onItemClick(AdapterView<?> parent, final View view, int position, long id)
-                  {
-                     // get the contact that was click and toggle the check box
-                     final Friend item = (Friend) parent.getItemAtPosition(position);
-                     adapter.updateContactList(item);
+                  @Override
+                  public void onItemClick(AdapterView<?> parent, final View view, int position, long id)
+                     {
+                        CheckBox currentCheckBox = (CheckBox) view.findViewById(R.id.checkBox1);
+                        currentCheckBox.toggle();
 
-                     // refresh the listview
-                     adapter.notifyDataSetChanged();
-                  }
+                        Group group = (Group) parent.getItemAtPosition(position);
 
-            });
+                        // get the contact that was click and toggle the check box
+                        adapter.updateSelectedGroupList(group);
+
+                        // refresh the listview
+                        //  adapter.notifyDataSetChanged();
+                     }
+
+               });
 
             // get the action bar and set the title
             ActionBar actionBar = getActionBar();
-            actionBar.setTitle("Add Additional Friends");
+            if (actionBar != null)
+               {
+                  actionBar.setTitle("Add New Friend");
+               }
 
             app = (POSNApplication) getApplication();
 
-//            friendList = app.friendList;
+            //            friendList = app.friendList;
          }
 
 
@@ -105,59 +140,61 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
          {
             switch (v.getId())
                {
+                  case R.id.add_friend_button:
 
-                  case R.id.add_friends_button:
+                     System.out.println("GROUP SIZE: " + requestedFriend.groups.size());
 
-                     if (!contactList.isEmpty())
+                     if (type == Constants.TYPE_FRIEND_INFO)
                         {
-                           Friend newFriend = contactList.get(0);
+                           if ((!isEmpty(email)))
+                              {
+                                 // change the status to pending
+                                 requestedFriend.status = Constants.STATUS_PENDING;
 
-                           EmailSender test = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
-                           // test.sendMail("POSN TEST!", "SUCCESS!\n\nhttp://posn.com/data1/data2/data3_data4", "POSN", "eklukovich92@hotmail.com");
-                           //test.sendMail("POSN - New Friend Request", "SUCCESS!\n\nhttp://posn.com/request/" + app.getFirstName() + "/" + app.getLastName() + "/" + app.getEmailAddress(), "POSN", newFriend.email);
-                           test.sendMail("POSN - New Friend Request", "SUCCESS!\n\nhttp://posn.com/request/" + "Eric" + "/" + "Klukovich" + "/" + "eklukovich92@hotmail.com", "POSN", newFriend.email);
+                                 // get the friend's name from the edit text
+                                 requestedFriend.name = name.getText().toString();
 
-                           newFriend.status = 3;
+                                 // get the friend's email from the edit text
+                                 requestedFriend.email = email.getText().toString();
+
+                                 // create nonce
+                                 requestedFriend.nonce = Integer.toString((int) (System.currentTimeMillis() / 1000));
+
+                                 Intent resultIntent = new Intent();
+                                 setResult(Activity.RESULT_OK, resultIntent);
+                                 resultIntent.putExtra("requestedFriend", requestedFriend);
+                                 finish();
+                              }
+                           else
+                              {
+                                 Toast.makeText(this, "You must add at least one friend.", Toast.LENGTH_SHORT).show();
+                              }
+                        }
+                     else
+                        {
+                           requestedFriend.nonce2 = Integer.toString((int) (System.currentTimeMillis() / 1000));
 
                            Intent resultIntent = new Intent();
                            setResult(Activity.RESULT_OK, resultIntent);
-                           resultIntent.putExtra("friend", newFriend);
+                           resultIntent.putExtra("requestedFriend", requestedFriend);
                            finish();
                         }
-                     else
-                        {
-                           Toast.makeText(this, "You must add at least one friend.", Toast.LENGTH_SHORT).show();
-                        }
+
+
+
+
                      break;
-
-                  case R.id.add_button:
-                     ContactArrayAdapter adapter = (ContactArrayAdapter) lv.getAdapter();
-
-
-                     if (!isEmpty(name) && !isEmpty(email))
-                        {
-                           Friend newContact = new Friend(name.getText().toString(), email.getText().toString(), 3);
-                           newContact.selected = true;
-
-                           adapter.add(newContact);
-                           adapter.notifyDataSetChanged();
-
-                           name.getText().clear();
-                           email.getText().clear();
-                        }
-                     else
-                        {
-                           Toast.makeText(this, "You must enter a name and email address.", Toast.LENGTH_SHORT).show();
-                        }
-                     break;
-
                }
-
          }
 
 
       private boolean isEmpty(EditText etText)
          {
-            return (etText.getText().toString().trim().length() > 0);
+            if ((etText.getText().toString().trim().length() > 0))
+               {
+                  return false;
+               }
+
+            return true;
          }
    }

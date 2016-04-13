@@ -6,21 +6,21 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.Friend;
+import com.posn.datatypes.RequestedFriend;
 import com.posn.main.friends.FriendsArrayAdapter.RowType;
 
 
 public class RequestFriendItem implements ListViewFriendItem
    {
 
-      private final Friend friend;
+      private final RequestedFriend friend;
       private boolean isClickable = false;
       Button acceptButton, declineButton;
       View.OnClickListener confirm;
       View.OnClickListener decline;
 
 
-      public RequestFriendItem(View.OnClickListener confirm, View.OnClickListener decline, Friend friend)
+      public RequestFriendItem(View.OnClickListener confirm, View.OnClickListener decline, RequestedFriend friend)
          {
             this.friend = friend;
             this.confirm = confirm;

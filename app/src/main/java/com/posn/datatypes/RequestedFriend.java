@@ -3,70 +3,47 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
-import com.posn.Constants;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
-public class Friend implements Parcelable
+public class RequestedFriend implements Parcelable
    {
-      public String id;
-      public String name;
+      public int status; // can be pending (user sent the request) or request (user responds)
 
-      public String phone;
+      public String ID;
+      public String name;
       public String email;
-      public String image_uri;
+      public String publicKey;
+      public String fileLink;   // can be friend file or temporal file
+      public String nonce;
+      public String nonce2;
 
       // holds the list of groups as group IDs
       public ArrayList<String> groups = new ArrayList<>();
 
-      public String publicKey;
-
-      public String friendFileLink;
 
       public boolean selected;
-      public int status;
 
-      public Friend()
+      public RequestedFriend()
          {
             selected = false;
          }
 
-      public Friend(String name)
+      public RequestedFriend(String name)
          {
             this.name = name;
             selected = false;
          }
 
-      public Friend(RequestedFriend friend)
-         {
-            status = Constants.STATUS_ACCEPTED;
-            id = friend.ID;
-            name = friend.name;
-            publicKey = friend.publicKey;
-            friendFileLink = friend.fileLink;
-            groups.addAll(friend.groups);
-            selected = false;
-         }
 
-
-      public Friend(String name, String email, int status)
+      public RequestedFriend(String name, String email, int status)
          {
             this.name = name;
             this.email = email;
             this.status = status;
-
-            final HashCode hashCode = Hashing.sha1().hashString(email, Charset.defaultCharset());
-            id = hashCode.toString();
-
-            phone = "0";
-            image_uri = "asd";
             selected = false;
          }
 
@@ -76,12 +53,15 @@ public class Friend implements Parcelable
 
             try
                {
-                  obj.put("id", id);
+                  obj.put("status", status);
+
+                  obj.put("id", ID);
                   obj.put("name", name);
                   obj.put("email", email);
-                  obj.put("status", status);
                   obj.put("publicKey", publicKey);
-                  obj.put("friendFileLink", friendFileLink);
+                  obj.put("fileLink", fileLink);
+                  obj.put("nonce", nonce);
+                  obj.put("nonce2", nonce2);
 
                   JSONArray jsArray = new JSONArray(groups);
                   obj.put("groups", jsArray);
@@ -99,27 +79,34 @@ public class Friend implements Parcelable
             try
                {
                   status = obj.getInt("status");
-                  id = obj.getString("id");
+
+                  if (obj.has("id"))
+                     {
+                        ID = obj.getString("id");
+                     }
                   name = obj.getString("name");
                   email = obj.getString("email");
-
                   if (obj.has("publicKey"))
                      {
                         publicKey = obj.getString("publicKey");
                      }
-                  if (obj.has("friendFileLink"))
+                  if (obj.has("fileLink"))
                      {
-                        friendFileLink = obj.getString("friendFileLink");
+                        fileLink = obj.getString("fileLink");
                      }
 
-                  if (obj.has("groups"))
+                  nonce = obj.getString("nonce");
+                  if(obj.has("nonce2"))
                      {
-                        JSONArray groupMemberList = obj.getJSONArray("groups");
-                        for (int n = 0; n < groupMemberList.length(); n++)
-                           {
-                              String groupID = groupMemberList.getString(n);
-                              groups.add(groupID);
-                           }
+                        nonce2 = obj.getString("nonce2");
+                     }
+
+                  JSONArray groupMemberList = obj.getJSONArray("groups");
+
+                  for (int n = 0; n < groupMemberList.length(); n++)
+                     {
+                        String groupID = groupMemberList.getString(n);
+                        groups.add(groupID);
                      }
                }
             catch (JSONException e)
@@ -131,25 +118,26 @@ public class Friend implements Parcelable
       @Override
       public boolean equals(Object o)
          {
-            if (!(o instanceof Friend))
+            if (!(o instanceof RequestedFriend))
                {
                   return false;
                }
-            Friend other = (Friend) o;
-            System.out.println(name + " | " + other.name);
-            return name.equalsIgnoreCase(other.name);
+            RequestedFriend other = (RequestedFriend) o;
+            return (name.equalsIgnoreCase(other.name));
          }
 
 
       // Parcelling part
-      public Friend(Parcel in)
+      public RequestedFriend(Parcel in)
          {
-            this.id = in.readString();
+            this.ID = in.readString();
             this.name = in.readString();
             this.email = in.readString();
             this.publicKey = in.readString();
-            this.friendFileLink = in.readString();
+            this.fileLink = in.readString();
             this.status = in.readInt();
+            this.nonce = in.readString();
+            this.nonce2 = in.readString();
 
             in.readStringList(groups);
          }
@@ -158,25 +146,27 @@ public class Friend implements Parcelable
       @Override
       public void writeToParcel(Parcel dest, int flags)
          {
-            dest.writeString(this.id);
+            dest.writeString(this.ID);
             dest.writeString(this.name);
             dest.writeString(this.email);
             dest.writeString(this.publicKey);
-            dest.writeString(this.friendFileLink);
+            dest.writeString(this.fileLink);
             dest.writeInt(this.status);
+            dest.writeString(this.nonce);
+            dest.writeString(this.nonce2);
             dest.writeStringList(groups);
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Creator<RequestedFriend> CREATOR = new Creator<RequestedFriend>()
          {
-            public Friend createFromParcel(Parcel in)
+            public RequestedFriend createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new RequestedFriend(in);
                }
 
-            public Friend[] newArray(int size)
+            public RequestedFriend[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new RequestedFriend[size];
                }
          };
 

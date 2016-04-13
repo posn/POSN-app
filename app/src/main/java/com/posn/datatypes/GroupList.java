@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,4 +88,17 @@ public class GroupList
                   e.printStackTrace();
                }
          }
+
+      public ArrayList<Group> getList()
+         {
+            ArrayList<Group> list = new ArrayList<>();
+
+            for (Map.Entry<String, Group> entry : groups.entrySet())
+               {
+                  list.add(entry.getValue());
+               }
+
+            return list;
+         }
+
    }

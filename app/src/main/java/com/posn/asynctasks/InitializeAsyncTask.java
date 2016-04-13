@@ -38,6 +38,10 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
+            // get the group list file
+            System.out.println("GETTING GROUPS!!!");
+            main.groupList.loadGroupsFromFile(Constants.applicationDataFilePath + "/user_groups.txt");
+
             // get the friend list file
             System.out.println("GETTING FRIENDS!!!");
             main.masterFriendList.loadFriendsListFromFile(Constants.applicationDataFilePath + "/user_friends.txt");

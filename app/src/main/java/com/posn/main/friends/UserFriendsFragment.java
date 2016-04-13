@@ -14,13 +14,16 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
+import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.asynctasks.friends.LoadFriendsListAsyncTask;
+import com.posn.asynctasks.friends.NewFriendFinalAsyncTask;
+import com.posn.asynctasks.friends.NewFriendInitialAsyncTask;
+import com.posn.asynctasks.friends.NewFriendIntermediateAsyncTask;
 import com.posn.datatypes.Friend;
-import com.posn.email.EmailSender;
+import com.posn.datatypes.RequestedFriend;
 import com.posn.main.MainActivity;
 import com.posn.main.groups.CreateGroupDialogFragment;
 
@@ -35,9 +38,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
    {
 
 
-
       // declare variables
-      MainActivity activity;
+      public MainActivity activity;
       Context context;
       ListView lv;
       TableRow statusBar;
@@ -45,84 +47,10 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       RelativeLayout addGroupButton;
 
       HashMap<String, Friend> friendList;
-      ArrayList<Friend> friendRequestsList;
-      ArrayList<ListViewFriendItem> listViewItems = new ArrayList<>();
+      ArrayList<RequestedFriend> friendRequestsList;
+      public ArrayList<ListViewFriendItem> listViewItems = new ArrayList<>();
       POSNApplication app;
-      FriendsArrayAdapter adapter;
-
-      LoadFriendsListAsyncTask asyncTask;
-
-      OnClickListener confirmListener = new OnClickListener()
-      {
-         @Override
-         public void onClick(View v)
-            {
-               Friend friend = (Friend) v.getTag();
-
-               friendRequestsList.remove(friend);
-
-               listViewItems.remove(new RequestFriendItem(confirmListener, declineListener, friend));
-
-               friend.status = Constants.STATUS_ACCEPTED;
-               friendList.put(friend.id, friend);
-               listViewItems.add(new AcceptedFriendItem(deleteListener, friend));
-
-               sortFriendsList();
-               adapter.notifyDataSetChanged();
-
-               activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
-
-               EmailSender test = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
-               // test.sendMail("POSN TEST!", "SUCCESS!\n\nhttp://posn.com/data1/data2/data3_data4", "POSN", "eklukovich92@hotmail.com");
-               test.sendMail("POSN - Confirmed Friend Request", "SUCCESS!\n\nhttp://posn.com/confirm/" + app.getFirstName() + "/" + app.getLastName() + "/" + app.getEmailAddress(), "POSN", friend.email);
-            }
-      };
-
-      OnClickListener declineListener = new OnClickListener()
-      {
-         @Override
-         public void onClick(View v)
-            {
-               Friend position = (Friend) v.getTag();
-
-               friendRequestsList.remove(position);
-
-               listViewItems.remove(new RequestFriendItem(confirmListener, declineListener, position));
-
-
-               sortFriendsList();
-               adapter.notifyDataSetChanged();
-
-               activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
-
-
-               // SEND NOTIFICATION TO FRIEND ABOUT DECLINE
-            }
-      };
-
-      OnClickListener deleteListener = new OnClickListener()
-      {
-         @Override
-         public void onClick(View v)
-            {
-               Friend position = (Friend) v.getTag();
-
-               friendList.remove(position.id);
-
-               listViewItems.remove(new AcceptedFriendItem(deleteListener, position));
-
-               sortFriendsList();
-               adapter.notifyDataSetChanged();
-
-               activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
-            }
-      };
-
-      @Override
-      public void onResume()
-         {
-            super.onResume();
-         }
+      public FriendsArrayAdapter adapter;
 
 
       @Override
@@ -148,28 +76,28 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             statusBar = (TableRow) view.findViewById(R.id.status_bar);
 
             lv.setOnScrollListener(new OnScrollListener()
-            {
-               private int mLastFirstVisibleItem;
+               {
+                  private int mLastFirstVisibleItem;
 
-               @Override
-               public void onScrollStateChanged(AbsListView view, int scrollState)
-                  {
-                  }
+                  @Override
+                  public void onScrollStateChanged(AbsListView view, int scrollState)
+                     {
+                     }
 
-               @Override
-               public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-                  {
-                     if (mLastFirstVisibleItem < firstVisibleItem)
-                        {
-                           statusBar.setVisibility(View.GONE);
-                        }
-                     if (mLastFirstVisibleItem > firstVisibleItem)
-                        {
-                           statusBar.setVisibility(View.VISIBLE);
-                        }
-                     mLastFirstVisibleItem = firstVisibleItem;
-                  }
-            });
+                  @Override
+                  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+                     {
+                        if (mLastFirstVisibleItem < firstVisibleItem)
+                           {
+                              statusBar.setVisibility(View.GONE);
+                           }
+                        if (mLastFirstVisibleItem > firstVisibleItem)
+                           {
+                              statusBar.setVisibility(View.VISIBLE);
+                           }
+                        mLastFirstVisibleItem = firstVisibleItem;
+                     }
+               });
 
             activity = (MainActivity) getActivity();
             app = activity.app;
@@ -194,27 +122,38 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       @Override
       public void onActivityResult(int requestCode, int resultCode, Intent data)
          {
-            if (requestCode == Constants.ADD_FRIEND_RESULT && resultCode == Activity.RESULT_OK)
+            if (requestCode == Constants.RESULT_ADD_FRIEND && resultCode == Activity.RESULT_OK)
                {
-                  Friend friend = data.getParcelableExtra("friend");
+                  RequestedFriend friend = data.getParcelableExtra("requestedFriend");
+                  new NewFriendInitialAsyncTask(this, friend).execute();
+               }
+            else if (requestCode == Constants.RESULT_ADD_FRIEND_GROUPS && resultCode == Activity.RESULT_OK)
+               {
+                  RequestedFriend friend = data.getParcelableExtra("requestedFriend");
                   System.out.println(friend.name + " | " + friend.email);
 
-                  friendList.put(friend.id, friend);
-                  listViewItems.add(new PendingFriendItem(friend));
+                  for (int i = 0; i < friend.groups.size(); i++)
+                     {
+                        System.out.println(activity.groupList.groups.get(friend.groups.get(i)).name);
+                     }
+
+
+                  // create a new current friend for the accepted user and add them to the current friends list
+                  friendList.put(friend.ID, new Friend(friend));
+
+                  // add them to the list view as an accepted friend
+                  listViewItems.add(new AcceptedFriendItem(this, new Friend(friend)));
+
+                  // sort the friends and update the list view
                   sortFriendsList();
                   adapter.notifyDataSetChanged();
-                  activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
+
+                  Toast.makeText(activity, "CONFIRMED!", Toast.LENGTH_SHORT).show();
+
+                  // create AsyncTask to handle the intermediate phase
+                   new NewFriendIntermediateAsyncTask(this, friend).execute();
                }
          }
-
-
-      @Override
-      public void onAttach(Activity activity)
-         {
-            super.onAttach(activity);
-            context = getActivity();
-         }
-
 
       @Override
       public void onClick(View v)
@@ -223,20 +162,189 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                {
                   case R.id.add_friend_button:
 
+                     // create a new activity intent to add a friend
                      Intent intent = new Intent(getActivity(), AddFriendsActivity.class);
-                     startActivityForResult(intent, Constants.ADD_FRIEND_RESULT);
+
+                     intent.putExtra("type", Constants.TYPE_FRIEND_INFO);
+
+                     // pass the list of groups to the activity
+                     intent.putParcelableArrayListExtra("groups", activity.groupList.getList());
+
+                     // start the activity and get the result from it
+                     startActivityForResult(intent, Constants.RESULT_ADD_FRIEND);
                      break;
+
 
                   case R.id.add_group_button:
 
+                     // create new dialog fragment to get the new group name
                      CreateGroupDialogFragment groupFrag = new CreateGroupDialogFragment();
+
+                     // show the dialog
                      groupFrag.show(getActivity().getFragmentManager(), "group");
+                     break;
+
+
+                  case R.id.confirm_button:
+                     // get the accepted friend
+                     RequestedFriend friend = (RequestedFriend) v.getTag();
+
+                     // remove them from the friend request list
+                     friendRequestsList.remove(friend);
+                     activity.newFriendNum--;
+                     activity.updateTab(3, true);
+
+                     // remove them from the list view
+                     listViewItems.remove(new RequestFriendItem(this, this, friend));
+
+
+                     // create a new activity intent to add friend groups
+                     intent = new Intent(getActivity(), AddFriendsActivity.class);
+                     intent.putExtra("type", Constants.TYPE_FRIEND_GROUPS);
+                     intent.putParcelableArrayListExtra("groups", activity.groupList.getList());
+                     intent.putExtra("requestedFriend", friend);
+
+                     startActivityForResult(intent, Constants.RESULT_ADD_FRIEND_GROUPS);
+
+
+                     break;
+
+
+                  case R.id.decline_button:
+                     // get the declined friend
+                     RequestedFriend requestedFriend = (RequestedFriend) v.getTag();
+
+                     // remove them from the request list
+                     friendRequestsList.remove(requestedFriend);
+
+                     // remove them from the list view
+                     listViewItems.remove(new RequestFriendItem(this, this, requestedFriend));
+
+                     // sort the friends and update the list view
+                     sortFriendsList();
+                     adapter.notifyDataSetChanged();
+                     activity.newFriendNum--;
+                     activity.updateTab(3, true);
+
+                     // save the updated friends list to file
+                     activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
+
+                     // SEND NOTIFICATION TO FRIEND ABOUT DECLINE
+                     break;
+
+
+                  case R.id.delete_button:
+                     Friend position = (Friend) v.getTag();
+
+                     friendList.remove(position.id);
+
+                     listViewItems.remove(new AcceptedFriendItem(this, position));
+
+                     sortFriendsList();
+                     adapter.notifyDataSetChanged();
+
+                     activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
                      break;
                }
          }
 
+      public void createFriendsList()
+         {
+            System.out.println("CREATING FRIENDS!!");
 
-      private void sortFriendsList()
+            // check if a new friend needs to be added from URI
+            if (activity.requestedFriend != null)
+               {
+                  // check if the friend is a new incoming friend request
+                  if (activity.requestedFriend.status == Constants.STATUS_REQUEST)
+                     {
+                        System.out.println("ADDED");
+                        friendRequestsList.add(activity.requestedFriend);
+                        activity.requestedFriend = null;
+                     }
+                  // check if the friend accepted the sent request
+                  else if (activity.requestedFriend.status == Constants.STATUS_ACCEPTED)
+                     {
+                        System.out.println("ACCEPT!!!: " + activity.requestedFriend.name + " | " + activity.masterFriendList.friendRequests.contains(activity.requestedFriend));
+                        RequestedFriend pendingFriend = activity.masterFriendList.friendRequests.get(activity.masterFriendList.friendRequests.indexOf(activity.requestedFriend));
+
+                        // merge data
+                        RequestedFriend friend = new RequestedFriend();
+
+                        friend.name = pendingFriend.name;
+                        friend.email = pendingFriend.email;
+                        friend.groups = pendingFriend.groups;
+                        friend.status = Constants.STATUS_ACCEPTED;
+                        friend.fileLink = activity.requestedFriend.fileLink;
+                        friend.publicKey = activity.requestedFriend.publicKey;
+                        friend.ID = activity.requestedFriend.ID;
+                        friend.nonce = activity.requestedFriend.nonce;
+                        friend.nonce2 = activity.requestedFriend.nonce2;
+
+                        activity.masterFriendList.friendRequests.remove(activity.requestedFriend);
+
+                        activity.masterFriendList.currentFriends.put(activity.requestedFriend.ID, new Friend(friend));
+
+                        // start phase 3
+                        new NewFriendFinalAsyncTask(this, friend).execute();
+
+                     }
+
+                  activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
+               }
+
+            // add data to list view
+            listViewItems.clear();
+
+            // add the new requests section header
+            listViewItems.add(0, new HeaderItem("Friend Requests"));
+
+            // add any friend requests to the top of the list view
+            for (int i = 0; i < friendRequestsList.size(); i++)
+               {
+                  RequestedFriend friend = friendRequestsList.get(i);
+                  if (friend.status == Constants.STATUS_REQUEST)
+                     {
+                        listViewItems.add(new RequestFriendItem(this, this, friend));
+                        activity.newFriendNum++;
+                     }
+               }
+
+            // add the current and pending friends section header
+            listViewItems.add(new HeaderItem("Accepted and Pending Friends"));
+
+            // loop through friends list and add all current friends
+            for (Map.Entry<String, Friend> entry : friendList.entrySet())
+               {
+                  Friend friend = entry.getValue();
+                  listViewItems.add(new AcceptedFriendItem(this, friend));
+               }
+
+            // loop through and add all pending friends
+            for (int i = 0; i < friendRequestsList.size(); i++)
+               {
+                  RequestedFriend friend = friendRequestsList.get(i);
+                  if (friend.status == Constants.STATUS_PENDING)
+                     {
+                        listViewItems.add(new PendingFriendItem(friend));
+                     }
+               }
+
+            // sort the friends list alphabetically
+            sortFriendsList();
+         }
+
+
+      public void updateFriendList()
+         {
+            createFriendsList();
+
+            // notify the adapter about the data change
+            adapter.notifyDataSetChanged();
+         }
+
+
+      public void sortFriendsList()
          {
             int firstHeader, secondHeader;
 
@@ -249,108 +357,15 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   secondHeader++;
                }
 
-
             Comparator<ListViewFriendItem> friendNameComparator = new Comparator<ListViewFriendItem>()
-            {
-               public int compare(ListViewFriendItem emp1, ListViewFriendItem emp2)
-                  {
-                     return emp1.getName().compareToIgnoreCase(emp2.getName());
-                  }
-            };
+               {
+                  public int compare(ListViewFriendItem emp1, ListViewFriendItem emp2)
+                     {
+                        return emp1.getName().compareToIgnoreCase(emp2.getName());
+                     }
+               };
 
             Collections.sort(listViewItems.subList(firstHeader + 1, secondHeader), friendNameComparator);
-
             Collections.sort(listViewItems.subList(secondHeader + 1, listViewItems.size()), friendNameComparator);
-         }
-
-      public void createFriendsList()
-         {
-            System.out.println("CREATING FRIENDS!!");
-
-            boolean modified = false;
-
-            if (friendList.isEmpty())
-               {
-                  System.out.println("CREATING asd!!");
-
-                  Friend friend = new Friend("Daniel Chavez", "testuser1@gmail.com", Constants.STATUS_REQUEST);
-                  friendRequestsList.add(friend);
-                  friend = new Friend("Cam Rowe", "testuser2@gmail.com", Constants.STATUS_REQUEST);
-                  friendRequestsList.add(friend);
-                  friend = new Friend("Allen Rice", "testuser3@gmail.com", Constants.STATUS_ACCEPTED);
-                  friendList.put(friend.id, friend);
-                  friend = new Friend("Wes Hudson", "testuser4@gmail.com", Constants.STATUS_PENDING);
-                  friendList.put(friend.id, friend);
-                  friend = new Friend("Ryan Rice", "testuser5@gmail.com", Constants.STATUS_ACCEPTED);
-                  friendList.put(friend.id, friend);
-                  friend = new Friend("Tim Walker", "testuser6@gmail.com", Constants.STATUS_ACCEPTED);
-                  friendList.put(friend.id, friend);
-                  friend = new Friend("Jack Denzeler", "testuser7@gmail.com", Constants.STATUS_ACCEPTED);
-                  friendList.put(friend.id, friend);
-                  friend = new Friend("Bob Smith", "testuser8@gmail.com", Constants.STATUS_PENDING);
-                  friendList.put(friend.id, friend);
-                  friend = new Friend("John Hunter", "testuser9@gmail.com", Constants.STATUS_ACCEPTED);
-                  friendList.put(friend.id, friend);
-               }
-
-            if (app.newAcceptedFriend != null)
-               {
-                  //int i = friendList.indexOf(app.newAcceptedFriend);
-                  //System.out.println("INDEX: " + i);
-                  app.newAcceptedFriend.status = Constants.STATUS_ACCEPTED;
-                  friendList.put(app.newAcceptedFriend.id, app.newAcceptedFriend);
-                  app.newAcceptedFriend = null;
-                  modified = true;
-               }
-
-            if (app.newFriendRequest != null)
-               {
-                  friendRequestsList.add(app.newFriendRequest);
-                  app.newFriendRequest = null;
-                  modified = true;
-               }
-
-            if (modified)
-               {
-                  activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.wallFilePath + "/user_friends.txt");
-               }
-
-            listViewItems.clear();
-            listViewItems.add(0, new HeaderItem("Friend Requests"));
-
-            for (int i = 0; i < friendRequestsList.size(); i++)
-               {
-                  Friend friend = friendRequestsList.get(i);
-                  listViewItems.add(new RequestFriendItem(confirmListener, declineListener, friend));
-               }
-
-            listViewItems.add(new HeaderItem("Accepted and Pending Friends"));
-
-            for (Map.Entry<String, Friend> entry : friendList.entrySet())
-               {
-                  Friend friend = entry.getValue();
-                  int type = friend.status;
-
-                  if (type == Constants.STATUS_ACCEPTED)
-                     {
-                        listViewItems.add(new AcceptedFriendItem(deleteListener, friend));
-                     }
-                  else
-                     {
-                        listViewItems.add(new PendingFriendItem(friend));
-                     }
-
-               }
-
-            sortFriendsList();
-         }
-
-
-      public void updateFriendList()
-         {
-            createFriendsList();
-
-            // notify the adapter about the data change
-            adapter.notifyDataSetChanged();
          }
    }

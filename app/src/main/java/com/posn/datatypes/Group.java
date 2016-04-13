@@ -68,6 +68,24 @@ public class Group implements Parcelable
             return obj;
          }
 
+      public JSONObject createFriendFileJSONObject()
+         {
+            JSONObject obj = new JSONObject();
+
+            try
+               {
+                  obj.put("id", ID);
+                  obj.put("groupFileLink", groupFileLink);
+                  obj.put("groupFileKey", groupFileKey);
+                                 }
+            catch (JSONException e)
+               {
+                  e.printStackTrace();
+               }
+
+            return obj;
+         }
+
       public void parseJSONObject(JSONObject obj)
          {
             try
@@ -142,4 +160,6 @@ public class Group implements Parcelable
          {
             return 0;
          }
+
+
    }

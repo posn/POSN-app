@@ -21,7 +21,6 @@ import android.widget.Toast;
 import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.datatypes.Friend;
 import com.posn.encryption.SymmetricKeyManager;
 import com.posn.initial_setup.SetupPersonalInfoActivity;
 import com.posn.utility.DeviceFileManager;
@@ -30,7 +29,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 
 
 public class LoginActivity extends BaseActivity implements OnClickListener
@@ -42,6 +40,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener
       POSNApplication app;
       private ProgressDialog pDialog;
 
+
+      Uri uri = null;
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -89,10 +89,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             // create the storage directories
             createDefaultStorageDirectories();
 
-
-            processURI(getIntent().getData());
-
-
+            uri = getIntent().getData();
          }
 
 
@@ -222,6 +219,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                         // Launch Employer homePage Screen
                         Intent homepage = new Intent(getApplicationContext(), MainActivity.class);
 
+                        if(uri != null)
+                           {
+                              homepage.putExtra("uri", uri.toString());
+                           }
+
                         // Close all views before launching Employer
                         // homePage
                         homepage.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -295,6 +297,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             DeviceFileManager.createDirectory(Constants.wallFilePath);
             DeviceFileManager.createDirectory(Constants.messagesFilePath);
             DeviceFileManager.createDirectory(Constants.applicationDataFilePath);
+            DeviceFileManager.createDirectory(Constants.friendsFilePath);
          }
 
 
@@ -408,22 +411,5 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             return false;
          }
 
-      private void processURI(Uri uriData)
-         {
-            if (uriData != null)
-               {
-                  List<String> params = uriData.getPathSegments();
 
-                  // check the type of URI
-                  String uriType = params.get(0);
-                  if (uriType.equals("request"))
-                     {
-                        app.newFriendRequest = new Friend(params.get(1) + " " + params.get(2), params.get(3), 2);
-                     }
-                  else if (uriType.equals("confirm"))
-                     {
-                        app.newAcceptedFriend = new Friend(params.get(1) + " " + params.get(2), params.get(3), 3);
-                     }
-               }
-         }
    }

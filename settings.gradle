@@ -1,1 +1,1 @@
-include ':app', ':src-release'
+include ':app', ':src-release', ':live-sdk'
