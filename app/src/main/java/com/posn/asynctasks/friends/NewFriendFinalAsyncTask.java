@@ -62,7 +62,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
                   // encode temporal URL to maintain special chars
                   String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
 
-                  URI = main.app.getId() + "/" + encodedURL  + "/" + requestedFriend.nonce2;
+                  URI = main.user.ID + "/" + encodedURL  + "/" + requestedFriend.nonce2;
                   System.out.println("NONCE: " + requestedFriend.nonce2);
 
                   // generate symmetric key to encrypt data

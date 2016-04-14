@@ -13,303 +13,198 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
+import com.posn.datatypes.User;
 import com.posn.encryption.AsymmetricKeyManager;
 import com.posn.encryption.SymmetricKeyManager;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import com.posn.utility.DeviceFileManager;
 
 
 public class SetupEncryptionKeysActivity extends FragmentActivity implements OnClickListener
-	{
+   {
 
-		Button next, generate;
-		DrawingView dv;
-		ProgressBar progressBar;
-		RadioButton lowEncryption, highEncryption;
+      private Button next, generate;
+      private DrawingView dv;
+      private ProgressBar progressBar;
+      private RadioButton lowEncryption, highEncryption;
 
-		int timeCount;
-		float MAXTIME = 80.0f;
-		boolean keyGenerated = false;
-		int numEncryptBits;
+      private User user;
+      private String password;
 
-		POSNApplication app;
+      private int timeCount;
+      private final float MAXTIME = 80.0f;
+      private boolean keyGenerated = false;
+      private int numEncryptBits;
 
-		// runs without a timer by reposting this handler at the end of the runnable
-		Handler timerHandler = new Handler();
-		Runnable timerRunnable = new Runnable()
-			{
+      POSNApplication app;
 
-				@Override
-				public void run()
-					{
-						// check if the drawing screen is touched
-						if (dv.isTouched())
-							{
-								timeCount--;
-								progressBar.setProgress((int) (((MAXTIME - timeCount) / MAXTIME) * 100));
-							}
-						if (timeCount > 0)
-							{
-								timerHandler.postDelayed(this, 100);
-							}
-						else
-							{
-								createEncryptionKey();
-							}
-					}
-			};
+      // runs without a timer by reposting this handler at the end of the runnable
+      Handler timerHandler = new Handler();
+      Runnable timerRunnable = new Runnable()
+         {
 
+            @Override
+            public void run()
+               {
+                  // check if the drawing screen is touched
+                  if (dv.isTouched())
+                     {
+                        timeCount--;
+                        progressBar.setProgress((int) (((MAXTIME - timeCount) / MAXTIME) * 100));
+                     }
+                  if (timeCount > 0)
+                     {
+                        timerHandler.postDelayed(this, 100);
+                     }
+                  else
+                     {
+                        progressBar.setProgress(100);
 
-		@Override
-		protected void onCreate(Bundle savedInstanceState)
-			{
-				super.onCreate(savedInstanceState);
-				setContentView(R.layout.activity_setup_encryption_keys);
-
-				// get the application to store data
-				app = (POSNApplication) this.getApplication();
-
-				// get the drawing view from the layout
-				dv = (DrawingView) findViewById(R.id.draw_view);
-
-				// get the progress bar from the layout
-				progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-				// get the radio buttons from the layout
-				lowEncryption = (RadioButton) findViewById(R.id.radio0);
-				highEncryption = (RadioButton) findViewById(R.id.radio1);
-
-				// get the buttons from the layout
-				next = (Button) findViewById(R.id.next_button);
-				generate = (Button) findViewById(R.id.generate_button);
-
-				// set the onclick listener for the buttons
-				next.setOnClickListener(this);
-				generate.setOnClickListener(this);
-				lowEncryption.setOnClickListener(this);
-				highEncryption.setOnClickListener(this);
-
-				// get the action bar and set the page title
-				ActionBar actionBar = getActionBar();
-				actionBar.setTitle("Generate Encryption Keys");
-
-				numEncryptBits = 2048;
-
-			}
+                        // create the encryption keys when the timer is done
+                        createEncryptionKey();
+                     }
+               }
+         };
 
 
-		@Override
-		public void onClick(View v)
-			{
-				switch(v.getId())
-				{
+      @Override
+      protected void onCreate(Bundle savedInstanceState)
+         {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_setup_encryption_keys);
 
-					case R.id.next_button:
+            if (getIntent().hasExtra("user"))
+               {
+                  user = (User) getIntent().getExtras().get("user");
+                  password = getIntent().getExtras().getString("password");
+                  user.print();
+               }
 
-						if (keyGenerated)
-							{
-								Intent intent = new Intent(this, SetupProfilePictureActivity.class);
-								startActivity(intent);
-							}
-						else
-							{
-								Toast.makeText(this, "You Must Generate an Encryption Key", Toast.LENGTH_SHORT).show();
-							}
+            // get the application to store data
+            app = (POSNApplication) this.getApplication();
 
-						break;
+            // get the drawing view from the layout
+            dv = (DrawingView) findViewById(R.id.draw_view);
 
-					case R.id.generate_button:
-						dv.resetDrawView();
-						dv.allowDrawing();
-						progressBar.setProgress(0);
-						timeCount = 80;
-						timerHandler.postDelayed(timerRunnable, 0);
-						keyGenerated = false;
-					//	createEncryptionKey();
-						break;
+            // get the progress bar from the layout
+            progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-					case R.id.radio0:
-						numEncryptBits = 1024;
-						break;
+            // get the radio buttons from the layout
+            lowEncryption = (RadioButton) findViewById(R.id.radio0);
+            highEncryption = (RadioButton) findViewById(R.id.radio1);
 
-					case R.id.radio1:
-						numEncryptBits = 2048;
-						break;
+            // get the buttons from the layout
+            next = (Button) findViewById(R.id.next_button);
+            generate = (Button) findViewById(R.id.generate_button);
 
-				}
+            // set the onclick listener for the buttons
+            next.setOnClickListener(this);
+            generate.setOnClickListener(this);
+            lowEncryption.setOnClickListener(this);
+            highEncryption.setOnClickListener(this);
 
-			}
+            // get the action bar and set the page title
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null)
+               {
+                  actionBar.setTitle("Generate Encryption Keys");
+               }
 
+            numEncryptBits = 2048;
 
-		void createEncryptionKey()
-			{
-				dv.disableDrawing();
-				createEncryptionKeys(dv.getRandomValues());
-				keyGenerated = true;
-				app.savePersonalInformation();
-			}
+         }
 
 
-		public boolean createEncryptionKeys(int seed)
-			{
-				String password = app.getPassword();
-				boolean status;
-				
-				System.out.println("PASS: " + password);
+      @Override
+      public void onClick(View v)
+         {
+            switch (v.getId())
+               {
 
-				// create a new Symmetric Key from the user's password
-				String key = SymmetricKeyManager.createKeyFromString(password);
-				if (key == null)
-					{
-						Toast.makeText(this, "Failed to create AES Key.", Toast.LENGTH_SHORT).show();
-						return false;
-					}
+                  case R.id.next_button:
 
-				// create a password verification file
-				status = createPasswordVerificationFile(app.encryptionKeyFilePath, key, password);
-				if (!status)
-					{
-						Toast.makeText(this, "Failed to create password verification file.", Toast.LENGTH_SHORT).show();
-						return false;
-					}
-				
-				// create a new RSA Public and Private key based on the random input
-				Pair<String, String> keyPair = AsymmetricKeyManager.generateKeys(numEncryptBits, seed);
-				if (keyPair == null)
-					{
-						Toast.makeText(this, "Failed to create RSA Key.", Toast.LENGTH_SHORT).show();
-						return false;
-					}
+                     if (keyGenerated)
+                        {
+                           Intent intent = new Intent(this, SetupGroupsActivity.class);
+                           startActivity(intent);
+                        }
+                     else
+                        {
+                           Toast.makeText(this, "You must generate an encryption key", Toast.LENGTH_SHORT).show();
+                        }
 
-				// save the public and private key to a file on the device
-				status = saveKeysToFile(app.encryptionKeyFilePath, keyPair, key);
-				if (!status)
-					{
-						Toast.makeText(this, "Failed to save keys to file.", Toast.LENGTH_SHORT).show();
-						return false;
-					}
+                     break;
 
-				return true;
-			}
+                  case R.id.generate_button:
 
+                     // set up drawing view
+                     dv.resetDrawView();
+                     dv.allowDrawing();
 
-		public boolean saveKeysToFile(String path, Pair<String, String> keyPair, String passwordKey)
-			{
-				try
-					{
-						// Store Public Key.
-						File file = new File(path + "/keys.key");
+                     // set up progress bar
+                     progressBar.setProgress(0
 
-						// if file doesnt exists, then create it
-						if (!file.exists())
-							{
-								file.createNewFile();
-							}
+                     );
+                     timeCount = 80;
+                     timerHandler.postDelayed(timerRunnable, 0);
+                     keyGenerated = false;
+                     break;
 
-						PrintWriter printWriter = new PrintWriter(file);
+                  case R.id.radio0:
+                     numEncryptBits = 2048;
+                     break;
 
-						String publicKey = keyPair.first;
+                  case R.id.radio1:
+                     numEncryptBits = 2048;
+                     break;
+               }
 
-						SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.US);
-						String currentDateandTime = sdf.format(new Date());
-
-						// create header in the file
-						printWriter.println("POSN: RSA - " + numEncryptBits);
-						printWriter.println("Encryption: AES");
-						printWriter.println("Comment: rsa-key-" + currentDateandTime);
-
-						// get the number of lines in the public key
-						int numLines = countLines(publicKey);
-						printWriter.println("Public-Lines: " + numLines);
-
-						// put the public key in the file
-						printWriter.println(publicKey);
-
-						String privateKey = keyPair.second;
-
-						String encryptedPrivateKey = SymmetricKeyManager.encrypt(passwordKey, privateKey);
-
-						// get the number of lines in the private key
-						numLines = countLines(encryptedPrivateKey);
-						printWriter.println("Private-Lines: " + numLines);
-						printWriter.println(encryptedPrivateKey);
-
-						printWriter.flush();
-						printWriter.close();
-
-						// if file doesnt exists, then create it
-						if (!file.exists())
-							{
-								file.createNewFile();
-							}
-						return true;
-					}
-				catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-
-				return false;
-			}
+         }
 
 
-		public boolean createPasswordVerificationFile(String path, String key, String password)
-			{
-				// create a new file for the password verification.
-				File file = new File(path + "/verify.pass");
-
-				try
-					{
-						// check if the verification file exists
-						if (!file.exists())
-							{
-								// if not then create it
-								file.createNewFile();
-							}
-
-						// create a print writer to output file contents
-						PrintWriter printWriter = new PrintWriter(file);
-
-						// get the current date and put in appropriate format
-						SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd", Locale.US);
-						String currentDate = sdf.format(new Date());
-
-						// create header in the file
-						printWriter.println("Comment: password-verification-" + currentDate);
-
-						// encrypt verification string
-						String encryptedText = SymmetricKeyManager.encrypt(key, "POSN - SUCCESS");
-
-						// get the number of lines in the string
-						int numLines = countLines(encryptedText);
-						printWriter.println("Number of Lines: " + numLines);
-
-						// put the string in the file
-						printWriter.println(encryptedText);
-
-						// close the print writer
-						printWriter.close();
-
-						return true;
-					}
-				catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-				return false;
-			}
+      void createEncryptionKey()
+         {
+            dv.disableDrawing();
+            createEncryptionKeys(dv.getRandomValues());
+            keyGenerated = true;
+         }
 
 
-		private static int countLines(String str)
-			{
-				String[] lines = str.split("\r\n|\r|\n");
-				return lines.length;
-			}
-	}
+      public boolean createEncryptionKeys(int seed)
+         {
+            System.out.println("PASS: " + password);
+
+            // create a new Symmetric Key from the user's password
+            String key = SymmetricKeyManager.createKeyFromString(password);
+            if (key == null)
+               {
+                  Toast.makeText(this, "Failed to create AES Key.", Toast.LENGTH_SHORT).show();
+                  return false;
+               }
+
+            // create a password verification file
+            String verificationString = SymmetricKeyManager.encrypt(key, "POSN - SUCCESS");
+            DeviceFileManager.writeStringToFile(verificationString, Constants.encryptionKeyFilePath + "/verify.pass");
+
+
+            // create a new RSA Public and Private key based on the random input
+            Pair<String, String> keyPair = AsymmetricKeyManager.generateKeys(numEncryptBits, seed);
+            if (keyPair == null)
+               {
+                  Toast.makeText(this, "Failed to create RSA Key.", Toast.LENGTH_SHORT).show();
+                  return false;
+               }
+
+            // set the user's public and private key
+            user.publicKey = keyPair.first;
+            user.privateKey = keyPair.second;
+
+            // save user to file
+            user.saveUserToFile(password, Constants.profileFilePath + "/user.txt");
+
+
+            return true;
+         }
+   }

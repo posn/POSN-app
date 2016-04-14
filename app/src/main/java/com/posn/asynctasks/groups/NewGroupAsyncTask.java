@@ -54,7 +54,6 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
             CloudFileManager.createGroupWallFile(deviceFilepath, groupWallKey);
 
             // upload group wall to cloud and get direct link
-
             String directLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
             // create new group object and add to group list

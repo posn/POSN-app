@@ -63,7 +63,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
             try
                {
                   // replace all + chars in the key to the hex value
-                  String publicKey = main.app.publicKey;
+                  String publicKey = main.user.publicKey;
                   publicKey = publicKey.replace("+", "%2B");
 
                   // encode the key to maintain special chars
@@ -72,7 +72,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
                   // encode temporal URL to maintain special chars
                   String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
 
-                  URI =  main.app.getId() + "/" + main.app.getFirstName() + "/" + main.app.getLastName().trim() + "/" + publicKey + "/" + encodedURL + "/" + requestedFriend.nonce + "/" + requestedFriend.nonce2;
+                  URI =  main.user.ID + "/" + main.user.firstName + "/" + main.user.lastName.trim() + "/" + publicKey + "/" + encodedURL + "/" + requestedFriend.nonce + "/" + requestedFriend.nonce2;
 
                   // generate symmetric key to encrypt data
                   String key = SymmetricKeyManager.createRandomKey();

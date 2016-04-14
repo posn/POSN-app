@@ -18,7 +18,7 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Press the Generate Button and cmove your finger in the white box. Continue until the progress bar is full."
+            android:text="Press the Generate Button and move your finger in the white box. Continue until the progress bar is full."
             android:textSize="18sp" />
 
         <ProgressBar
@@ -61,7 +61,8 @@
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:text="RSA - 2048 bit"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:layout_gravity="center_horizontal"/>
 
                 <RadioButton
                     android:id="@+id/radio0"

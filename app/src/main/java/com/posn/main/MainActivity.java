@@ -18,6 +18,7 @@ import com.posn.datatypes.FriendList;
 import com.posn.datatypes.GroupList;
 import com.posn.datatypes.NotificationList;
 import com.posn.datatypes.RequestedFriend;
+import com.posn.datatypes.User;
 import com.posn.datatypes.WallPostList;
 import com.posn.encryption.AsymmetricKeyManager;
 import com.posn.encryption.SymmetricKeyManager;
@@ -36,7 +37,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       private ViewPager viewPager;
       private ActionBar actionBar;
       private MainTabsPagerAdapter tabsAdapter;
-      public POSNApplication app;
 
       public int newWallPostsNum = 0;
       public int newNotificationNum = 0;
@@ -44,6 +44,8 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       public int newFriendNum = 0;
 
       InitializeAsyncTask asyncTaskInitialize;
+
+      public User user = null;
 
       // data for wall fragment
       public WallPostList wallPostList = new WallPostList();
@@ -82,8 +84,11 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                   //requestedFriend = (RequestedFriend) getIntent().getExtras().get("newFriend");
                }
 
-               // get the action bar to set the title
-               actionBar = getActionBar();
+            // get the user from the login activity
+            user = (User) getIntent().getExtras().get("user");
+
+            // get the action bar to set the title
+            actionBar = getActionBar();
 
             // find the viewpager in the xml file
             viewPager = (ViewPager) findViewById(R.id.system_viewpager);
@@ -129,12 +134,11 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                });
 
 
-
             // sign into the cloud
-            cloud = new DropboxClientUsage(this);
+            app.cloud = new DropboxClientUsage(this);
             // cloud = new GoogleDriveClientUsage(this);
             //cloud = new OneDriveClientUsage(this);
-            cloud.initializeCloud();
+            app.cloud.initializeCloud();
 
             asyncTaskInitialize = new InitializeAsyncTask(this);
             asyncTaskInitialize.delegate = this;
@@ -258,7 +262,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                         String encryptedSymmetricKey = params.get(1);
 
                         // decrypt symmetric key
-                        String key = AsymmetricKeyManager.decrypt(app.privateKey, encryptedSymmetricKey);
+                        String key = AsymmetricKeyManager.decrypt(user.privateKey, encryptedSymmetricKey);
 
                         // decrypt URI data
                         String encryptedURI = params.get(2);

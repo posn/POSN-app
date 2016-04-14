@@ -20,26 +20,20 @@ import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
-import com.posn.application.POSNApplication;
+import com.posn.datatypes.User;
 import com.posn.encryption.SymmetricKeyManager;
 import com.posn.initial_setup.SetupPersonalInfoActivity;
 import com.posn.utility.DeviceFileManager;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
 
 public class LoginActivity extends BaseActivity implements OnClickListener
    {
-
       // variable declarations
-      Button signupButton, loginButton;
-      EditText passwordText, emailText;
-      POSNApplication app;
+      private Button signupButton, loginButton;
+      private EditText passwordText, emailText;
       private ProgressDialog pDialog;
 
+      private User user = new User();
 
       Uri uri = null;
 
@@ -81,10 +75,10 @@ public class LoginActivity extends BaseActivity implements OnClickListener
 
             // get the action bar and set the page title
             ActionBar actionBar = getActionBar();
-            actionBar.setTitle("Welcome - Login");
-
-            // get the application
-            app = (POSNApplication) this.getApplication();
+            if (actionBar != null)
+               {
+                  actionBar.setTitle("Welcome - Login");
+               }
 
             // create the storage directories
             createDefaultStorageDirectories();
@@ -110,7 +104,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                                  String email = emailText.getText().toString();
                                  String password = passwordText.getText().toString();
 
-                                 passwordText.setCursorVisible(false);
+                                 // passwordText.setCursorVisible(false);
                                  InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                                  imm.hideSoftInputFromWindow(passwordText.getWindowToken(), 0);
                                  passwordText.clearFocus();
@@ -143,14 +137,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener
          }
 
 
-      // Background ASYNC Task to login by making HTTP Request
       class AuthenticateUser extends AsyncTask<String, String, String>
          {
-
             String email, password;
             boolean loginVerify;
             Context context;
-
 
             public AuthenticateUser(Context context, String email, String password)
                {
@@ -161,45 +152,35 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                   loginVerify = false;
                }
 
-
-            // Before starting background thread Show Progress Dialog
             @Override
             protected void onPreExecute()
                {
                   super.onPreExecute();
-                  pDialog = new ProgressDialog(LoginActivity.this);
+                  pDialog = new ProgressDialog(context);
                   pDialog.setMessage("Authenticating...");
                   pDialog.setIndeterminate(false);
                   pDialog.setCancelable(false);
                   pDialog.show();
                }
 
-
-            // Checking login in background
             protected String doInBackground(String... params)
                {
+                  // check if password is valid
+                  String key = SymmetricKeyManager.createKeyFromString(password);
+
+                  String verificationString = DeviceFileManager.loadStringFromFile(Constants.encryptionKeyFilePath + "/verify.pass");
+                  verificationString = SymmetricKeyManager.decrypt(key, verificationString);
+
                   // verify the password
-                  if (verifyPassword(password))
+                  if (verificationString.equals("POSN - SUCCESS"))
                      {
-                        if (verifyEmail(email))
+                        // load user data from file
+                        user.loadUserFromFile(password, Constants.profileFilePath + "/user.txt");
+
+                        // verify email address
+                        if (email.equals(user.email))
                            {
-    /*
-                              app.setDropbox(new DropboxClientUsage(context));
-                              app.setCloudProvider("Dropbox");
-                              app.getDropbox().initializeDropbox();
-                              app.getDropbox().authenticateDropboxLogin();
-
-                              // check dropbox folders
-                             // app.getDropbox().createDropboxStorageDirectories();
-
-                              app.getDropbox().uploadFile("/multimedia/Test.jpg", app.multimediaFilePath + "/test.jpg");
-
-*/
-
-                              // load in profile information
                               loginVerify = true;
-
-
                            }
                      }
 
@@ -207,8 +188,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                   return null;
                }
 
-
-            // After completing background task Dismiss the progress dialog
             protected void onPostExecute(String file_url)
                {
                   // dismiss the dialog once done
@@ -216,21 +195,18 @@ public class LoginActivity extends BaseActivity implements OnClickListener
 
                   if (loginVerify)
                      {
-                        // Launch Employer homePage Screen
-                        Intent homepage = new Intent(getApplicationContext(), MainActivity.class);
+                        Intent intent = new Intent(context, MainActivity.class);
+                        intent.putExtra("user", user);
 
-                        if(uri != null)
+                        if (uri != null)
                            {
-                              homepage.putExtra("uri", uri.toString());
+                              intent.putExtra("uri", uri.toString());
                            }
 
                         // Close all views before launching Employer
-                        // homePage
-                        homepage.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(homepage);
-
-                        // Close Login Screen
+                        startActivity(intent);
                         finish();
+
                      }
                   else
                      {
@@ -252,42 +228,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener
          }
 
 
-      private boolean verifyPassword(String password)
-         {
-            // save the password to the application
-            app.setPassword(password);
-
-            // create AES key from password
-            String passwordKey = SymmetricKeyManager.createKeyFromString(password);
-
-            // check if the keys were read in from the file
-            if (readKeysFromFile(app.encryptionKeyFilePath, passwordKey))
-               {
-                  // check if the password is valid
-                  if (readPasswordVerificationFile(app.encryptionKeyFilePath, password, passwordKey))
-                     {
-                        return true;
-                     }
-               }
-            return false;
-         }
-
-
-      private boolean verifyEmail(String email)
-         {
-            // try to load the personal data
-            if (app.loadPersonalInformation())
-               {
-                  // try to verify the password
-                  if (app.getEmailAddress().equals(email))
-                     {
-                        return true;
-                     }
-               }
-            return false;
-         }
-
-
       void createDefaultStorageDirectories()
          {
             DeviceFileManager.createDirectory(Constants.archiveFilePath);
@@ -298,117 +238,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             DeviceFileManager.createDirectory(Constants.messagesFilePath);
             DeviceFileManager.createDirectory(Constants.applicationDataFilePath);
             DeviceFileManager.createDirectory(Constants.friendsFilePath);
-         }
-
-
-      public boolean readKeysFromFile(String path, String key)
-         {
-            // declare variables
-            String publicKey = "", privateKey = "";
-
-            // read in the public and private keys from the file
-            try
-               {
-                  // load the file from the path
-                  File file = new File(path + "/keys.key");
-
-                  // open the file
-                  BufferedReader br = new BufferedReader(new FileReader(file));
-
-                  // read in the header lines
-                  br.readLine();
-                  br.readLine();
-
-                  // read in the number of lines from the file (public key)
-                  br.readLine();
-
-                  // parse to the string to get the number of lines (public key)
-                  String line = br.readLine();
-                  String[] split = line.split("\\s+");
-                  int numLines = Integer.parseInt(split[1]);
-
-                  // loop to get the public key string
-                  for (int i = 0; i < numLines; i++)
-                     {
-                        publicKey += br.readLine();
-                     }
-
-                  // create a key from the public key string
-                  app.publicKey = publicKey;
-
-                  // read in the number of lines from the file (private key)
-                  br.readLine();
-                  line = br.readLine();
-
-                  // parse to the string to get the number of lines (private key)
-                  split = line.split("\\s+");
-                  numLines = Integer.parseInt(split[1]);
-
-                  // loop to get the encrypted private key (encrypted with user's password)
-                  for (int i = 0; i < numLines; i++)
-                     {
-                        privateKey += br.readLine();
-                     }
-
-                  // close the file
-                  br.close();
-
-                  // decrypt the private key
-                  app.privateKey = SymmetricKeyManager.decrypt(key, privateKey);
-
-                  return true;
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
-
-            return false;
-         }
-
-
-      public boolean readPasswordVerificationFile(String path, String password, String key)
-         {
-            String encryptedText = "";
-
-            File file = new File(path + "/verify.pass");
-
-            BufferedReader br;
-            try
-               {
-                  br = new BufferedReader(new FileReader(file));
-
-                  br.readLine();
-
-                  String line = br.readLine();
-                  String[] split = line.split("\\s+");
-                  int numLines = Integer.parseInt(split[3]);
-
-                  for (int i = 0; i < numLines; i++)
-                     {
-                        encryptedText += br.readLine();
-                     }
-
-                  br.close();
-
-                  String decryptedString = SymmetricKeyManager.decrypt(key, encryptedText);
-                  System.out.println("STRING: " + decryptedString);
-
-                  if (decryptedString != null)
-                     {
-                        if (decryptedString.equals("POSN - SUCCESS"))
-                           {
-                              return true;
-                           }
-                     }
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
-
-
-            return false;
          }
 
 

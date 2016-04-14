@@ -60,7 +60,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
             try
                {
                   // replace all + chars in the key to the hex value
-                  String publicKey = main.app.publicKey;
+                  String publicKey = main.user.publicKey;
                   publicKey = publicKey.replace("+", "%2B");
 
                   // encode the key to maintain special chars
@@ -69,7 +69,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
                   // encode temporal URL to maintain special chars
                   String encodedURL = URLEncoder.encode(directlink, "UTF-8");
 
-                  URI = "http://posn.com/request/" + main.app.getId() + "/" + main.app.getEmailAddress() + "/" + main.app.getFirstName() + "/" + main.app.getLastName().trim()
+                  URI = "http://posn.com/request/" + main.user.ID + "/" + main.user.email + "/" + main.user.firstName + "/" + main.user.lastName.trim()
                             + "/" + publicKey + "/" + encodedURL + "/" + requestedFriend.nonce;
                }
             catch (UnsupportedEncodingException e)

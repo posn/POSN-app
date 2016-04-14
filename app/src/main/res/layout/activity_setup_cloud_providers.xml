@@ -13,6 +13,12 @@
         android:orientation="vertical"
         android:padding="20dp" >
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="3">
+        </RelativeLayout>
+
         <include
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -34,19 +40,12 @@
             layout="@layout/button_one_drive_login"
             android:clickable="true" />
 
-        <include
-            android:layout_width="fill_parent"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            layout="@layout/button_mediafire_login"
-            android:clickable="true" />
+            android:layout_weight="3"/>
 
-        <include
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            layout="@layout/button_copy_cloud_login"
-            android:clickable="true" />
+
     </LinearLayout>
 
     <LinearLayout

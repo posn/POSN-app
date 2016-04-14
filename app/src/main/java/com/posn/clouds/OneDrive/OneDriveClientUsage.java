@@ -287,7 +287,11 @@ public class OneDriveClientUsage extends CloudProvider
       @Override
       public void activityResult(int requestCode, int resultCode, Intent data)
          {
+         }
 
+      @Override
+      public void onResume()
+         {
          }
 
 

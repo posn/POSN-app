@@ -9,7 +9,7 @@ import com.posn.clouds.CloudProvider;
 
 public abstract class BaseActivity extends FragmentActivity
    {
-      public CloudProvider cloud;
+      public CloudProvider cloud = null;
 
       public POSNApplication app;
 
@@ -19,7 +19,14 @@ public abstract class BaseActivity extends FragmentActivity
          {
             super.onResume();
 
+            app = (POSNApplication) getApplication();
 
+            cloud = app.cloud;
+
+            if(cloud != null)
+               {
+                  cloud.onResume();
+               }
          }
 
 

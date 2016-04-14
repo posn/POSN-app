@@ -89,6 +89,10 @@
             android:label="@string/main_activity">
         </activity>
         <activity
+            android:name=".initial_setup.SetupGroupsActivity"
+            android:label="@string/main_activity">
+        </activity>
+        <activity
             android:name=".main.wall.VideoPlayerActivity"
             android:label="@string/main_activity">
         </activity>

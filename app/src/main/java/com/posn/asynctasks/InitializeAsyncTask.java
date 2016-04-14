@@ -61,10 +61,6 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
             // check/create cloud storage directories
             main.cloud.createStorageDirectoriesOnCloud();
 
-           // String link = main.cloud.uploadFileToCloud("multimedia", "Test123.jpg", Constants.multimediaFilePath + "/test.jpg");
-           // System.out.println(link);
-
-            //FileManager.downloadFileFromURL(link, Constants.multimediaFilePath, "FromURL.jpg");
             return null;
          }
 

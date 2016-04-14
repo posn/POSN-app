@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -352,7 +353,18 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
             if (requestCode == REQUEST_CODE_RESOLUTION && resultCode == Activity.RESULT_OK)
                {
                   mGoogleApiClient.connect();
+                  showToast("Google Drive Connected!");
                }
+         }
+
+      @Override
+      public void onResume()
+         {
+         }
+
+      private void showToast(String message)
+         {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
          }
 
       private String getMimeType(String url)

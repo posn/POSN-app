@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
@@ -23,6 +24,7 @@ import java.net.URL;
 public class DropboxClientUsage extends CloudProvider
    {
       private Context context;
+      private boolean authenticated = false;
 
       // variable declarations
       public DropboxAPI<AndroidAuthSession> dropboxSession;
@@ -52,11 +54,22 @@ public class DropboxClientUsage extends CloudProvider
                {
                   // session token already available
                   dropboxSession = new DropboxAPI<>(new AndroidAuthSession(appKeyToken, sessionToken));
-               }
 
-            // authenticate Dropbox login
-            authenticateDropboxLogin();
+                  // authenticate Dropbox login
+                  authenticateDropboxLogin();
+
+               }
          }
+
+      @Override
+      public void onResume()
+         {
+            if(!authenticated)
+               {
+                  authenticateDropboxLogin();
+               }
+         }
+
 
       private void authenticateDropboxLogin()
          {
@@ -69,14 +82,19 @@ public class DropboxClientUsage extends CloudProvider
                         // finish the authentication
                         dropboxSession.getSession().finishAuthentication();
 
-                        // store the session token in the shared preferences
-                        // String accessToken = mDBApi.getSession().getOAuth2AccessToken();
-
                         //saveDropboxToken(dropboxSession.getSession().getAccessTokenPair());
-                        System.out.println("TOKEN SAVED!!!!");
                         saveDropboxToken(dropboxSession.getSession().getOAuth2AccessToken());
+                        System.out.println("TOKEN SAVED!!!!");
+
+                        showToast("Dropbox Connected!");
+                        authenticated = true;
                      }
                }
+         }
+
+      private void showToast(String message)
+         {
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
          }
 
       @Override

@@ -185,8 +185,8 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
          {
             if (requestCode == STATUS_RESULT && resultCode == Activity.RESULT_OK)
                {
-                  Post post = new Post(TYPE_STATUS, app.getId(), "Jan 19, 2015 at 1:45 pm", data.getStringExtra("status"));
-                  wallPostList.add(0, new StatusPostItem(getActivity(), app.getFirstName() + " " + app.getLastName(), post));
+                  Post post = new Post(TYPE_STATUS, activity.user.ID, "Jan 19, 2015 at 1:45 pm", data.getStringExtra("status"));
+                  wallPostList.add(0, new StatusPostItem(getActivity(),activity.user.firstName + " " + activity.user.lastName, post));
                   wallPostData.add(post);
                   adapter.notifyDataSetChanged();
                   activity.wallPostList.saveWallPostsToFileAsyncTask(Constants.wallFilePath + "/user_wall.txt");
@@ -204,9 +204,9 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   Post post = wallPostData.get(n);
 
                   //
-                  if (post.friend.equals(app.getId()))
+                  if (post.friend.equals(activity.user.ID))
                      {
-                        name = app.getFirstName() + " " + app.getLastName();
+                        name = activity.user.firstName + " " + activity.user.lastName;
                      }
                   else
                      {

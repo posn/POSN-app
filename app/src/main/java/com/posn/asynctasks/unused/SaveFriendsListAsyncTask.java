@@ -1,4 +1,4 @@
-package com.posn.asynctasks.friends;
+package com.posn.asynctasks.unused;
 
 import android.app.ProgressDialog;
 import android.content.Context;
