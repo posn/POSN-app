@@ -10,8 +10,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.Group;
-import com.posn.datatypes.RequestedFriend;
+import com.posn.datatypes.UserGroup;
 
 import java.util.ArrayList;
 
@@ -25,23 +24,23 @@ class ViewHolder
    }
 
 
-public class FriendGroupArrayAdapter extends ArrayAdapter<Group>
+public class SelectGroupArrayAdapter extends ArrayAdapter<UserGroup>
    {
 
       private final Context context;
-      ArrayList<Group> groupList;
+      ArrayList<UserGroup> userGroupList;
 
 
-      RequestedFriend requestedFriend;
+      ArrayList<String> selectedGroupIDs;
 
 
 
-      public FriendGroupArrayAdapter(Context context, ArrayList<Group> groups, RequestedFriend requestedFriend)
+      public SelectGroupArrayAdapter(Context context, ArrayList<UserGroup> userGroups, ArrayList<String> selectedGroupIDs)
          {
-            super(context, R.layout.listview_group_item, groups);
+            super(context, R.layout.listview_group_item, userGroups);
             this.context = context;
-            this.groupList = groups;
-            this.requestedFriend = requestedFriend;
+            this.userGroupList = userGroups;
+            this.selectedGroupIDs = selectedGroupIDs;
          }
 
 
@@ -65,7 +64,7 @@ public class FriendGroupArrayAdapter extends ArrayAdapter<Group>
                      {
                         public void onClick(View v)
                            {
-                              updateSelectedGroupList(groupList.get(position));
+                              updateSelectedGroupList(userGroupList.get(position));
                            }
                      });
                }
@@ -74,10 +73,10 @@ public class FriendGroupArrayAdapter extends ArrayAdapter<Group>
                   holder = (ViewHolder) convertView.getTag();
                }
 
-            Group group = groupList.get(position);
-            holder.nameText.setText(group.name);
-            holder.checkBox.setChecked(group.selected);
-            holder.nameText.setTag(group);
+            UserGroup userGroup = userGroupList.get(position);
+            holder.nameText.setText(userGroup.name);
+            holder.checkBox.setChecked(userGroup.selected);
+            holder.nameText.setTag(userGroup);
 
 
             return convertView;
@@ -87,24 +86,24 @@ public class FriendGroupArrayAdapter extends ArrayAdapter<Group>
       @Override
       public int getCount()
          {
-            return groupList.size();
+            return userGroupList.size();
          }
 
 
-      public void updateSelectedGroupList(Group item)
+      public void updateSelectedGroupList(UserGroup item)
          {
 
             if (item.selected)
                {
                   item.selected = false;
                   System.out.println("NOT CHECKED");
-                  requestedFriend.groups.remove(item.ID);
+                  selectedGroupIDs.remove(item.ID);
                }
             else
                {
                   item.selected = true;
                   System.out.println("CHECKED");
-                  requestedFriend.groups.add(item.ID);
+                  selectedGroupIDs.add(item.ID);
                }
          }
 

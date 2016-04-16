@@ -16,42 +16,49 @@ import java.util.ArrayList;
 
 public class Friend implements Parcelable
    {
-      public String id;
+      public int status;
+      public String ID;
       public String name;
 
       public String phone;
       public String email;
       public String image_uri;
-
-      // holds the list of groups as group IDs
-      public ArrayList<String> groups = new ArrayList<>();
-
       public String publicKey;
 
-      public String friendFileLink;
-
       public boolean selected;
-      public int status;
+
+      // USER CREATED DATA
+
+      // holds the list of groups that the user placed the friend in
+      // used to create friend file
+      public ArrayList<String> userGroups = new ArrayList<>();
+
+
+
+      // FRIEND CREATED DATA
+
+      // holds the list of group's the friend placed the user in
+      public ArrayList<FriendGroup> friendGroups = new ArrayList<>();
+      public String friendFileLink;
+      public String friendFileKey;
+
+
 
       public Friend()
          {
             selected = false;
          }
 
-      public Friend(String name)
-         {
-            this.name = name;
-            selected = false;
-         }
 
       public Friend(RequestedFriend friend)
          {
             status = Constants.STATUS_ACCEPTED;
-            id = friend.ID;
+            ID = friend.ID;
             name = friend.name;
             publicKey = friend.publicKey;
             friendFileLink = friend.fileLink;
-            groups.addAll(friend.groups);
+            friendFileKey = friend.fileKey;
+            userGroups.addAll(friend.groups);
             selected = false;
          }
 
@@ -63,7 +70,7 @@ public class Friend implements Parcelable
             this.status = status;
 
             final HashCode hashCode = Hashing.sha1().hashString(email, Charset.defaultCharset());
-            id = hashCode.toString();
+            ID = hashCode.toString();
 
             phone = "0";
             image_uri = "asd";
@@ -76,14 +83,14 @@ public class Friend implements Parcelable
 
             try
                {
-                  obj.put("id", id);
+                  obj.put("id", ID);
                   obj.put("name", name);
                   obj.put("email", email);
                   obj.put("status", status);
                   obj.put("publicKey", publicKey);
                   obj.put("friendFileLink", friendFileLink);
 
-                  JSONArray jsArray = new JSONArray(groups);
+                  JSONArray jsArray = new JSONArray(userGroups);
                   obj.put("groups", jsArray);
                }
             catch (JSONException e)
@@ -99,7 +106,7 @@ public class Friend implements Parcelable
             try
                {
                   status = obj.getInt("status");
-                  id = obj.getString("id");
+                  ID = obj.getString("id");
                   name = obj.getString("name");
                   email = obj.getString("email");
 
@@ -118,7 +125,7 @@ public class Friend implements Parcelable
                         for (int n = 0; n < groupMemberList.length(); n++)
                            {
                               String groupID = groupMemberList.getString(n);
-                              groups.add(groupID);
+                              userGroups.add(groupID);
                            }
                      }
                }
@@ -144,27 +151,27 @@ public class Friend implements Parcelable
       // Parcelling part
       public Friend(Parcel in)
          {
-            this.id = in.readString();
+            this.ID = in.readString();
             this.name = in.readString();
             this.email = in.readString();
             this.publicKey = in.readString();
             this.friendFileLink = in.readString();
             this.status = in.readInt();
 
-            in.readStringList(groups);
+            in.readStringList(userGroups);
          }
 
 
       @Override
       public void writeToParcel(Parcel dest, int flags)
          {
-            dest.writeString(this.id);
+            dest.writeString(this.ID);
             dest.writeString(this.name);
             dest.writeString(this.email);
             dest.writeString(this.publicKey);
             dest.writeString(this.friendFileLink);
             dest.writeInt(this.status);
-            dest.writeStringList(groups);
+            dest.writeStringList(userGroups);
          }
 
       public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()

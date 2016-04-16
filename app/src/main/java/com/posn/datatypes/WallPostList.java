@@ -8,16 +8,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class WallPostList
    {
-      public ArrayList<Post> wallPosts;
+      public HashMap<String, Post> wallPosts;
 
       public WallPostList()
          {
-            wallPosts = new ArrayList<>();
+            wallPosts = new HashMap<>();
          }
 
       public void loadWallPostsFromFile(String fileName)
@@ -35,7 +36,7 @@ public class WallPostList
                         Post post = new Post();
                         post.parseJSONObject(wallPostsArray.getJSONObject(n));
 
-                        wallPosts.add(post);
+                        wallPosts.put(post.postID, post);
                      }
                }
             catch (JSONException e)
@@ -62,9 +63,9 @@ public class WallPostList
 
             try
                {
-                  for(int i = 0; i < wallPosts.size(); i++)
+                  for (Map.Entry<String, Post> entry : wallPosts.entrySet())
                      {
-                        Post post = wallPosts.get(i);
+                        Post post = entry.getValue();
                         wallPostList.put(post.createJSONObject());
                      }
 

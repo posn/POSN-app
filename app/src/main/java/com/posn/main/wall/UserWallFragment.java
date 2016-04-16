@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
-import com.posn.application.POSNApplication;
+import com.posn.asynctasks.wall.NewWallStatusPostAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.Post;
 import com.posn.main.MainActivity;
@@ -31,41 +31,26 @@ import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
 import com.posn.main.wall.posts.VideoPostItem;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener
    {
-      int STATUS_RESULT = 1;
-
-      int TYPE_STATUS = 0;
-      int TYPE_LINK = 1;
-      int TYPE_PHOTO = 2;
-      int TYPE_VIDEO = 3;
-
-
       // declare variables
       Context context;
       RelativeLayout statusButton, photoButton, checkInButton;
       ListView lv;
       TableRow statusBar;
 
-      ArrayList<ListViewPostItem> wallPostList = new ArrayList<>();
-      ArrayList<Post> wallPostData;
+      public ArrayList<ListViewPostItem> listViewItems = new ArrayList<>();
+      HashMap<String, Post> wallPostData;
       SwipeRefreshLayout swipeLayout;
-      WallArrayAdapter adapter;
+      public WallArrayAdapter adapter;
 
-      POSNApplication app;
-      MainActivity activity;
-
+      public MainActivity activity;
 
 
       @Override
@@ -78,13 +63,12 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             context = getActivity();
 
             // get the application
-            app = (POSNApplication) getActivity().getApplication();
 
             // get the main activity
             activity = (MainActivity) getActivity();
 
             // get the wall post data from activity
-            wallPostData = activity.wallPostList.wallPosts;
+            wallPostData = activity.masterWallPostList.wallPosts;
 
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
@@ -108,53 +92,40 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
             //
             lv.setOnScrollListener(new OnScrollListener()
-            {
-               private int mLastFirstVisibleItem;
+               {
+                  private int mLastFirstVisibleItem;
 
-               @Override
-               public void onScrollStateChanged(AbsListView view, int scrollState)
-                  {
-                  }
+                  @Override
+                  public void onScrollStateChanged(AbsListView view, int scrollState)
+                     {
+                     }
 
-               @Override
-               public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-                  {
-                     int topRowVerticalPosition = (lv == null || lv.getChildCount() == 0) ? 0 : lv.getChildAt(0).getTop();
-                     swipeLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+                  @Override
+                  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+                     {
+                        int topRowVerticalPosition = (lv == null || lv.getChildCount() == 0) ? 0 : lv.getChildAt(0).getTop();
+                        swipeLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
 
-                     if (mLastFirstVisibleItem < firstVisibleItem)
-                        {
-                           statusBar.setVisibility(View.GONE);
-                        }
-                     if (mLastFirstVisibleItem > firstVisibleItem)
-                        {
-                           statusBar.setVisibility(View.VISIBLE);
-                        }
-                     mLastFirstVisibleItem = firstVisibleItem;
-                  }
-            });
-
-            // fill with fake data
-            // getNameEmailDetails();
-            //createWallPosts();
-            // saveWallPosts();
-            // getWallPosts();
+                        if (mLastFirstVisibleItem < firstVisibleItem)
+                           {
+                              statusBar.setVisibility(View.GONE);
+                           }
+                        if (mLastFirstVisibleItem > firstVisibleItem)
+                           {
+                              statusBar.setVisibility(View.VISIBLE);
+                           }
+                        mLastFirstVisibleItem = firstVisibleItem;
+                     }
+               });
 
 
-            adapter = new WallArrayAdapter(getActivity(), wallPostList);
+
+
+            adapter = new WallArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
             return view;
          }
-
-
-      @Override
-      public void onAttach(Activity activity)
-         {
-            super.onAttach(activity);
-            context = getActivity();
-         }
-
 
       @Override
       public void onClick(View v)
@@ -163,8 +134,9 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                {
 
                   case R.id.status_button:
-                     Intent intent = new Intent(context, PostStatusActivity.class);
-                     startActivityForResult(intent, STATUS_RESULT);
+                     Intent intent = new Intent(context, CreateNewStatusPostActivity.class);
+                     intent.putExtra("groups", activity.userGroupList.getList());
+                     startActivityForResult(intent, Constants.RESULT_CREATE_STATUS_POST);
 
                      break;
 
@@ -183,59 +155,54 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       @Override
       public void onActivityResult(int requestCode, int resultCode, Intent data)
          {
-            if (requestCode == STATUS_RESULT && resultCode == Activity.RESULT_OK)
+            if (requestCode == Constants.RESULT_CREATE_STATUS_POST && resultCode == Activity.RESULT_OK)
                {
-                  Post post = new Post(TYPE_STATUS, activity.user.ID, "Jan 19, 2015 at 1:45 pm", data.getStringExtra("status"));
-                  wallPostList.add(0, new StatusPostItem(getActivity(),activity.user.firstName + " " + activity.user.lastName, post));
-                  wallPostData.add(post);
-                  adapter.notifyDataSetChanged();
-                  activity.wallPostList.saveWallPostsToFileAsyncTask(Constants.wallFilePath + "/user_wall.txt");
+                  String status = data.getStringExtra("status");
+                  ArrayList<String> selectGroups = data.getStringArrayListExtra("groups");
+                  new NewWallStatusPostAsyncTask(this, selectGroups, status).execute();
                }
          }
 
       public void createWallPostsList()
          {
-            wallPostList.clear();
+            listViewItems.clear();
             System.out.println("CREATING WALL POSTS!!!");
             String name;
 
-            for (int n = 0; n < wallPostData.size(); n++)
+            for (Map.Entry<String, Post> entry : wallPostData.entrySet())
                {
-                  Post post = wallPostData.get(n);
+                  Post post = entry.getValue();
 
-                  //
-                  if (post.friend.equals(activity.user.ID))
+                  if (post.friendID.equals(activity.user.ID))
                      {
                         name = activity.user.firstName + " " + activity.user.lastName;
                      }
                   else
                      {
-                        Friend friend = activity.masterFriendList.currentFriends.get(post.friend);
-                        System.out.println("SIZE: " + post.friend);
-
+                        Friend friend = activity.masterFriendList.currentFriends.get(post.friendID);
                         name = friend.name;
                      }
 
-                  if (post.type == TYPE_PHOTO)
+                  if (post.type == Constants.POST_TYPE_PHOTO)
                      {
-                        String photoPath = app.multimediaFilePath + "/" + post.content;
+                        String photoPath = Constants.multimediaFilePath + "/" + post.postID;
                         File imgFile = new File(photoPath);
                         if (imgFile.exists())
                            {
-                              wallPostList.add(new PhotoPostItem(getActivity(), name, post, app.multimediaFilePath));
+                              listViewItems.add(new PhotoPostItem(getActivity(), name, post, Constants.multimediaFilePath));
                            }
                      }
-                  else if (post.type == TYPE_STATUS)
+                  else if (post.type == Constants.POST_TYPE_STATUS)
                      {
-                        wallPostList.add(new StatusPostItem(getActivity(), name, post));
+                        listViewItems.add(new StatusPostItem(getActivity(), name, post));
                      }
-                     else if(post.type == TYPE_LINK)
+                  else if (post.type == Constants.POST_TYPE_LINK)
                      {
-                        wallPostList.add(new LinkPostItem(getActivity(), name, post));
+                        listViewItems.add(new LinkPostItem(getActivity(), name, post));
                      }
-                  else if (post.type == TYPE_VIDEO)
+                  else if (post.type == Constants.POST_TYPE_VIDEO)
                      {
-                        wallPostList.add(new VideoPostItem(getActivity(), name, post, app.multimediaFilePath));
+                        listViewItems.add(new VideoPostItem(getActivity(), name, post, Constants.multimediaFilePath));
                      }
                }
 
@@ -246,24 +213,26 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       public void onRefresh()
          {
             new Handler().postDelayed(new Runnable()
-            {
-               @Override
-               public void run()
-                  {
-                     swipeLayout.setRefreshing(false);
-                     Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
-                  }
-            }, 2000);
+               {
+                  @Override
+                  public void run()
+                     {
+                        swipeLayout.setRefreshing(false);
+                        Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
+                     }
+               }, 2000);
          }
 
 
       public void createWallPosts()
          {
+            /*
             JSONArray wallPosts = new JSONArray();
 
             try
                {
-                  Post post = new Post(TYPE_STATUS, "ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm", "This is a test post from a file.");
+
+                  Post post = new Post(Constants.POST_TYPE_STATUS, "ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm", "This is a test post from a file.");
                   wallPosts.put(post.createJSONObject());
 
                   post = new Post(TYPE_PHOTO, "726e60c84e88dd01b49ecf6f0de42843383bffad", "Jan 19, 2015 at 1:45 pm", "test.jpg");
@@ -304,7 +273,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             catch (JSONException | IOException e)
                {
                   e.printStackTrace();
-               }
+               }*/
          }
 
 

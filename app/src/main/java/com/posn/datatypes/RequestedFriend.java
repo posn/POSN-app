@@ -18,6 +18,7 @@ public class RequestedFriend implements Parcelable
       public String email;
       public String publicKey;
       public String fileLink;   // can be friend file or temporal file
+      public String fileKey;
       public String nonce;
       public String nonce2;
 
@@ -60,6 +61,7 @@ public class RequestedFriend implements Parcelable
                   obj.put("email", email);
                   obj.put("publicKey", publicKey);
                   obj.put("fileLink", fileLink);
+                  obj.put("fileKey", fileKey);
                   obj.put("nonce", nonce);
                   obj.put("nonce2", nonce2);
 
@@ -93,6 +95,10 @@ public class RequestedFriend implements Parcelable
                   if (obj.has("fileLink"))
                      {
                         fileLink = obj.getString("fileLink");
+                     }
+                  if(obj.has("fileKey"))
+                     {
+                        fileKey = obj.getString("fileKey");
                      }
 
                   nonce = obj.getString("nonce");
@@ -135,6 +141,7 @@ public class RequestedFriend implements Parcelable
             this.email = in.readString();
             this.publicKey = in.readString();
             this.fileLink = in.readString();
+            this.fileKey = in.readString();
             this.status = in.readInt();
             this.nonce = in.readString();
             this.nonce2 = in.readString();
@@ -151,6 +158,7 @@ public class RequestedFriend implements Parcelable
             dest.writeString(this.email);
             dest.writeString(this.publicKey);
             dest.writeString(this.fileLink);
+            dest.writeString(this.fileKey);
             dest.writeInt(this.status);
             dest.writeString(this.nonce);
             dest.writeString(this.nonce2);

@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Group implements Parcelable
+public class UserGroup implements Parcelable
    {
       public String ID;
       public String name;
@@ -17,30 +17,27 @@ public class Group implements Parcelable
       public String groupFileLink;
       public String groupFileKey;
 
-      public ArrayList<String> groupMembers = new ArrayList<>();
+      public int version;
+
+      // used to hold the post IDs for all the posts in the group's wall.
+      // used to create wall files
+      public ArrayList<String> wallPostList = new ArrayList<>();
 
       public boolean selected;
 
-      public Group()
+      public UserGroup()
          {
+            version = 0;
             selected = false;
          }
 
-      public Group(String name)
-         {
-            this.name = name;
-            selected = false;
-         }
 
-      public Group(String ID, String name, String groupFileLink, String groupFileKey)
+      public UserGroup(String ID, String name, String groupFileLink, String groupFileKey)
          {
             this.name = name;
             this.ID = ID;
             this.groupFileLink = groupFileLink;
             this.groupFileKey = groupFileKey;
-
-            groupMembers.clear();
-
             selected = false;
          }
 
@@ -54,10 +51,11 @@ public class Group implements Parcelable
                   obj.put("name", name);
                   obj.put("groupFileLink", groupFileLink);
                   obj.put("groupFileKey", groupFileKey);
+                  obj.put("version", version);
 
-                  JSONArray jsArray = new JSONArray(groupMembers);
+                  JSONArray jsArray = new JSONArray(wallPostList);
 
-                  obj.put("groupMembers", jsArray);
+                  obj.put("wallposts", jsArray);
 
                }
             catch (JSONException e)
@@ -77,7 +75,9 @@ public class Group implements Parcelable
                   obj.put("id", ID);
                   obj.put("groupFileLink", groupFileLink);
                   obj.put("groupFileKey", groupFileKey);
-                                 }
+                  obj.put("version", 0);
+
+               }
             catch (JSONException e)
                {
                   e.printStackTrace();
@@ -94,13 +94,14 @@ public class Group implements Parcelable
                   name = obj.getString("name");
                   groupFileLink = obj.getString("groupFileLink");
                   groupFileKey = obj.getString("groupFileKey");
+                  version = obj.getInt("version");
 
-                  JSONArray groupMemberList = obj.getJSONArray("groupMembers");
+                  JSONArray groupMemberList = obj.getJSONArray("wallposts");
 
                   for (int n = 0; n < groupMemberList.length(); n++)
                      {
-                        String friendID = groupMemberList.getString(n);
-                        groupMembers.add(friendID);
+                        String wallPostID = groupMemberList.getString(n);
+                        wallPostList.add(wallPostID);
                      }
                }
             catch (JSONException e)
@@ -112,23 +113,23 @@ public class Group implements Parcelable
       @Override
       public boolean equals(Object o)
          {
-            if (!(o instanceof Group))
+            if (!(o instanceof UserGroup))
                {
                   return false;
                }
-            Group other = (Group) o;
-            System.out.println(name + " | " + other.name);
+            UserGroup other = (UserGroup) o;
             return name.equalsIgnoreCase(other.name);
          }
 
 
       // Parcelling part
-      public Group(Parcel in)
+      public UserGroup(Parcel in)
          {
             this.ID = in.readString();
             this.name = in.readString();
             this.groupFileLink = in.readString();
             this.groupFileKey = in.readString();
+            this.version = in.readInt();
 
          }
 
@@ -140,18 +141,19 @@ public class Group implements Parcelable
             dest.writeString(this.name);
             dest.writeString(this.groupFileLink);
             dest.writeString(this.groupFileKey);
+            dest.writeInt(this.version);
          }
 
-      public static final Creator<Group> CREATOR = new Creator<Group>()
+      public static final Creator<UserGroup> CREATOR = new Creator<UserGroup>()
       {
-         public Group createFromParcel(Parcel in)
+         public UserGroup createFromParcel(Parcel in)
             {
-               return new Group(in);
+               return new UserGroup(in);
             }
 
-         public Group[] newArray(int size)
+         public UserGroup[] newArray(int size)
             {
-               return new Group[size];
+               return new UserGroup[size];
             }
       };
 

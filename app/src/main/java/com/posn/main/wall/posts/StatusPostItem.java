@@ -81,7 +81,7 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
             // set the data into the views
             viewHolder.nameText.setText(friendName);
             viewHolder.dateText.setText(postData.date);
-            viewHolder.statusText.setText(postData.content);
+            viewHolder.statusText.setText(postData.textContent);
 
             return convertView;
          }

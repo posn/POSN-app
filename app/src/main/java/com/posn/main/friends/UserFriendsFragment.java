@@ -134,7 +134,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
                   for (int i = 0; i < friend.groups.size(); i++)
                      {
-                        System.out.println(activity.groupList.groups.get(friend.groups.get(i)).name);
+                        System.out.println(activity.userGroupList.groups.get(friend.groups.get(i)).name);
                      }
 
 
@@ -168,7 +168,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      intent.putExtra("type", Constants.TYPE_FRIEND_INFO);
 
                      // pass the list of groups to the activity
-                     intent.putParcelableArrayListExtra("groups", activity.groupList.getList());
+                     intent.putParcelableArrayListExtra("groups", activity.userGroupList.getList());
 
                      // start the activity and get the result from it
                      startActivityForResult(intent, Constants.RESULT_ADD_FRIEND);
@@ -201,7 +201,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      // create a new activity intent to add friend groups
                      intent = new Intent(getActivity(), AddFriendsActivity.class);
                      intent.putExtra("type", Constants.TYPE_FRIEND_GROUPS);
-                     intent.putParcelableArrayListExtra("groups", activity.groupList.getList());
+                     intent.putParcelableArrayListExtra("groups", activity.userGroupList.getList());
                      intent.putExtra("requestedFriend", friend);
 
                      startActivityForResult(intent, Constants.RESULT_ADD_FRIEND_GROUPS);
@@ -236,7 +236,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   case R.id.delete_button:
                      Friend position = (Friend) v.getTag();
 
-                     friendList.remove(position.id);
+                     friendList.remove(position.ID);
 
                      listViewItems.remove(new AcceptedFriendItem(this, position));
 

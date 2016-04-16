@@ -15,7 +15,7 @@ import com.posn.asynctasks.InitializeAsyncTask;
 import com.posn.clouds.Dropbox.DropboxClientUsage;
 import com.posn.datatypes.ConversationList;
 import com.posn.datatypes.FriendList;
-import com.posn.datatypes.GroupList;
+import com.posn.datatypes.UserGroupList;
 import com.posn.datatypes.NotificationList;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.datatypes.User;
@@ -48,7 +48,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       public User user = null;
 
       // data for wall fragment
-      public WallPostList wallPostList = new WallPostList();
+      public WallPostList masterWallPostList = new WallPostList();
 
       // data for master friends list
       public FriendList masterFriendList = new FriendList();
@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       public ConversationList conversationList = new ConversationList();
 
       // data for groups
-      public GroupList groupList = new GroupList();
+      public UserGroupList userGroupList = new UserGroupList();
 
       public RequestedFriend requestedFriend = null;
 

@@ -15,9 +15,9 @@ import android.widget.Toast;
 
 import com.posn.R;
 import com.posn.SetupFilesAsyncTask;
-import com.posn.adapters.GroupArrayAdapter;
-import com.posn.datatypes.Group;
-import com.posn.datatypes.GroupList;
+import com.posn.adapters.SetupGroupArrayAdapter;
+import com.posn.datatypes.UserGroup;
+import com.posn.datatypes.UserGroupList;
 import com.posn.main.BaseActivity;
 import com.posn.main.LoginActivity;
 
@@ -32,12 +32,12 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
       EditText groupNameText;
       ListView lv;
 
-      public GroupList groupList = new GroupList();
+      public UserGroupList userGroupList = new UserGroupList();
 
-      ArrayList<Group> groupNames = new ArrayList<>();
+      ArrayList<UserGroup> userGroupNames = new ArrayList<>();
       ArrayList<String> selectedGroups = new ArrayList<>();
 
-      GroupArrayAdapter adapter;
+      SetupGroupArrayAdapter adapter;
 
 
       @Override
@@ -68,7 +68,7 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
 
 
             // create a custom adapter for each contact item in the listview
-            adapter = new GroupArrayAdapter(this, groupNames, selectedGroups);
+            adapter = new SetupGroupArrayAdapter(this, userGroupNames, selectedGroups);
 
             // set the adapter to the listview
             lv.setAdapter(adapter);
@@ -83,10 +83,10 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
                         CheckBox currentCheckBox = (CheckBox) view.findViewById(R.id.checkBox1);
                         currentCheckBox.toggle();
 
-                        Group group = (Group) parent.getItemAtPosition(position);
+                        UserGroup userGroup = (UserGroup) parent.getItemAtPosition(position);
 
                         // get the contact that was click and toggle the check box
-                        adapter.updateSelectedGroupList(group);
+                        adapter.updateSelectedGroupList(userGroup);
                      }
 
                });
@@ -107,15 +107,15 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
                {
                   case R.id.add_button:
 
-                     Group newGroup = new Group();
+                     UserGroup newUserGroup = new UserGroup();
 
                      if (!isEmpty(groupNameText))
                         {
-                           newGroup.name = groupNameText.getText().toString();
-                           newGroup.selected = true;
+                           newUserGroup.name = groupNameText.getText().toString();
+                           newUserGroup.selected = true;
 
-                           selectedGroups.add(newGroup.name);
-                           adapter.add(newGroup);
+                           selectedGroups.add(newUserGroup.name);
+                           adapter.add(newUserGroup);
                            adapter.notifyDataSetChanged();
                            groupNameText.getText().clear();
                         }

@@ -77,7 +77,7 @@ public class LinkPostItem implements ListViewPostItem, OnClickListener
             // set the data into the views
             viewHolder.nameText.setText(friendName);
             viewHolder.dateText.setText(postData.date);
-            viewHolder.linkText.setText(postData.content);
+            viewHolder.linkText.setText(postData.textContent);
 
             return convertView;
          }

@@ -10,27 +10,27 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.Group;
+import com.posn.datatypes.UserGroup;
 
 import java.util.ArrayList;
 
 
-public class GroupArrayAdapter extends ArrayAdapter<Group>
+public class SetupGroupArrayAdapter extends ArrayAdapter<UserGroup>
    {
 
       private final Context context;
-      ArrayList<Group> groupList;
+      ArrayList<UserGroup> userGroupList;
       ArrayList<String> selectedList;
 
 
 
 
 
-      public GroupArrayAdapter(Context context, ArrayList<Group> groups, ArrayList<String> selected)
+      public SetupGroupArrayAdapter(Context context, ArrayList<UserGroup> userGroups, ArrayList<String> selected)
          {
-            super(context, R.layout.listview_group_item, groups);
+            super(context, R.layout.listview_group_item, userGroups);
             this.context = context;
-            this.groupList = groups;
+            this.userGroupList = userGroups;
             selectedList = selected;
          }
 
@@ -55,7 +55,7 @@ public class GroupArrayAdapter extends ArrayAdapter<Group>
                      {
                         public void onClick(View v)
                            {
-                              updateSelectedGroupList(groupList.get(position));
+                              updateSelectedGroupList(userGroupList.get(position));
                            }
                      });
                }
@@ -64,10 +64,10 @@ public class GroupArrayAdapter extends ArrayAdapter<Group>
                   holder = (ViewHolder) convertView.getTag();
                }
 
-            Group group = groupList.get(position);
-            holder.nameText.setText(group.name);
-            holder.checkBox.setChecked(group.selected);
-            holder.nameText.setTag(group);
+            UserGroup userGroup = userGroupList.get(position);
+            holder.nameText.setText(userGroup.name);
+            holder.checkBox.setChecked(userGroup.selected);
+            holder.nameText.setTag(userGroup);
 
 
             return convertView;
@@ -77,11 +77,11 @@ public class GroupArrayAdapter extends ArrayAdapter<Group>
       @Override
       public int getCount()
          {
-            return groupList.size();
+            return userGroupList.size();
          }
 
 
-      public void updateSelectedGroupList(Group item)
+      public void updateSelectedGroupList(UserGroup item)
          {
             if (item.selected)
                {

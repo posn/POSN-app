@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class GroupList
+public class UserGroupList
    {
-      public HashMap<String, Group> groups;
+      public HashMap<String, UserGroup> groups;
 
-      public GroupList()
+      public UserGroupList()
          {
             groups = new HashMap<>();
          }
@@ -36,11 +36,11 @@ public class GroupList
                   for (int n = 0; n < groupList.length(); n++)
                      {
                         // parse the friend
-                        Group group = new Group();
-                        group.parseJSONObject(groupList.getJSONObject(n));
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.parseJSONObject(groupList.getJSONObject(n));
 
                         // put into request or current friend list based on status
-                        groups.put(group.ID, group);
+                        groups.put(userGroup.ID, userGroup);
                      }
                }
             catch (JSONException e)
@@ -65,15 +65,15 @@ public class GroupList
       public void saveGroupsToFile(String devicePath)
          {
             JSONArray groupList = new JSONArray();
-            Group group;
+            UserGroup userGroup;
 
             try
                {
                   // add all of the friends in the current friends list into the JSON array
-                  for (Map.Entry<String, Group> entry : groups.entrySet())
+                  for (Map.Entry<String, UserGroup> entry : groups.entrySet())
                      {
-                        group = entry.getValue();
-                        groupList.put(group.createJSONObject());
+                        userGroup = entry.getValue();
+                        groupList.put(userGroup.createJSONObject());
                      }
 
                   // create new JSON object and put the JSON array into it
@@ -89,11 +89,11 @@ public class GroupList
                }
          }
 
-      public ArrayList<Group> getList()
+      public ArrayList<UserGroup> getList()
          {
-            ArrayList<Group> list = new ArrayList<>();
+            ArrayList<UserGroup> list = new ArrayList<>();
 
-            for (Map.Entry<String, Group> entry : groups.entrySet())
+            for (Map.Entry<String, UserGroup> entry : groups.entrySet())
                {
                   list.add(entry.getValue());
                }

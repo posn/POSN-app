@@ -4,7 +4,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -17,17 +16,17 @@ import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
-import com.posn.adapters.FriendGroupArrayAdapter;
-import com.posn.application.POSNApplication;
-import com.posn.datatypes.Group;
+import com.posn.adapters.SelectGroupArrayAdapter;
 import com.posn.datatypes.RequestedFriend;
+import com.posn.datatypes.UserGroup;
+import com.posn.main.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 
-public class AddFriendsActivity extends FragmentActivity implements OnClickListener
+public class AddFriendsActivity extends BaseActivity implements OnClickListener
    {
 
       // declare variables
@@ -35,14 +34,12 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
       EditText name, email;
       ListView lv;
 
-      ArrayList<Group> groupList;
+      ArrayList<UserGroup> userGroupList;
       int type;
 
       RequestedFriend requestedFriend;
 
-      POSNApplication app;
-
-      FriendGroupArrayAdapter adapter;
+      SelectGroupArrayAdapter adapter;
 
 
       @Override
@@ -52,7 +49,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
             // get the group list from the intent extras
-            groupList = getIntent().getExtras().getParcelableArrayList("groups");
+            userGroupList = getIntent().getExtras().getParcelableArrayList("groups");
             type = getIntent().getExtras().getInt("type");
 
             // get the XML layout
@@ -68,9 +65,9 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                }
 
             // sort the grouplist by group name
-            Collections.sort(groupList, new Comparator<Group>()
+            Collections.sort(userGroupList, new Comparator<UserGroup>()
                {
-                  public int compare(Group o1, Group o2)
+                  public int compare(UserGroup o1, UserGroup o2)
                      {
                         return o1.name.compareTo(o2.name);
                      }
@@ -96,7 +93,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
 
 
             // create a custom adapter for each contact item in the listview
-            adapter = new FriendGroupArrayAdapter(this, groupList, requestedFriend);
+            adapter = new SelectGroupArrayAdapter(this, userGroupList, requestedFriend.groups);
 
             // set the adapter to the listview
             lv.setAdapter(adapter);
@@ -111,10 +108,10 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                         CheckBox currentCheckBox = (CheckBox) view.findViewById(R.id.checkBox1);
                         currentCheckBox.toggle();
 
-                        Group group = (Group) parent.getItemAtPosition(position);
+                        UserGroup userGroup = (UserGroup) parent.getItemAtPosition(position);
 
                         // get the contact that was click and toggle the check box
-                        adapter.updateSelectedGroupList(group);
+                        adapter.updateSelectedGroupList(userGroup);
 
                         // refresh the listview
                         //  adapter.notifyDataSetChanged();
@@ -129,9 +126,6 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                   actionBar.setTitle("Add New Friend");
                }
 
-            app = (POSNApplication) getApplication();
-
-            //            friendList = app.friendList;
          }
 
 
@@ -179,8 +173,6 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                            resultIntent.putExtra("requestedFriend", requestedFriend);
                            finish();
                         }
-
-
 
 
                      break;

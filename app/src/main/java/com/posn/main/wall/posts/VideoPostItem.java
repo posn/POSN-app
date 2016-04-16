@@ -49,7 +49,7 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
          {
             this.context = context;
             this.postData = postData;
-            this.dataLink = Uri.fromFile(new File(directory + "/" + postData.content));
+            this.dataLink = Uri.fromFile(new File(directory + "/" + postData.postID));
             this.friendName = friendName;
          }
 

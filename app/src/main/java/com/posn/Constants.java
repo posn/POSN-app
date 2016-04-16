@@ -11,9 +11,17 @@ public class Constants
 
       public static final int RESULT_ADD_FRIEND = 0;
       public static final int RESULT_ADD_FRIEND_GROUPS = 1;
+      public static final int RESULT_CREATE_STATUS_POST = 2;
+
 
       public static final int TYPE_FRIEND_INFO = 0;
       public static final int TYPE_FRIEND_GROUPS = 1;
+
+      // wall post types
+      public static final int POST_TYPE_STATUS = 0;
+      public static final int POST_TYPE_LINK = 1;
+      public static final int POST_TYPE_PHOTO = 2;
+      public static final int POST_TYPE_VIDEO = 3;
 
 
       // device file paths
@@ -28,6 +36,7 @@ public class Constants
 
       // device file names
       public static final String groupListFile = "/user_groups.txt";
+      public static final String wallListFile = "/user_wall.txt";
 
       // cloud directory names
       public static final String wallDirectory = "wall";

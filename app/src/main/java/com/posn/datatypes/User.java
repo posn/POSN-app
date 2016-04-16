@@ -151,8 +151,6 @@ public class User implements Parcelable
 
             dest.writeString(this.publicKey);
             dest.writeString(this.privateKey);
-
-
          }
 
       public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>()

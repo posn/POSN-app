@@ -40,7 +40,7 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
          {
             // get the group list file
             System.out.println("GETTING GROUPS!!!");
-            main.groupList.loadGroupsFromFile(Constants.applicationDataFilePath + "/user_groups.txt");
+            main.userGroupList.loadGroupsFromFile(Constants.applicationDataFilePath + Constants.groupListFile);
 
             // get the friend list file
             System.out.println("GETTING FRIENDS!!!");
@@ -48,7 +48,7 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
 
             // get the wall post file
             System.out.println("GETTING WALL POSTS!!!");
-            main.wallPostList.loadWallPostsFromFile(Constants.applicationDataFilePath + "/user_wall.txt");
+            main.masterWallPostList.loadWallPostsFromFile(Constants.applicationDataFilePath + Constants.wallListFile);
 
             // get the notifications file
             System.out.println("GETTING NOTIFICATIONS!!!");

@@ -105,7 +105,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                      finalHeight = viewHolder.photoImage.getMeasuredHeight();
                      finalWidth = viewHolder.photoImage.getMeasuredWidth();
 
-                     File imgFile = new File(directory + postData.content);
+                     File imgFile = new File(directory + postData.postID);
 
                      Bitmap photo = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
@@ -148,7 +148,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                   case R.id.photo:
 
                      intent = new Intent(context, PhotoViewerActivity.class);
-                     intent.putExtra("photoPath", directory + postData.content);
+                     intent.putExtra("photoPath", directory + postData.postID);
 
                      context.startActivity(intent);
                      break;

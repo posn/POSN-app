@@ -172,18 +172,20 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                   verificationString = SymmetricKeyManager.decrypt(key, verificationString);
 
                   // verify the password
-                  if (verificationString.equals("POSN - SUCCESS"))
+                  if (verificationString != null)
                      {
-                        // load user data from file
-                        user.loadUserFromFile(password, Constants.profileFilePath + "/user.txt");
-
-                        // verify email address
-                        if (email.equals(user.email))
+                        if (verificationString.equals("POSN - SUCCESS"))
                            {
-                              loginVerify = true;
+                              // load user data from file
+                              user.loadUserFromFile(password, Constants.profileFilePath + "/user.txt");
+
+                              // verify email address
+                              if (email.equals(user.email))
+                                 {
+                                    loginVerify = true;
+                                 }
                            }
                      }
-
 
                   return null;
                }

@@ -91,7 +91,7 @@ public class LoadFriendsListAsyncTask extends AsyncTask<String, String, String>
 
                         if (friend.status == STATUS_ACCEPTED || friend.status == STATUS_PENDING )
                            {
-                              friendList.put(friend.id, friend);
+                              friendList.put(friend.ID, friend);
                            }
                         else
                            {

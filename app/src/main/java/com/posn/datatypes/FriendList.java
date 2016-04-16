@@ -42,7 +42,7 @@ public class FriendList
                         // parse the friend
                         Friend friend = new Friend();
                         friend.parseJSONObject(friendsList.getJSONObject(n));
-                        currentFriends.put(friend.id, friend);
+                        currentFriends.put(friend.ID, friend);
                      }
 
                   JSONArray requestedFriendsList = data.getJSONArray("requests");

@@ -4,7 +4,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.posn.Constants;
-import com.posn.datatypes.Group;
+import com.posn.datatypes.UserGroup;
 import com.posn.encryption.SymmetricKeyManager;
 import com.posn.main.MainActivity;
 import com.posn.utility.CloudFileManager;
@@ -16,13 +16,13 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
       private ProgressDialog pDialog;
 
       private MainActivity main;
-      private String newGroup;
+      private String newGroupName;
 
       public NewGroupAsyncTask(MainActivity mainActivity, String groupName)
          {
             super();
             main = mainActivity;
-            newGroup = groupName;
+            newGroupName = groupName;
          }
 
 
@@ -42,26 +42,29 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
+            // create new group object
+            UserGroup group = new UserGroup();
+
             // generate group ID
-            String groupID = IDGenerator.generate(newGroup);
+            group.ID = IDGenerator.generate(newGroupName);
+            group.name = newGroupName;
 
             // generate group wall and archive key
-            String groupWallKey = SymmetricKeyManager.createRandomKey();
+            group.groupFileLink = SymmetricKeyManager.createRandomKey();
 
             // create empty group wall file on device to upload to cloud
-            String fileName = "group_" + newGroup.toLowerCase() + "_0.txt";
+            String fileName = "group_" + group.name + "_" + group.version + ".txt";
             String deviceFilepath = Constants.wallFilePath + "/" + fileName;
-            CloudFileManager.createGroupWallFile(deviceFilepath, groupWallKey);
+            CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath);
 
             // upload group wall to cloud and get direct link
-            String directLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
+            group.groupFileLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
             // create new group object and add to group list
-            Group group = new Group(groupID, newGroup, directLink, groupWallKey);
-            main.groupList.groups.put(groupID, group);
+            main.userGroupList.groups.put(group.ID, group);
 
             // save group list to device
-            main.groupList.saveGroupsToFile(Constants.applicationDataFilePath + Constants.groupListFile);
+            main.userGroupList.saveGroupsToFile(Constants.applicationDataFilePath + Constants.groupListFile);
 
             return null;
          }
