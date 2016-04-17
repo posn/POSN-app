@@ -102,11 +102,19 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             activity = (MainActivity) getActivity();
             app = activity.app;
 
-            friendList = activity.masterFriendList.currentFriends;
-            friendRequestsList = activity.masterFriendList.friendRequests;
+
 
             adapter = new FriendsArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
+
+            // get the friends and friend request list from the main activity
+            friendList = activity.masterFriendList.currentFriends;
+            friendRequestsList = activity.masterFriendList.friendRequests;
+
+            // check if there are any notifications, if so then update listview
+
+                  updateFriendList();
+
 
             return view;
          }
@@ -353,8 +361,13 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             if (firstHeader + 1 == secondHeader)
                {
-                  listViewItems.add(1, new NoRequestFriendItem());
+                  listViewItems.add(firstHeader + 1, new NoFriendItem("No new requests"));
                   secondHeader++;
+               }
+
+            if(secondHeader + 1 == listViewItems.size())
+               {
+                  listViewItems.add(secondHeader + 1, new NoFriendItem("No current friends"));
                }
 
             Comparator<ListViewFriendItem> friendNameComparator = new Comparator<ListViewFriendItem>()

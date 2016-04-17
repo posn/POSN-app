@@ -1,6 +1,5 @@
 package com.posn.main.notifications;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,9 +8,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.posn.Constants;
 import com.posn.R;
-import com.posn.application.POSNApplication;
 import com.posn.datatypes.Notification;
 import com.posn.main.MainActivity;
 
@@ -35,16 +35,16 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
       Context context;
       ArrayList<Notification> notificationsList;
       ListView lv;
-      POSNApplication app;
       NotificationArrayAdapter adapter;
       MainActivity main;
+      TextView noNotificationsText;
 
       @Override
       public void onResume()
          {
             super.onResume();
 
-            if(!notificationsList.isEmpty())
+            if (!notificationsList.isEmpty())
                {
                   updateNotifications();
                }
@@ -63,38 +63,25 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
 
             // get the application
             main = (MainActivity) getActivity();
-            app = (POSNApplication) getActivity().getApplication();
 
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
 
+            noNotificationsText = (TextView) view.findViewById(R.id.notification_text);
+
+            // get the notification list from the main activity
             notificationsList = main.notificationList.notifications;
 
-            // fill with fake data
-            //createNotifications();
-            //loadNotifications();
+            // check if there are any notifications, if so then update listview
+            if (notificationsList.size() > 0)
+               {
+                  updateNotifications();
+               }
 
             adapter = new NotificationArrayAdapter(getActivity(), notificationsList);
             lv.setAdapter(adapter);
 
-
             return view;
-         }
-
-
-      @Override
-      public void onActivityCreated(Bundle savedInstanceState)
-         {
-            super.onActivityCreated(savedInstanceState);
-            //onResume();
-         }
-
-
-      @Override
-      public void onAttach(Activity activity)
-         {
-            super.onAttach(activity);
-            context = getActivity();
          }
 
 
@@ -125,7 +112,7 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
 
                   String jsonStr = studentsObj.toString();
 
-                  FileWriter fw = new FileWriter(app.wallFilePath + "/user_notifications.txt");
+                  FileWriter fw = new FileWriter(Constants.applicationDataFilePath + Constants.notificationListFile);
                   BufferedWriter bw = new BufferedWriter(fw);
                   bw.write(jsonStr);
                   bw.close();
@@ -140,6 +127,16 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
       public void updateNotifications()
          {
             System.out.println("CREATING NOTIFICATIONS!!! | " + notificationsList.size());
+
+            if (notificationsList.size() > 0)
+               {
+                  noNotificationsText.setVisibility(View.GONE);
+               }
+            else
+               {
+                  noNotificationsText.setVisibility(View.VISIBLE);
+               }
+
 
             // notify the adapter about the data change
             adapter.notifyDataSetChanged();

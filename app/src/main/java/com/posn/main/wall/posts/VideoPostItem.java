@@ -11,6 +11,7 @@ import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,6 +23,10 @@ import com.posn.main.wall.comments.CommentActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, OnClickListener
@@ -62,12 +67,12 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
 
 
       @Override
-      public View getView(LayoutInflater inflater, View convertView)
+      public View getView(LayoutInflater inflater, View convertView, ViewGroup parent)
          {
             if (convertView == null)
                {
                   // inflate the layout
-                  convertView = inflater.inflate(R.layout.listview_wall_video_item, null);
+                  convertView = inflater.inflate(R.layout.listview_wall_video_item, parent, false);
 
                   // well set up the ViewHolder
                   viewHolder = new ViewHolderItem();
@@ -167,5 +172,20 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
 
                      break;
                }
+         }
+
+      @Override
+      public Date getDate()
+         {
+            try
+               {
+                  SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
+                  return dateformat.parse(postData.date);
+               }
+            catch (ParseException e)
+               {
+                  e.printStackTrace();
+               }
+            return null;
          }
    }

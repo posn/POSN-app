@@ -1,6 +1,8 @@
 package com.posn.datatypes;
 
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.posn.utility.DeviceFileManager;
 
@@ -13,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class UserGroupList
+public class UserGroupList implements Parcelable
    {
       public HashMap<String, UserGroup> groups;
 
@@ -99,6 +101,48 @@ public class UserGroupList
                }
 
             return list;
+         }
+
+      // Parcelling part
+      public UserGroupList(Parcel in)
+         {
+            //initialize your map before
+            int size = in.readInt();
+            for(int i = 0; i < size; i++){
+               String key = in.readString();
+               UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
+               groups.put(key,value);
+            }
+         }
+
+
+      @Override
+      public void writeToParcel(Parcel dest, int flags)
+         {
+            dest.writeInt(groups.size());
+            for(Map.Entry<String,UserGroup> entry : groups.entrySet()){
+               dest.writeString(entry.getKey());
+               dest.writeParcelable(entry.getValue(),flags);
+            }
+         }
+
+      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+         {
+            public Friend createFromParcel(Parcel in)
+               {
+                  return new Friend(in);
+               }
+
+            public Friend[] newArray(int size)
+               {
+                  return new Friend[size];
+               }
+         };
+
+      @Override
+      public int describeContents()
+         {
+            return 0;
          }
 
    }

@@ -2,19 +2,21 @@ package com.posn.main.friends;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.TextView;
 
 import com.posn.R;
 import com.posn.main.friends.FriendsArrayAdapter.RowType;
 
 
-public class NoRequestFriendItem implements ListViewFriendItem
+public class NoFriendItem implements ListViewFriendItem
    {
 
-      private boolean isClickable = false;
+      String message;
 
 
-      public NoRequestFriendItem()
+      public NoFriendItem(String message)
          {
+            this.message = message;
          }
 
 
@@ -30,7 +32,9 @@ public class NoRequestFriendItem implements ListViewFriendItem
          {
             View view;
 
-            view = (View) inflater.inflate(R.layout.listview_friend_none_item, null);
+            view = inflater.inflate(R.layout.listview_friend_none_item, null);
+            TextView text = (TextView) view.findViewById(R.id.list_content2);
+            text.setText(message);
 
             return view;
          }
@@ -38,7 +42,7 @@ public class NoRequestFriendItem implements ListViewFriendItem
       @Override
       public boolean isClickable()
          {
-            return isClickable;
+            return false;
          }
 
       @Override
@@ -50,9 +54,9 @@ public class NoRequestFriendItem implements ListViewFriendItem
       @Override
       public boolean equals(Object o)
          {
-            if (!(o instanceof NoRequestFriendItem))
+            if (!(o instanceof NoFriendItem))
                return false;
-            NoRequestFriendItem other = (NoRequestFriendItem) o;
+            NoFriendItem other = (NoFriendItem) o;
             return true;
          }
 

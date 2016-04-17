@@ -15,15 +15,15 @@ import com.posn.asynctasks.InitializeAsyncTask;
 import com.posn.clouds.Dropbox.DropboxClientUsage;
 import com.posn.datatypes.ConversationList;
 import com.posn.datatypes.FriendList;
-import com.posn.datatypes.UserGroupList;
 import com.posn.datatypes.NotificationList;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.datatypes.User;
+import com.posn.datatypes.UserGroupList;
 import com.posn.datatypes.WallPostList;
 import com.posn.encryption.AsymmetricKeyManager;
 import com.posn.encryption.SymmetricKeyManager;
 import com.posn.main.friends.UserFriendsFragment;
-import com.posn.main.messages.UserMessagesFragment;
+import com.posn.main.messages.UserConversationFragment;
 import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.wall.UserWallFragment;
 
@@ -63,6 +63,27 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       public UserGroupList userGroupList = new UserGroupList();
 
       public RequestedFriend requestedFriend = null;
+
+      @Override
+      public void onSaveInstanceState(Bundle savedInstanceState)
+         {
+            // Save the user's current game state
+            savedInstanceState.putInt("newWallPostsNum", newWallPostsNum);
+            savedInstanceState.putInt("newNotificationNum", newNotificationNum);
+            savedInstanceState.putInt("newMessagesNum", newMessagesNum);
+            savedInstanceState.putInt("newFriendNum", newFriendNum);
+
+            savedInstanceState.putParcelable("user", user);
+            savedInstanceState.putParcelable("masterFriendList", masterFriendList);
+            savedInstanceState.putParcelable("masterWallPostList", masterWallPostList);
+            savedInstanceState.putParcelable("notificationList", notificationList);
+            savedInstanceState.putParcelable("conversationList", conversationList);
+            savedInstanceState.putParcelable("userGroupList", userGroupList);
+            savedInstanceState.putParcelable("requestedFriend", requestedFriend);
+
+            // Always call the superclass so it can save the view hierarchy state
+            super.onSaveInstanceState(savedInstanceState);
+         }
 
 
       @Override
@@ -133,18 +154,54 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                      }
                });
 
+            if(app.cloud == null)
+               {
+                  app.cloud = new DropboxClientUsage(this);
+                  // cloud = new GoogleDriveClientUsage(this);
+                  //cloud = new OneDriveClientUsage(this);
+                  app.cloud.initializeCloud();
+               }
 
-            // sign into the cloud
-            app.cloud = new DropboxClientUsage(this);
-            // cloud = new GoogleDriveClientUsage(this);
-            //cloud = new OneDriveClientUsage(this);
-            app.cloud.initializeCloud();
+            if (savedInstanceState != null)
+               {
+                  newWallPostsNum = savedInstanceState.getInt("newWallPostsNum");
+                  newNotificationNum = savedInstanceState.getInt("newNotificationNum");
+                  newMessagesNum = savedInstanceState.getInt("newMessagesNum");
+                  newFriendNum = savedInstanceState.getInt("newFriendNum");
 
-            asyncTaskInitialize = new InitializeAsyncTask(this);
-            asyncTaskInitialize.delegate = this;
-            asyncTaskInitialize.execute();
+                  user = savedInstanceState.getParcelable("user");
+                  masterFriendList = savedInstanceState.getParcelable("masterFriendList");
+                  masterWallPostList = savedInstanceState.getParcelable("masterWallPostList");
+                  notificationList = savedInstanceState.getParcelable("notificationList");
+                  conversationList = savedInstanceState.getParcelable("conversationList");
+                  userGroupList = savedInstanceState.getParcelable("userGroupList");
+                  requestedFriend = savedInstanceState.getParcelable("requestedFriend");
+               }
+            else
+               {
+                  asyncTaskInitialize = new InitializeAsyncTask(this);
+                  asyncTaskInitialize.delegate = this;
+                  asyncTaskInitialize.execute();
+               }
+
          }
 
+
+      @Override
+      public void onResume()
+         {
+            super.onResume();
+
+            // sign into the cloud
+            if(app.cloud == null)
+               {
+                  app.cloud = new DropboxClientUsage(this);
+                  // cloud = new GoogleDriveClientUsage(this);
+                  //cloud = new OneDriveClientUsage(this);
+                  app.cloud.initializeCloud();
+               }
+
+         }
 
       @Override
       public boolean onCreateOptionsMenu(Menu menu)
@@ -168,10 +225,10 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                   wallFrag.updateWallPosts();
                }
 
-            UserMessagesFragment messagesFrag = (UserMessagesFragment) tabsAdapter.getRegisteredFragment(2);
+            UserConversationFragment messagesFrag = (UserConversationFragment) tabsAdapter.getRegisteredFragment(2);
             if (messagesFrag != null)
                {
-                  messagesFrag.updateMessages();
+                  messagesFrag.updateConversations();
                }
 
             UserNotificationsFragment notificationFrag = (UserNotificationsFragment) tabsAdapter.getRegisteredFragment(1);

@@ -1,6 +1,8 @@
 package com.posn.datatypes;
 
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.posn.utility.DeviceFileManager;
 
@@ -13,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class FriendList
+public class FriendList implements Parcelable
    {
       public HashMap<String, Friend> currentFriends;
       public ArrayList<RequestedFriend> friendRequests;
@@ -112,5 +114,52 @@ public class FriendList
                {
                   e.printStackTrace();
                }
+         }
+
+      // Parcelling part
+      public FriendList(Parcel in)
+         {
+            // get requested friends
+            friendRequests = in.readArrayList(RequestedFriend.class.getClassLoader());
+
+            //initialize your map before
+            int size = in.readInt();
+            for(int i = 0; i < size; i++){
+               String key = in.readString();
+               Friend value = in.readParcelable(Friend.class.getClassLoader());
+               currentFriends.put(key,value);
+            }
+         }
+
+
+      @Override
+      public void writeToParcel(Parcel dest, int flags)
+         {
+            dest.writeList(friendRequests);
+
+            dest.writeInt(currentFriends.size());
+            for(Map.Entry<String,Friend> entry : currentFriends.entrySet()){
+               dest.writeString(entry.getKey());
+               dest.writeParcelable(entry.getValue(),flags);
+            }
+         }
+
+      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+         {
+            public Friend createFromParcel(Parcel in)
+               {
+                  return new Friend(in);
+               }
+
+            public Friend[] newArray(int size)
+               {
+                  return new Friend[size];
+               }
+         };
+
+      @Override
+      public int describeContents()
+         {
+            return 0;
          }
    }

@@ -1,17 +1,17 @@
 package com.posn.datatypes;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Conversation
+public class Conversation implements Parcelable
    {
       public int type;
 
       public String friend;
       public String date;
-      public String email;
-      public String image_uri;
-      public String content;
       public String lastMessage;
 
       public boolean selected;
@@ -58,5 +58,41 @@ public class Conversation
                {
                   e.printStackTrace();
                }
+         }
+
+      // Parcelling part
+      public Conversation(Parcel in)
+         {
+            this.friend = in.readString();
+            this.date = in.readString();
+            this.lastMessage = in.readString();
+         }
+
+
+      @Override
+      public void writeToParcel(Parcel dest, int flags)
+         {
+            dest.writeString(this.friend);
+            dest.writeString(this.date);
+            dest.writeString(this.lastMessage);
+         }
+
+      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+         {
+            public Friend createFromParcel(Parcel in)
+               {
+                  return new Friend(in);
+               }
+
+            public Friend[] newArray(int size)
+               {
+                  return new Friend[size];
+               }
+         };
+
+      @Override
+      public int describeContents()
+         {
+            return 0;
          }
    }

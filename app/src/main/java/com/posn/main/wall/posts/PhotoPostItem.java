@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -19,6 +20,10 @@ import com.posn.main.wall.comments.CommentActivity;
 import com.posn.main.wall.views.SquareImageView;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class PhotoPostItem implements ListViewPostItem, OnClickListener
@@ -39,7 +44,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
       private String directory;
       ViewHolderItem viewHolder;
 
-     // SquareImageView photoImage;
+      // SquareImageView photoImage;
       int finalHeight, finalWidth;
 
 
@@ -60,14 +65,14 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
 
 
       @Override
-      public View getView(LayoutInflater inflater, View convertView)
+      public View getView(LayoutInflater inflater, View convertView, ViewGroup parent)
          {
             //  View view = convertView;
 
             if (convertView == null)
                {
                   // inflate the layout
-                  convertView = inflater.inflate(R.layout.listview_wall_photo_item, null);
+                  convertView = inflater.inflate(R.layout.listview_wall_photo_item, parent, false);
 
                   // well set up the ViewHolder
                   viewHolder = new ViewHolderItem();
@@ -96,34 +101,34 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
 
             ViewTreeObserver vto = viewHolder.photoImage.getViewTreeObserver();
             vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
-            {
+               {
 
-               public boolean onPreDraw()
-                  {
-                     // Remove after the first run so it doesn't fire forever
-                     viewHolder.photoImage.getViewTreeObserver().removeOnPreDrawListener(this);
-                     finalHeight = viewHolder.photoImage.getMeasuredHeight();
-                     finalWidth = viewHolder.photoImage.getMeasuredWidth();
+                  public boolean onPreDraw()
+                     {
+                        // Remove after the first run so it doesn't fire forever
+                        viewHolder.photoImage.getViewTreeObserver().removeOnPreDrawListener(this);
+                        finalHeight = viewHolder.photoImage.getMeasuredHeight();
+                        finalWidth = viewHolder.photoImage.getMeasuredWidth();
 
-                     File imgFile = new File(directory + postData.postID);
+                        File imgFile = new File(directory + postData.postID);
 
-                     Bitmap photo = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        Bitmap photo = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
-                     int w = photo.getWidth();
-                     int h = photo.getHeight();
+                        int w = photo.getWidth();
+                        int h = photo.getHeight();
 
-                     while (w > finalWidth || h > finalHeight)
-                        {
-                           w = w / 2;
-                           h = h / 2;
-                        }
-                     System.out.println("ASD " + w + "asdadd: " + h);
+                        while (w > finalWidth || h > finalHeight)
+                           {
+                              w = w / 2;
+                              h = h / 2;
+                           }
+                        System.out.println("ASD " + w + "asdadd: " + h);
 
-                     viewHolder.photoImage.setImageBitmap(Bitmap.createScaledBitmap(photo, w, h, false));
+                        viewHolder.photoImage.setImageBitmap(Bitmap.createScaledBitmap(photo, w, h, false));
 
-                     return true;
-                  }
-            });
+                        return true;
+                     }
+               });
 
             return convertView;
          }
@@ -153,5 +158,20 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                      context.startActivity(intent);
                      break;
                }
+         }
+
+      @Override
+      public Date getDate()
+         {
+            try
+               {
+                  SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
+                  return dateformat.parse(postData.date);
+               }
+            catch (ParseException e)
+               {
+                  e.printStackTrace();
+               }
+            return null;
          }
    }

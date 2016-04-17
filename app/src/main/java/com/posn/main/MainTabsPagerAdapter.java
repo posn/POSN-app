@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.posn.R;
 import com.posn.main.friends.UserFriendsFragment;
-import com.posn.main.messages.UserMessagesFragment;
+import com.posn.main.messages.UserConversationFragment;
 import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.settings.UserSettingsFragment;
 import com.posn.main.wall.UserWallFragment;
@@ -67,7 +67,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                   case 2:
                      if (messagesTab == null)
                         {
-                           messagesTab = new UserMessagesFragment();
+                           messagesTab = new UserConversationFragment();
                         }
                      return messagesTab;
 

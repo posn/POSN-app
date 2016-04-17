@@ -35,7 +35,11 @@ public abstract class BaseActivity extends FragmentActivity
          {
             super.onActivityResult(requestCode, resultCode, data);
 
-            cloud.activityResult(requestCode, resultCode, data);
+            if (cloud != null)
+               {
+                  cloud.activityResult(requestCode, resultCode, data);
+
+               }
          }
 
 

@@ -1,10 +1,16 @@
 package com.posn.main.wall;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -17,6 +23,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.posn.Constants;
@@ -25,7 +32,6 @@ import com.posn.asynctasks.wall.NewWallStatusPostAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.Post;
 import com.posn.main.MainActivity;
-import com.posn.main.wall.posts.LinkPostItem;
 import com.posn.main.wall.posts.ListViewPostItem;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
@@ -33,7 +39,10 @@ import com.posn.main.wall.posts.VideoPostItem;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -42,6 +51,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       // declare variables
       Context context;
       RelativeLayout statusButton, photoButton, checkInButton;
+      TextView noWallPostsText;
       ListView lv;
       TableRow statusBar;
 
@@ -51,6 +61,17 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       public WallArrayAdapter adapter;
 
       public MainActivity activity;
+      private Uri outputFileUri;
+
+      @Override
+      public void onSaveInstanceState(Bundle savedInstanceState)
+         {
+            // Save the user's current game state
+            savedInstanceState.putParcelable("outputFileUri", outputFileUri);
+
+            // Always call the superclass so it can save the view hierarchy state
+            super.onSaveInstanceState(savedInstanceState);
+         }
 
 
       @Override
@@ -67,11 +88,9 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             // get the main activity
             activity = (MainActivity) getActivity();
 
-            // get the wall post data from activity
-            wallPostData = activity.masterWallPostList.wallPosts;
-
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
+            noWallPostsText = (TextView) view.findViewById(R.id.notification_text);
 
             // get the buttons from the layout
             statusButton = (RelativeLayout) view.findViewById(R.id.status_button);
@@ -119,10 +138,20 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                });
 
 
-
-
             adapter = new WallArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
+
+            if (savedInstanceState != null)
+               {
+                  outputFileUri = savedInstanceState.getParcelable("outputFileUri");
+               }
+
+            // get the wall post data from activity
+            wallPostData = activity.masterWallPostList.wallPosts;
+            if (wallPostData.size() != 0)
+               {
+                  updateWallPosts();
+               }
 
             return view;
          }
@@ -142,6 +171,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
                   case R.id.photo_button:
 
+                     openImageIntent();
                      break;
 
                   case R.id.checkin_button:
@@ -161,6 +191,46 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   ArrayList<String> selectGroups = data.getStringArrayListExtra("groups");
                   new NewWallStatusPostAsyncTask(this, selectGroups, status).execute();
                }
+
+            if (resultCode == Activity.RESULT_OK)
+               {
+                  if (requestCode == Constants.RESULT_PHOTO)
+                     {
+                        final boolean isCamera;
+                        if (data == null || data.getData() == null)
+                           {
+                              System.out.println("HERE!!!!!!!!!!!!!!!!");
+                              isCamera = true;
+                           }
+                        else
+                           {
+                              final String action = data.getAction();
+                              if (action == null)
+                                 {
+                                    isCamera = false;
+                                 }
+                              else
+                                 {
+                                    isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                                 }
+                           }
+
+                        Uri selectedImageUri = null;
+                        if (isCamera)
+                           {
+                              selectedImageUri = outputFileUri;
+                           }
+                        else
+                           {
+                              selectedImageUri = data.getData();
+                           }
+
+                        System.out.println("PHOTO URI: " + selectedImageUri.toString());
+
+                        //listViewItems.add(0, new PhotoPostItem(activity, activity.user.ID, ));
+                     }
+               }
+
          }
 
       public void createWallPostsList()
@@ -173,6 +243,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                {
                   Post post = entry.getValue();
 
+                  // get the name of the person who created the post
                   if (post.friendID.equals(activity.user.ID))
                      {
                         name = activity.user.firstName + " " + activity.user.lastName;
@@ -183,6 +254,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                         name = friend.name;
                      }
 
+                  // check if the post is an image
                   if (post.type == Constants.POST_TYPE_PHOTO)
                      {
                         String photoPath = Constants.multimediaFilePath + "/" + post.postID;
@@ -192,20 +264,18 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                               listViewItems.add(new PhotoPostItem(getActivity(), name, post, Constants.multimediaFilePath));
                            }
                      }
-                  else if (post.type == Constants.POST_TYPE_STATUS)
+                  // check if the post is a link or status
+                  else if (post.type == Constants.POST_TYPE_STATUS || post.type == Constants.POST_TYPE_LINK)
                      {
                         listViewItems.add(new StatusPostItem(getActivity(), name, post));
                      }
-                  else if (post.type == Constants.POST_TYPE_LINK)
-                     {
-                        listViewItems.add(new LinkPostItem(getActivity(), name, post));
-                     }
+                  // check if the post is a video
                   else if (post.type == Constants.POST_TYPE_VIDEO)
                      {
                         listViewItems.add(new VideoPostItem(getActivity(), name, post, Constants.multimediaFilePath));
                      }
                }
-
+            sortWallPostList();
          }
 
 
@@ -223,66 +293,74 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                }, 2000);
          }
 
-
-      public void createWallPosts()
+      public void sortWallPostList()
          {
-            /*
-            JSONArray wallPosts = new JSONArray();
-
-            try
+            Comparator<ListViewPostItem> postDateComparator = new Comparator<ListViewPostItem>()
                {
+                  public int compare(ListViewPostItem emp1, ListViewPostItem emp2)
+                     {
+                        return (emp1.getDate().compareTo(emp2.getDate()) * -1);
+                     }
+               };
 
-                  Post post = new Post(Constants.POST_TYPE_STATUS, "ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm", "This is a test post from a file.");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_PHOTO, "726e60c84e88dd01b49ecf6f0de42843383bffad", "Jan 19, 2015 at 1:45 pm", "test.jpg");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_VIDEO, "dc66ae1b5fa5c84cf12b82e2ec07f6b91233e8d4", "Jan 19, 2015 at 1:45 pm", "test.mp4");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_STATUS, "413e990ba1e5984d8fd41f1a1acaf3d154b21cab", "Jan 19, 2015 at 1:45 pm", "Test! TeSt!! TEST!!!");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_PHOTO, "f9febf09f9d7632a7611598bc03baed8d5c7357d", "Jan 19, 2015 at 1:45 pm", "test.jpg");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_STATUS, "eac054c17d7b49456f224788a12adf4eba4c0f9d", "Jan 19, 2015 at 1:45 pm", "Happy Birthday!!");
-                  wallPosts.put(post.createJSONObject());
-
-                  post = new Post(TYPE_PHOTO, "177ab489aa8cb82323ed02c2adb051c49c0c847d", "Jan 19, 2015 at 1:45 pm", "test.jpg");
-                  wallPosts.put(post.createJSONObject());
-
-                  JSONObject object = new JSONObject();
-                  object.put("posts", wallPosts);
-
-                  String jsonStr = object.toString();
-
-                  FileWriter fw = new FileWriter(app.wallFilePath + "/user_wall.txt");
-                  BufferedWriter bw = new BufferedWriter(fw);
-                  bw.write(jsonStr);
-                  bw.close();
-
-               }
-            catch (JSONException | IOException e)
-               {
-                  e.printStackTrace();
-               }*/
+            Collections.sort(listViewItems, postDateComparator);
          }
-
 
       public void updateWallPosts()
          {
             createWallPostsList();
 
+            if (wallPostData.size() > 0)
+               {
+                  noWallPostsText.setVisibility(View.GONE);
+               }
+            else
+               {
+                  noWallPostsText.setVisibility(View.VISIBLE);
+               }
+
             // notify the adapter about the data change
             adapter.notifyDataSetChanged();
+         }
+
+
+      private void openImageIntent()
+         {
+            // Determine Uri of camera image to save.
+            final File root = new File(Constants.multimediaFilePath);
+
+            final String fname = "test.jpg";
+            final File sdImageMainDirectory = new File(root, fname);
+
+            outputFileUri = Uri.fromFile(sdImageMainDirectory);
+
+            // Camera.
+            final List<Intent> cameraIntents = new ArrayList<Intent>();
+            final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            final PackageManager packageManager = activity.getPackageManager();
+            final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
+            for (ResolveInfo res : listCam)
+               {
+                  final String packageName = res.activityInfo.packageName;
+                  final Intent intent = new Intent(captureIntent);
+                  intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+                  intent.setPackage(packageName);
+                  intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+                  cameraIntents.add(intent);
+               }
+
+            // Filesystem.
+            final Intent galleryIntent = new Intent();
+            galleryIntent.setType("image/*");
+            galleryIntent.setAction(Intent.ACTION_PICK);
+
+            // Chooser of filesystem options.
+            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+
+            // Add the camera options.
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
+
+            startActivityForResult(chooserIntent, Constants.RESULT_PHOTO);
          }
 
 

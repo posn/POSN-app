@@ -12,6 +12,7 @@ public class Constants
       public static final int RESULT_ADD_FRIEND = 0;
       public static final int RESULT_ADD_FRIEND_GROUPS = 1;
       public static final int RESULT_CREATE_STATUS_POST = 2;
+      public static final int RESULT_PHOTO = 3;
 
 
       public static final int TYPE_FRIEND_INFO = 0;
@@ -37,6 +38,8 @@ public class Constants
       // device file names
       public static final String groupListFile = "/user_groups.txt";
       public static final String wallListFile = "/user_wall.txt";
+      public static final String notificationListFile = "/user_notifications.txt";
+      public static final String converstationListFile = "/user_messages.txt";
 
       // cloud directory names
       public static final String wallDirectory = "wall";

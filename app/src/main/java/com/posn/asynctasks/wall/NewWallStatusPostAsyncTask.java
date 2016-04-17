@@ -88,6 +88,8 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
+            wallFrag.sortWallPostList();
+
             // notify the adapter that the data changed
             wallFrag.adapter.notifyDataSetChanged();
 

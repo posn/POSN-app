@@ -1,10 +1,10 @@
 <RelativeLayout
-    android:tag="notification_frag"
     style="@style/AppBaseTheme"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
+    android:tag="notification_frag"
     >
 
     <View
@@ -23,5 +23,13 @@
         android:divider="@null"
         android:dividerHeight="0dp">
     </ListView>
+
+    <TextView
+        android:id="@+id/notification_text"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:text="No new notifications"/>
 
 </RelativeLayout>

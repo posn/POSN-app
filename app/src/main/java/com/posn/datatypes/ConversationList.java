@@ -1,5 +1,8 @@
 package com.posn.datatypes;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
@@ -9,7 +12,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-public class ConversationList
+public class ConversationList implements Parcelable
    {
       public ArrayList<Conversation> conversations;
 
@@ -63,5 +66,40 @@ public class ConversationList
                {
                   e.printStackTrace();
                }
+         }
+
+
+      // Parcelling part
+      public ConversationList (Parcel in)
+         {
+            this.conversations = in.readArrayList(Conversation.class.getClassLoader());
+
+         }
+
+
+      @Override
+      public void writeToParcel(Parcel dest, int flags)
+         {
+            dest.writeList(this.conversations);
+
+         }
+
+      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+         {
+            public Friend createFromParcel(Parcel in)
+               {
+                  return new Friend(in);
+               }
+
+            public Friend[] newArray(int size)
+               {
+                  return new Friend[size];
+               }
+         };
+
+      @Override
+      public int describeContents()
+         {
+            return 0;
          }
    }

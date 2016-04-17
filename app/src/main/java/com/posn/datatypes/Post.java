@@ -1,5 +1,8 @@
 package com.posn.datatypes;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.posn.Constants;
 import com.posn.utility.IDGenerator;
 
@@ -10,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Post
+public class Post implements Parcelable
    {
       // data variables
       public int type;
@@ -37,10 +40,10 @@ public class Post
 
             // create post date
             Date currentDate = new Date();
-            SimpleDateFormat dateformatDay = new SimpleDateFormat("MMM dd", Locale.US);
-            SimpleDateFormat dateformatTime = new SimpleDateFormat("h:mmaa", Locale.US);
+            System.out.println("DATE: " + currentDate.toString());
 
-            this.date = dateformatDay.format(currentDate) + " at " + dateformatTime.format(currentDate).toLowerCase();
+            SimpleDateFormat dateformatDay = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
+            this.date = dateformatDay.format(currentDate);
 
             this.type = type;
             this.friendID = friendID;
@@ -54,10 +57,8 @@ public class Post
 
             // create post date
             Date currentDate = new Date();
-            SimpleDateFormat dateformatDay = new SimpleDateFormat("MMM dd", Locale.US);
-            SimpleDateFormat dateformatTime = new SimpleDateFormat("h:mmaa", Locale.US);
-
-            this.date = dateformatDay.format(currentDate) + " at " + dateformatTime.format(currentDate).toLowerCase();
+            SimpleDateFormat dateformatDay = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
+            this.date = dateformatDay.format(currentDate);
 
             this.type = type;
             this.friendID = friendID;
@@ -119,5 +120,63 @@ public class Post
                {
                   e.printStackTrace();
                }
+         }
+
+      // Parcelling part
+      public Post(Parcel in)
+         {
+            this.type = in.readInt();
+            this.postID = in.readString();
+            this.friendID = in.readString();
+            this.date = in.readString();
+
+            if (type == Constants.POST_TYPE_STATUS)
+               {
+                  this.textContent = in.readString();
+               }
+            else
+               {
+                  this.multimediaKey = in.readString();
+                  this.multimediaLink = in.readString();
+               }
+         }
+
+
+      @Override
+      public void writeToParcel(Parcel dest, int flags)
+         {
+            dest.writeInt(this.type);
+            dest.writeString(this.postID);
+            dest.writeString(this.friendID);
+            dest.writeString(this.date);
+
+            if (type == Constants.POST_TYPE_STATUS)
+               {
+                  dest.writeString(this.textContent);
+               }
+            else
+               {
+                  dest.writeString(this.multimediaKey);
+                  dest.writeString(this.multimediaLink);
+               }
+         }
+
+      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+         {
+            public Friend createFromParcel(Parcel in)
+               {
+                  return new Friend(in);
+               }
+
+            public Friend[] newArray(int size)
+               {
+                  return new Friend[size];
+               }
+         };
+
+      @Override
+      public int describeContents()
+         {
+            return 0;
          }
    }

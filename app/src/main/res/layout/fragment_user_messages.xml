@@ -24,6 +24,15 @@
         android:dividerHeight="0dp">
     </ListView>
 
+    <TextView
+        android:id="@+id/notification_text"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/status_bar"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:text="No current converstations"/>
+
     <TableRow
         android:id="@+id/status_bar"
         android:layout_width="fill_parent"

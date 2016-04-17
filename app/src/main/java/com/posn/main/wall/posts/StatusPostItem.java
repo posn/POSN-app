@@ -13,6 +13,11 @@ import com.posn.datatypes.Post;
 import com.posn.main.wall.WallArrayAdapter.PostType;
 import com.posn.main.wall.comments.CommentActivity;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class StatusPostItem implements ListViewPostItem, OnClickListener
    {
@@ -103,6 +108,21 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
                   case R.id.share_button:
                      break;
                }
+         }
+
+      @Override
+      public Date getDate()
+         {
+            try
+               {
+                  SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
+                  return dateformat.parse(postData.date);
+               }
+            catch (ParseException e)
+               {
+                  e.printStackTrace();
+               }
+            return null;
          }
 
    }
