@@ -58,6 +58,7 @@ public class SelectGroupArrayAdapter extends ArrayAdapter<UserGroup>
                   holder = new ViewHolder();
                   holder.nameText = (TextView) convertView.findViewById(R.id.name);
                   holder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox1);
+                  holder.checkBox.setChecked(userGroupList.get(position).selected);
                   convertView.setTag(holder);
 
                   holder.checkBox.setOnClickListener(new View.OnClickListener()

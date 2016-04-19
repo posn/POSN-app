@@ -50,7 +50,7 @@ public class Post implements Parcelable
             this.textContent = textContent;
          }
 
-      public Post(int type, String friendID, String multimediaKey, String multimediaLink)
+      public Post(int type, String friendID)
          {
             // create POST ID
             postID = IDGenerator.generate(this.friendID);
@@ -62,8 +62,6 @@ public class Post implements Parcelable
 
             this.type = type;
             this.friendID = friendID;
-            this.multimediaKey = multimediaKey;
-            this.multimediaLink = multimediaLink;
          }
 
       public JSONObject createJSONObject()
@@ -161,16 +159,16 @@ public class Post implements Parcelable
                }
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>()
          {
-            public Friend createFromParcel(Parcel in)
+            public Post createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new Post(in);
                }
 
-            public Friend[] newArray(int size)
+            public Post[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new Post[size];
                }
          };
 

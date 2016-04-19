@@ -106,16 +106,16 @@ public class WallPostList implements Parcelable
             }
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Parcelable.Creator<WallPostList> CREATOR = new Parcelable.Creator<WallPostList>()
          {
-            public Friend createFromParcel(Parcel in)
+            public WallPostList createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new WallPostList(in);
                }
 
-            public Friend[] newArray(int size)
+            public WallPostList[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new WallPostList[size];
                }
          };
 

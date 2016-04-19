@@ -1,16 +1,10 @@
 package com.posn.main.wall;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
@@ -28,6 +22,7 @@ import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
+import com.posn.asynctasks.wall.NewWallPhotoPostAsyncTask;
 import com.posn.asynctasks.wall.NewWallStatusPostAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.Post;
@@ -42,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -61,17 +55,6 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       public WallArrayAdapter adapter;
 
       public MainActivity activity;
-      private Uri outputFileUri;
-
-      @Override
-      public void onSaveInstanceState(Bundle savedInstanceState)
-         {
-            // Save the user's current game state
-            savedInstanceState.putParcelable("outputFileUri", outputFileUri);
-
-            // Always call the superclass so it can save the view hierarchy state
-            super.onSaveInstanceState(savedInstanceState);
-         }
 
 
       @Override
@@ -141,11 +124,6 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             adapter = new WallArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
-            if (savedInstanceState != null)
-               {
-                  outputFileUri = savedInstanceState.getParcelable("outputFileUri");
-               }
-
             // get the wall post data from activity
             wallPostData = activity.masterWallPostList.wallPosts;
             if (wallPostData.size() != 0)
@@ -170,8 +148,9 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      break;
 
                   case R.id.photo_button:
-
-                     openImageIntent();
+                     intent = new Intent(context, CreateNewPhotoPostActivity.class);
+                     intent.putExtra("groups", activity.userGroupList.getList());
+                     startActivityForResult(intent, Constants.RESULT_CREATE_PHOTO_POST);
                      break;
 
                   case R.id.checkin_button:
@@ -191,46 +170,12 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   ArrayList<String> selectGroups = data.getStringArrayListExtra("groups");
                   new NewWallStatusPostAsyncTask(this, selectGroups, status).execute();
                }
-
-            if (resultCode == Activity.RESULT_OK)
+            else if (requestCode == Constants.RESULT_CREATE_PHOTO_POST && resultCode == Activity.RESULT_OK)
                {
-                  if (requestCode == Constants.RESULT_PHOTO)
-                     {
-                        final boolean isCamera;
-                        if (data == null || data.getData() == null)
-                           {
-                              System.out.println("HERE!!!!!!!!!!!!!!!!");
-                              isCamera = true;
-                           }
-                        else
-                           {
-                              final String action = data.getAction();
-                              if (action == null)
-                                 {
-                                    isCamera = false;
-                                 }
-                              else
-                                 {
-                                    isCamera = action.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                                 }
-                           }
-
-                        Uri selectedImageUri = null;
-                        if (isCamera)
-                           {
-                              selectedImageUri = outputFileUri;
-                           }
-                        else
-                           {
-                              selectedImageUri = data.getData();
-                           }
-
-                        System.out.println("PHOTO URI: " + selectedImageUri.toString());
-
-                        //listViewItems.add(0, new PhotoPostItem(activity, activity.user.ID, ));
-                     }
+                  String photopath = data.getStringExtra("photopath");
+                  ArrayList<String> selectGroups = data.getStringArrayListExtra("groups");
+                  new NewWallPhotoPostAsyncTask(this, selectGroups, photopath).execute();
                }
-
          }
 
       public void createWallPostsList()
@@ -239,8 +184,10 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             System.out.println("CREATING WALL POSTS!!!");
             String name;
 
+            // loop through all the wall posts and add them to the listview
             for (Map.Entry<String, Post> entry : wallPostData.entrySet())
                {
+                  // get the post
                   Post post = entry.getValue();
 
                   // get the name of the person who created the post
@@ -257,11 +204,17 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   // check if the post is an image
                   if (post.type == Constants.POST_TYPE_PHOTO)
                      {
-                        String photoPath = Constants.multimediaFilePath + "/" + post.postID;
+                        System.out.println("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        String photoPath = Constants.multimediaFilePath + "/" + post.postID + ".jpg";
                         File imgFile = new File(photoPath);
                         if (imgFile.exists())
                            {
-                              listViewItems.add(new PhotoPostItem(getActivity(), name, post, Constants.multimediaFilePath));
+                              listViewItems.add(new PhotoPostItem(getActivity(), name, post, photoPath));
+                           }
+                        else
+                           {
+                              System.out.println("OH NO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
                            }
                      }
                   // check if the post is a link or status
@@ -321,46 +274,6 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
             // notify the adapter about the data change
             adapter.notifyDataSetChanged();
-         }
-
-
-      private void openImageIntent()
-         {
-            // Determine Uri of camera image to save.
-            final File root = new File(Constants.multimediaFilePath);
-
-            final String fname = "test.jpg";
-            final File sdImageMainDirectory = new File(root, fname);
-
-            outputFileUri = Uri.fromFile(sdImageMainDirectory);
-
-            // Camera.
-            final List<Intent> cameraIntents = new ArrayList<Intent>();
-            final Intent captureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            final PackageManager packageManager = activity.getPackageManager();
-            final List<ResolveInfo> listCam = packageManager.queryIntentActivities(captureIntent, 0);
-            for (ResolveInfo res : listCam)
-               {
-                  final String packageName = res.activityInfo.packageName;
-                  final Intent intent = new Intent(captureIntent);
-                  intent.setComponent(new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
-                  intent.setPackage(packageName);
-                  intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-                  cameraIntents.add(intent);
-               }
-
-            // Filesystem.
-            final Intent galleryIntent = new Intent();
-            galleryIntent.setType("image/*");
-            galleryIntent.setAction(Intent.ACTION_PICK);
-
-            // Chooser of filesystem options.
-            final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
-
-            // Add the camera options.
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
-
-            startActivityForResult(chooserIntent, Constants.RESULT_PHOTO);
          }
 
 

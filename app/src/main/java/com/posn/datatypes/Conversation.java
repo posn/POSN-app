@@ -77,16 +77,16 @@ public class Conversation implements Parcelable
             dest.writeString(this.lastMessage);
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Parcelable.Creator<Conversation> CREATOR = new Parcelable.Creator<Conversation>()
          {
-            public Friend createFromParcel(Parcel in)
+            public Conversation createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new Conversation(in);
                }
 
-            public Friend[] newArray(int size)
+            public Conversation[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new Conversation[size];
                }
          };
 

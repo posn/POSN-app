@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -33,6 +34,8 @@ public class CreateNewStatusPostActivity extends Activity implements View.OnClic
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_create_new_status_post);
 

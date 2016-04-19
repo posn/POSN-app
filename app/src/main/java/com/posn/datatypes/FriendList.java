@@ -144,16 +144,16 @@ public class FriendList implements Parcelable
             }
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Parcelable.Creator<FriendList> CREATOR = new Parcelable.Creator<FriendList>()
          {
-            public Friend createFromParcel(Parcel in)
+            public FriendList createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new FriendList(in);
                }
 
-            public Friend[] newArray(int size)
+            public FriendList[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new FriendList[size];
                }
          };
 

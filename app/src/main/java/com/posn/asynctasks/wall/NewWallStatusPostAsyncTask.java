@@ -75,7 +75,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
                   CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath);
 
                   // upload the updated group wall file to the cloud
-                  String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
+                  main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
                   // update the group in the hashmap
                   main.userGroupList.groups.put(group.ID, group);

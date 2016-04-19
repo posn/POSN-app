@@ -205,20 +205,12 @@ public class DropboxClientUsage extends CloudProvider
                   // check if a direct exists, if it does not then exception will be thrown
                   try
                      {
-                        // check if directory exists
-                        dropboxSession.metadata("/" + Constants.directoryNames[i], 1, null, false, null);
+                        // attempt to create dropbox folder
+                        dropboxSession.createFolder(Constants.directoryNames[i]);
                      }
                   catch (DropboxException e)
                      {
-                        try
-                           {
-                              // create directory if it does not exist
-                              dropboxSession.createFolder(Constants.directoryNames[i]);
-                           }
-                        catch (DropboxException e1)
-                           {
-                              e1.printStackTrace();
-                           }
+                        // folder already exists, so ignore
                      }
                }
          }

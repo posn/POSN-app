@@ -129,6 +129,11 @@
             android:label="@string/main_activity">
         </activity>
 
+        <activity
+            android:name=".main.wall.CreateNewPhotoPostActivity"
+            android:label="Create Photo Post">
+        </activity>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>

@@ -12,7 +12,9 @@ public class Constants
       public static final int RESULT_ADD_FRIEND = 0;
       public static final int RESULT_ADD_FRIEND_GROUPS = 1;
       public static final int RESULT_CREATE_STATUS_POST = 2;
-      public static final int RESULT_PHOTO = 3;
+      public static final int RESULT_CREATE_PHOTO_POST = 3;
+
+      public static final int RESULT_PHOTO = 4;
 
 
       public static final int TYPE_FRIEND_INFO = 0;
@@ -43,7 +45,8 @@ public class Constants
 
       // cloud directory names
       public static final String wallDirectory = "wall";
-      public static final String friendDirectory = "wall";
+      public static final String friendDirectory = "friend";
+      public static final String multimediaDirectory = "multimedia";
 
       public static final String[] directoryNames = {
           "archive",

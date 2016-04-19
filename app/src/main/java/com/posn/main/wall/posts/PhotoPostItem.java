@@ -2,24 +2,21 @@ package com.posn.main.wall.posts;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.posn.R;
+import com.posn.asynctasks.LoadImageAsyncTask;
 import com.posn.datatypes.Post;
 import com.posn.main.wall.PhotoViewerActivity;
 import com.posn.main.wall.WallArrayAdapter.PostType;
 import com.posn.main.wall.comments.CommentActivity;
 import com.posn.main.wall.views.SquareImageView;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,24 +33,21 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
 
             RelativeLayout commentButton;
             RelativeLayout shareButton;
+            RelativeLayout loadingCircle;
          }
 
       private Context context;
-      private String friendName;
-      private Post postData;
-      private String directory;
+      private Post post;
+      private String devicePath;
       ViewHolderItem viewHolder;
+      String friendName;
 
-      // SquareImageView photoImage;
-      int finalHeight, finalWidth;
-
-
-      public PhotoPostItem(Context context, String friendName, Post postData, String directory)
+      public PhotoPostItem(Context context, String name, Post postData, String devicePath)
          {
             this.context = context;
-            this.postData = postData;
-            this.directory = directory + "/";
-            this.friendName = friendName;
+            this.post = postData;
+            this.devicePath = devicePath;
+            this.friendName = name;
          }
 
 
@@ -67,8 +61,6 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
       @Override
       public View getView(LayoutInflater inflater, View convertView, ViewGroup parent)
          {
-            //  View view = convertView;
-
             if (convertView == null)
                {
                   // inflate the layout
@@ -80,6 +72,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                   viewHolder.dateText = (TextView) convertView.findViewById(R.id.date);
                   viewHolder.photoImage = (SquareImageView) convertView.findViewById(R.id.photo);
 
+                  viewHolder.loadingCircle = (RelativeLayout) convertView.findViewById(R.id.loadingPanel);
                   viewHolder.commentButton = (RelativeLayout) convertView.findViewById(R.id.comment_button);
                   viewHolder.shareButton = (RelativeLayout) convertView.findViewById(R.id.share_button);
 
@@ -97,39 +90,13 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
 
             // set the data into the views
             viewHolder.nameText.setText(friendName);
-            viewHolder.dateText.setText(postData.date);
+            viewHolder.dateText.setText(post.date);
 
-            ViewTreeObserver vto = viewHolder.photoImage.getViewTreeObserver();
-            vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener()
-               {
-
-                  public boolean onPreDraw()
-                     {
-                        // Remove after the first run so it doesn't fire forever
-                        viewHolder.photoImage.getViewTreeObserver().removeOnPreDrawListener(this);
-                        finalHeight = viewHolder.photoImage.getMeasuredHeight();
-                        finalWidth = viewHolder.photoImage.getMeasuredWidth();
-
-                        File imgFile = new File(directory + postData.postID);
-
-                        Bitmap photo = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-
-                        int w = photo.getWidth();
-                        int h = photo.getHeight();
-
-                        while (w > finalWidth || h > finalHeight)
-                           {
-                              w = w / 2;
-                              h = h / 2;
-                           }
-                        System.out.println("ASD " + w + "asdadd: " + h);
-
-                        viewHolder.photoImage.setImageBitmap(Bitmap.createScaledBitmap(photo, w, h, false));
-
-                        return true;
-                     }
-               });
-
+            viewHolder.photoImage.setTag(R.id.photo_path, devicePath);
+            viewHolder.photoImage.setTag(R.id.photo_key, post);
+            new LoadImageAsyncTask(viewHolder.photoImage, viewHolder.loadingCircle).execute();
+            viewHolder.photoImage.setImageResource(android.R.color.transparent);
+            viewHolder.loadingCircle.setVisibility(View.VISIBLE);
             return convertView;
          }
 
@@ -153,7 +120,8 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                   case R.id.photo:
 
                      intent = new Intent(context, PhotoViewerActivity.class);
-                     intent.putExtra("photoPath", directory + postData.postID);
+                     intent.putExtra("photoPath", viewHolder.photoImage.getTag(R.id.photo_path).toString());
+                     intent.putExtra("post", (Post)viewHolder.photoImage.getTag(R.id.photo_key));
 
                      context.startActivity(intent);
                      break;
@@ -166,7 +134,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
             try
                {
                   SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
-                  return dateformat.parse(postData.date);
+                  return dateformat.parse(post.date);
                }
             catch (ParseException e)
                {
@@ -174,4 +142,7 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                }
             return null;
          }
+
+
+
    }

@@ -11,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -100,6 +102,14 @@ public class UserGroupList implements Parcelable
                   list.add(entry.getValue());
                }
 
+            Collections.sort(list, new Comparator<UserGroup>()
+               {
+                  @Override public int compare(UserGroup lhs, UserGroup rhs)
+                     {
+                        return lhs.name.compareTo(rhs.name);
+                     }
+               });
+
             return list;
          }
 
@@ -126,16 +136,16 @@ public class UserGroupList implements Parcelable
             }
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Parcelable.Creator<UserGroupList> CREATOR = new Parcelable.Creator<UserGroupList>()
          {
-            public Friend createFromParcel(Parcel in)
+            public UserGroupList createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new UserGroupList(in);
                }
 
-            public Friend[] newArray(int size)
+            public UserGroupList[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new UserGroupList[size];
                }
          };
 

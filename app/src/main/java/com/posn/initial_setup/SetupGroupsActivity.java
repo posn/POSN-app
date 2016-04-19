@@ -95,7 +95,7 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
             ActionBar actionBar = getActionBar();
             if (actionBar != null)
                {
-                  actionBar.setTitle("Add New Friend");
+                  actionBar.setTitle("Create Friend Groups");
                }
          }
 
@@ -127,7 +127,7 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
                      break;
 
                   case R.id.next_button:
-                     if(selectedGroups.size() > 0)
+                     if (selectedGroups.size() > 0)
                         {
                            Intent intent = new Intent(this, LoginActivity.class);
                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -144,11 +144,6 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
 
       private boolean isEmpty(EditText etText)
          {
-            if ((etText.getText().toString().trim().length() > 0))
-               {
-                  return false;
-               }
-
-            return true;
+            return etText.getText().toString().trim().length() <= 0;
          }
    }

@@ -75,16 +75,16 @@ public class Notification implements Parcelable
             dest.writeString(this.date);
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Parcelable.Creator<Notification> CREATOR = new Parcelable.Creator<Notification>()
          {
-            public Friend createFromParcel(Parcel in)
+            public Notification createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new Notification(in);
                }
 
-            public Friend[] newArray(int size)
+            public Notification[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new Notification[size];
                }
          };
 

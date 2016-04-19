@@ -83,16 +83,16 @@ public class NotificationList implements Parcelable
 
          }
 
-      public static final Parcelable.Creator<Friend> CREATOR = new Parcelable.Creator<Friend>()
+      public static final Parcelable.Creator<NotificationList> CREATOR = new Parcelable.Creator<NotificationList>()
          {
-            public Friend createFromParcel(Parcel in)
+            public NotificationList createFromParcel(Parcel in)
                {
-                  return new Friend(in);
+                  return new NotificationList(in);
                }
 
-            public Friend[] newArray(int size)
+            public NotificationList[] newArray(int size)
                {
-                  return new Friend[size];
+                  return new NotificationList[size];
                }
          };
 
