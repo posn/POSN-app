@@ -45,7 +45,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       // declare variables
       Context context;
       RelativeLayout statusButton, photoButton, checkInButton;
-      TextView noWallPostsText;
+      public TextView noWallPostsText;
       ListView lv;
       TableRow statusBar;
 
@@ -204,17 +204,11 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   // check if the post is an image
                   if (post.type == Constants.POST_TYPE_PHOTO)
                      {
-                        System.out.println("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         String photoPath = Constants.multimediaFilePath + "/" + post.postID + ".jpg";
                         File imgFile = new File(photoPath);
                         if (imgFile.exists())
                            {
                               listViewItems.add(new PhotoPostItem(getActivity(), name, post, photoPath));
-                           }
-                        else
-                           {
-                              System.out.println("OH NO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
                            }
                      }
                   // check if the post is a link or status

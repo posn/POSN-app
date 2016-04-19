@@ -55,6 +55,12 @@ public class User implements Parcelable
             System.out.println("PUB: " + publicKey);
             System.out.println("PRIVATE: " + privateKey);
 
+            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
+               {
+                  UserGroup group = entry.getValue();
+                 System.out.println(group.name);
+               }
+
          }
 
 
@@ -88,8 +94,7 @@ public class User implements Parcelable
                      }
 
                   // create new JSON object and put the JSON array into it
-                  JSONObject object = new JSONObject();
-                  object.put("groups", groupList);
+                  user.put("groups", groupList);
 
                }
             catch (JSONException e)

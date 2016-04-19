@@ -75,8 +75,7 @@ public class NotificationList implements Parcelable
       // Parcelling part
       public NotificationList(Parcel in)
          {
-            this.notifications = in.readArrayList(Notification.class.getClassLoader());
-
+            in.readList(notifications, Notification.class.getClassLoader());
          }
 
 

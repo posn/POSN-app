@@ -14,7 +14,6 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableRow;
-import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
@@ -123,20 +122,6 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             else if (requestCode == Constants.RESULT_ADD_FRIEND_GROUPS && resultCode == Activity.RESULT_OK)
                {
                   RequestedFriend friend = data.getParcelableExtra("requestedFriend");
-
-                  // create a new current friend for the accepted user and add them to the current friends list
-                  friendList.put(friend.ID, new Friend(friend));
-
-                  // add them to the list view as an accepted friend
-                  listViewItems.add(new AcceptedFriendItem(this, new Friend(friend)));
-
-                  // sort the friends and update the list view
-                  sortFriendsList();
-                  adapter.notifyDataSetChanged();
-
-                  Toast.makeText(activity, "CONFIRMED!", Toast.LENGTH_SHORT).show();
-
-                  // create AsyncTask to handle the intermediate phase
                   new NewFriendIntermediateAsyncTask(this, friend).execute();
                }
          }
@@ -252,7 +237,10 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   else if (activity.requestedFriend.status == Constants.STATUS_ACCEPTED)
                      {
                         System.out.println("ACCEPT!!!: " + activity.requestedFriend.name + " | " + activity.masterFriendList.friendRequests.contains(activity.requestedFriend));
-                        RequestedFriend pendingFriend = activity.masterFriendList.friendRequests.get(activity.masterFriendList.friendRequests.indexOf(activity.requestedFriend));
+
+                        // get the requested from from the friend request list
+                        int index = activity.masterFriendList.friendRequests.indexOf(activity.requestedFriend);
+                        RequestedFriend pendingFriend = activity.masterFriendList.friendRequests.get(index);
 
                         // merge data
                         RequestedFriend friend = new RequestedFriend();
@@ -260,20 +248,18 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                         friend.name = pendingFriend.name;
                         friend.email = pendingFriend.email;
                         friend.groups = pendingFriend.groups;
-                        friend.status = Constants.STATUS_ACCEPTED;
                         friend.fileLink = activity.requestedFriend.fileLink;
+                        friend.fileKey = activity.requestedFriend.fileKey;
                         friend.publicKey = activity.requestedFriend.publicKey;
                         friend.ID = activity.requestedFriend.ID;
                         friend.nonce = activity.requestedFriend.nonce;
                         friend.nonce2 = activity.requestedFriend.nonce2;
 
                         activity.masterFriendList.friendRequests.remove(activity.requestedFriend);
-
-                        activity.masterFriendList.currentFriends.put(activity.requestedFriend.ID, new Friend(friend));
+                        activity.requestedFriend = null;
 
                         // start phase 3
                         new NewFriendFinalAsyncTask(this, friend).execute();
-
                      }
 
                   activity.masterFriendList.saveFriendsListToFileAsyncTask();

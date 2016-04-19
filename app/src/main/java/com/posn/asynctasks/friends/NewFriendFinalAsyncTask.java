@@ -4,12 +4,15 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.posn.Constants;
+import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.encryption.AsymmetricKeyManager;
 import com.posn.encryption.SymmetricKeyManager;
 import com.posn.main.MainActivity;
+import com.posn.main.friends.AcceptedFriendItem;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.utility.CloudFileManager;
+import com.posn.utility.DeviceFileManager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -47,10 +50,13 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
+            // create a new friend from requested friend
+            Friend newFriend = new Friend(requestedFriend);
+
             // create friend file with all friend group data
             String fileName = requestedFriend.ID + "_friend_file.txt";
             String deviceFilepath = Constants.friendsFilePath + "/" + fileName;
-            CloudFileManager.createFriendFile(main.user, requestedFriend, deviceFilepath);
+            CloudFileManager.createFriendFile(main.user, newFriend, deviceFilepath);
 
             // upload group wall to cloud and get direct link
             String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
@@ -82,7 +88,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
             // SEND AS DIRECT MESSAGE
 
-            // add to temporal file and upload
+            // add to temporal file and upload to cloud
             fileName = requestedFriend.nonce + "_temp_friend_file.txt";
             deviceFilepath = Constants.friendsFilePath + "/" + fileName;
             System.out.println("URI: " + URI);
@@ -90,20 +96,25 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
             friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
 
-
-            //  main.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
-
-            /*
-            // add pending friend to request friends list
-            main.masterFriendList.friendRequests.add(requestedFriend);
-
-
-            friendFrag.listViewItems.add(new PendingFriendItem(requestedFriend));
+            friendFrag.listViewItems.add(new AcceptedFriendItem(friendFrag, newFriend));
             friendFrag.sortFriendsList();
 
-            main.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
-*/
 
+            // NEED TO FETCH ACCEPTED FRIEND'S FRIEND FILE FOR THE USER
+            fileName = requestedFriend.ID + "_friend_user_file.txt";
+            deviceFilepath = Constants.wallFilePath;
+            DeviceFileManager.downloadFileFromURL(newFriend.friendFileLink, deviceFilepath, fileName);
+
+            CloudFileManager.loadFriendFile(newFriend, deviceFilepath + "/" + fileName);
+
+            for(int i = 0; i < newFriend.friendGroups.size(); i++)
+               {
+                  System.out.println(newFriend.friendGroups.get(i).groupFileLink);
+               }
+
+            // remove request friend from friend request list and add to current friends list
+            main.masterFriendList.currentFriends.put(newFriend.ID, newFriend);
+            main.masterFriendList.saveFriendsListToFile();
 
             return null;
          }
@@ -113,7 +124,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
       protected void onPostExecute(String file_url)
          {
             // notify the adapter that the data changed
-            friendFrag.adapter.notifyDataSetChanged();
+            friendFrag.updateFriendList();
 
             // dismiss the dialog once done
             pDialog.dismiss();

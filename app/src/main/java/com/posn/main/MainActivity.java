@@ -90,6 +90,9 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             // load the xml file for the logs
             setContentView(R.layout.activity_main);
 
+            // get the user from the login activity
+            user = (User) getIntent().getExtras().get("user");
+
             // attempt to get any new friend requests
             if (getIntent().hasExtra("uri"))
                {
@@ -98,8 +101,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                   //requestedFriend = (RequestedFriend) getIntent().getExtras().get("newFriend");
                }
 
-            // get the user from the login activity
-            user = (User) getIntent().getExtras().get("user");
+
             deviceFileKey = getIntent().getStringExtra("deviceFileKey");
             masterWallPostList = new WallPostList(deviceFileKey);
             masterFriendList = new FriendList(deviceFileKey);
@@ -152,9 +154,9 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                      }
                });
 
-            app = (POSNApplication)getApplication();
+            app = (POSNApplication) getApplication();
 
-            if(app.cloud == null)
+            if (app.cloud == null)
                {
                   app.cloud = new DropboxClientUsage(this);
                   // cloud = new GoogleDriveClientUsage(this);
@@ -192,7 +194,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             super.onResume();
 
             // sign into the cloud
-            if(app.cloud == null)
+            if (app.cloud == null)
                {
                   app.cloud = new DropboxClientUsage(this);
                   // cloud = new GoogleDriveClientUsage(this);
@@ -211,6 +213,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
 
       public void initializingFileDataFinished()
          {
+            System.out.println("GROUPS: " + user.userDefinedGroups.size());
             UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
             if (friendFrag != null)
                {
@@ -344,9 +347,11 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                               // get file link
                               requestedFriend.fileLink = URLDecoder.decode(paths[4], "UTF-8");
 
+                              requestedFriend.fileKey = URLDecoder.decode(paths[5], "UTF-8");
+
                               // get nonces
-                              requestedFriend.nonce = paths[5];
-                              requestedFriend.nonce2 = paths[6];
+                              requestedFriend.nonce = paths[6];
+                              requestedFriend.nonce2 = paths[7];
                            }
                         catch (UnsupportedEncodingException e)
                            {

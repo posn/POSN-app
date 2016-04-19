@@ -7,7 +7,6 @@ import com.posn.Constants;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.email.EmailSender;
 import com.posn.main.MainActivity;
-import com.posn.main.friends.PendingFriendItem;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.utility.CloudFileManager;
 
@@ -85,10 +84,6 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
             // add pending friend to request friends list
             main.masterFriendList.friendRequests.add(requestedFriend);
 
-
-            friendFrag.listViewItems.add(new PendingFriendItem(requestedFriend));
-            friendFrag.sortFriendsList();
-
             main.masterFriendList.saveFriendsListToFile();
 
 
@@ -100,7 +95,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
       protected void onPostExecute(String file_url)
          {
             // notify the adapter that the data changed
-            friendFrag.adapter.notifyDataSetChanged();
+            friendFrag.updateFriendList();
 
             // dismiss the dialog once done
             pDialog.dismiss();

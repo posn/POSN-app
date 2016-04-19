@@ -35,16 +35,7 @@ public class HeaderItem implements ListViewFriendItem
       @Override
       public View getView(LayoutInflater inflater, View convertView)
          {
-            View view;
-            if (convertView == null)
-               {
-                  view = (View) inflater.inflate(R.layout.listview_friend_header_item, null);
-                  // Do some initialization
-               }
-            else
-               {
-                  view = convertView;
-               }
+            View view = inflater.inflate(R.layout.listview_friend_header_item, null);
 
             TextView text = (TextView) view.findViewById(R.id.separator);
             text.setText(name);

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.posn.Constants;
+import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.email.EmailSender;
 import com.posn.encryption.AsymmetricKeyManager;
@@ -22,6 +23,8 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
       private RequestedFriend requestedFriend;
       private UserFriendsFragment friendFrag;
       private MainActivity main;
+
+      Friend newFriend;
 
       public NewFriendIntermediateAsyncTask(UserFriendsFragment frag, RequestedFriend requestedFriend)
          {
@@ -48,10 +51,17 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
       // Checking login in background
       protected String doInBackground(String... params)
          {
+            // create a new friend from the requested friend
+            newFriend = new Friend(requestedFriend);
+
+            // create a new current friend for the accepted user and add them to the current friends list
+            main.masterFriendList.currentFriends.put(newFriend.ID, newFriend);
+
+
             // create friend file with all friend group data
             String fileName = requestedFriend.ID + "_friend_file.txt";
             String deviceFilepath = Constants.friendsFilePath + "/" + fileName;
-            CloudFileManager.createFriendFile(main.user, requestedFriend, deviceFilepath);
+            CloudFileManager.createFriendFile(main.user, newFriend, deviceFilepath);
 
             // upload group wall to cloud and get direct link
             String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
@@ -69,16 +79,17 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
                   // encode the key to maintain special chars
                   publicKey = URLEncoder.encode(publicKey, "UTF-8");
 
-                  // encode temporal URL to maintain special chars
+                  // encode friend file URL to maintain special chars
                   String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
+                  String encodedFriendFileKey = URLEncoder.encode(newFriend.userFriendFileKey, "UTF-8");
 
-                  URI =  main.user.ID + "/" + main.user.firstName + "/" + main.user.lastName.trim() + "/" + publicKey + "/" + encodedURL + "/" + requestedFriend.nonce + "/" + requestedFriend.nonce2;
+                  URI = main.user.ID + "/" + main.user.firstName + "/" + main.user.lastName.trim() + "/" + publicKey + "/" + encodedURL + "/" + encodedFriendFileKey + "/" + requestedFriend.nonce + "/" + requestedFriend.nonce2;
 
                   // generate symmetric key to encrypt data
                   String key = SymmetricKeyManager.createRandomKey();
                   System.out.println("KEY: " + key);
 
-                  String encryptedURI =SymmetricKeyManager.encrypt(key, URI);
+                  String encryptedURI = SymmetricKeyManager.encrypt(key, URI);
 
                   String encryptedKey = AsymmetricKeyManager.encrypt(requestedFriend.publicKey, key);
 
@@ -88,7 +99,6 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
                {
                   e.printStackTrace();
                }
-
 
 
             // encrypt URI with friend's public key
@@ -117,8 +127,8 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
-            // notify the adapter that the data changed
-            friendFrag.adapter.notifyDataSetChanged();
+            // add them to the list view as an accepted friend
+            friendFrag.updateFriendList();
 
             // dismiss the dialog once done
             pDialog.dismiss();

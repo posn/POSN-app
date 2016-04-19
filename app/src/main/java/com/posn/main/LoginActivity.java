@@ -202,11 +202,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                      {
                         Intent intent = new Intent(context, MainActivity.class);
                         intent.putExtra("user", user);
+                        intent.putExtra("deviceFileKey", devicefileKey);
 
                         if (uri != null)
                            {
                               intent.putExtra("uri", uri.toString());
-                              intent.putExtra("deviceFileKey", devicefileKey);
                            }
 
                         // Close all views before launching Employer

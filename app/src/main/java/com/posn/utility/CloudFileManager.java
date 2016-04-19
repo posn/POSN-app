@@ -1,10 +1,12 @@
 package com.posn.utility;
 
 
+import com.posn.datatypes.Friend;
+import com.posn.datatypes.FriendGroup;
 import com.posn.datatypes.Post;
-import com.posn.datatypes.RequestedFriend;
 import com.posn.datatypes.User;
 import com.posn.datatypes.UserGroup;
+import com.posn.encryption.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,7 +65,7 @@ public class CloudFileManager
                }
          }
 
-      public static void createFriendFile(User user, RequestedFriend requestedUser, String path)
+      public static void createFriendFile(User user, Friend friend, String path)
          {
             JSONObject obj = new JSONObject();
             JSONArray groupList = new JSONArray();
@@ -71,19 +73,51 @@ public class CloudFileManager
             // need to add user file link and key
             try
                {
-                  for (int i = 0; i < requestedUser.groups.size(); i++)
+                  for (int i = 0; i < friend.userGroups.size(); i++)
                      {
-                        UserGroup userGroup = user.userDefinedGroups.get(requestedUser.groups.get(i));
+                        UserGroup userGroup = user.userDefinedGroups.get(friend.userGroups.get(i));
                         groupList.put(userGroup.createFriendFileJSONObject());
                      }
                   obj.put("groups", groupList);
-                  DeviceFileManager.writeJSONToFile(obj, path);
+
+                  String jsonString = obj.toString();
+                  String encryptedString = SymmetricKeyManager.encrypt(friend.userFriendFileKey, jsonString);
+
+                  DeviceFileManager.writeStringToFile(encryptedString, path);
                }
             catch (JSONException e)
                {
                   e.printStackTrace();
                }
+         }
 
+      public static void loadFriendFile(Friend friend, String path)
+         {
+            // read friend file in
+            String encyrptedString = DeviceFileManager.loadStringFromFile(path);
+System.out.println("KEY!!!!!!!!!!!!!!!!!!!!!! " + friend.friendFileKey);
+            // decrypt string
+            String friendFileData = SymmetricKeyManager.decrypt(friend.friendFileKey, encyrptedString);
+
+            // need to add user file link and key
+            try
+               {
+                  JSONObject obj = new JSONObject(friendFileData);
+                  JSONArray groupList = obj.getJSONArray("groups");
+
+                  for (int i = 0; i < groupList.length(); i++)
+                     {
+                        FriendGroup friendGroup = new FriendGroup();
+
+                        friendGroup.parseJSONObject(groupList.getJSONObject(i));
+
+                        friend.friendGroups.add(friendGroup);
+                     }
+               }
+            catch (JSONException e)
+               {
+                  e.printStackTrace();
+               }
          }
 
 

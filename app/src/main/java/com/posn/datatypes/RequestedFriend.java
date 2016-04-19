@@ -18,7 +18,7 @@ public class RequestedFriend implements Parcelable
       public String email;
       public String publicKey;
       public String fileLink;   // can be friend file or temporal file
-      public String fileKey;
+      public String fileKey;    // symmetric key to the friend file
       public String nonce;
       public String nonce2;
 

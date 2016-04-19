@@ -2,6 +2,7 @@ package com.posn.asynctasks.wall;
 
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
+import android.view.View;
 
 import com.posn.Constants;
 import com.posn.datatypes.Post;
@@ -88,6 +89,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
+            wallFrag.noWallPostsText.setVisibility(View.GONE);
             wallFrag.sortWallPostList();
 
             // notify the adapter that the data changed
