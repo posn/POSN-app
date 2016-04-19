@@ -51,7 +51,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
             // create friend file with all friend group data
             String fileName = requestedFriend.ID + "_friend_file.txt";
             String deviceFilepath = Constants.friendsFilePath + "/" + fileName;
-            CloudFileManager.createFriendFile(requestedFriend.groups, main.userGroupList.groups, deviceFilepath);
+            CloudFileManager.createFriendFile(main.user, requestedFriend, deviceFilepath);
 
             // upload group wall to cloud and get direct link
             String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
@@ -97,7 +97,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
             EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
             email.sendMail("POSN - New Friend Request", "SUCCESS!\n\n" + URI, "POSN", requestedFriend.email);
 
-            main.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
+            main.masterFriendList.saveFriendsListToFile();
 
             /*
             // add pending friend to request friends list

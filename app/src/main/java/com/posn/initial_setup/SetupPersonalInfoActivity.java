@@ -31,7 +31,7 @@ public class SetupPersonalInfoActivity extends FragmentActivity implements OnCli
 
       //POSNApplication app;
 
-      User user = new User();
+      User user;;
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -90,6 +90,7 @@ public class SetupPersonalInfoActivity extends FragmentActivity implements OnCli
                      // check and store all the data
                      if (checkFields())
                         {
+                           user = new User("");
                            // store the first and last name
                            user.firstName = firstName.getText().toString().trim();
                            user.lastName = lastName.getText().toString().trim();

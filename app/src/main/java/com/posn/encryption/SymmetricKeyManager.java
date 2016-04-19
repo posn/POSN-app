@@ -238,10 +238,8 @@ public class SymmetricKeyManager
 
       public static byte[] decrypt(String keyString, byte[] encryptedText)
          {
-
             // variable declaration
             Cipher decryptCipher;
-            String decryptedString = null;
 
             // get secret key from string
             byte[] encoded = stringToBytes(keyString);
@@ -251,37 +249,15 @@ public class SymmetricKeyManager
             try
                {
                   // create a new AES decrypt cipher with the key
-
                   decryptCipher = Cipher.getInstance("AES");
                   decryptCipher.init(Cipher.DECRYPT_MODE, key);
 
                   // decrypt the string
                   return decryptCipher.doFinal(encryptedText);
                }
-            catch (NoSuchAlgorithmException e)
+            catch (BadPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e)
                {
                   e.printStackTrace();
-                  Log.e("AES Decrypt", "no such algorithm");
-               }
-            catch (NoSuchPaddingException e)
-               {
-                  e.printStackTrace();
-                  Log.e("AES Decrypt", "no such apadding");
-               }
-            catch (InvalidKeyException e)
-               {
-                  e.printStackTrace();
-                  Log.e("AES Decrypt", "invalid key");
-               }
-            catch (IllegalBlockSizeException e)
-               {
-                  e.printStackTrace();
-                  Log.e("AES Decrypt", "IllegalBlockSizeException");
-               }
-            catch (BadPaddingException e)
-               {
-                  e.printStackTrace();
-                  Log.e("AES Decrypt", "BadPaddingException");
                }
 
             return null;

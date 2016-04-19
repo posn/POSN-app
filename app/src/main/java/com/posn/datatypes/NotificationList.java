@@ -3,6 +3,7 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.posn.Constants;
 import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
@@ -15,18 +16,20 @@ import java.util.ArrayList;
 public class NotificationList implements Parcelable
    {
       public ArrayList<Notification> notifications;
+      private String deviceFileKey;
 
-      public NotificationList()
+      public NotificationList(String deviceFileKey)
          {
+            this.deviceFileKey = deviceFileKey;
             notifications = new ArrayList<>();
          }
 
-      public void loadNotificationsFromFile(String fileName)
+      public void loadNotificationsFromFile()
          {
             // open the file
             try
                {
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath + "/" + Constants.notificationListFile);
 
                   JSONArray notificationsArray = data.getJSONArray("notifications");
 
@@ -43,13 +46,14 @@ public class NotificationList implements Parcelable
                   e.printStackTrace();
                }
          }
-      public void saveNotificationsToFile(String devicePath)
+
+      public void saveNotificationsToFile()
          {
             JSONArray notificationList = new JSONArray();
 
             try
                {
-                  for(int i = 0; i < notifications.size(); i++)
+                  for (int i = 0; i < notifications.size(); i++)
                      {
                         Notification notification = notifications.get(i);
                         notificationList.put(notification.createJSONObject());
@@ -59,7 +63,7 @@ public class NotificationList implements Parcelable
                   object.put("notifications", notificationList);
 
 
-                  DeviceFileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath + "/" + Constants.notificationListFile);
 
                }
             catch (JSONException e)

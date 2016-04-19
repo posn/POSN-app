@@ -1,9 +1,10 @@
-package com.posn;
+package com.posn.asynctasks;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 
+import com.posn.Constants;
 import com.posn.datatypes.ConversationList;
 import com.posn.datatypes.FriendList;
 import com.posn.datatypes.Post;
@@ -73,27 +74,31 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
                   group.groupFileLink = activity.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
                   // create new group object and add to group list
-                  activity.userGroupList.groups.put(group.ID, group);
+                  activity.user.userDefinedGroups.put(group.ID, group);
                }
 
+            // generate symmetric key from user password
+            String deviceFileKey = SymmetricKeyManager.createKeyFromString(activity.password);
+
             // save group list to device
-            activity.userGroupList.saveGroupsToFile(Constants.applicationDataFilePath + Constants.groupListFile);
+            activity.user.deviceFileKey = deviceFileKey;
+            activity.user.saveUserToFile();
 
             // get the friend list file
-            FriendList friendList = new FriendList();
-            friendList.saveFriendsListToFile(Constants.applicationDataFilePath + "/user_friends.txt");
+            FriendList friendList = new FriendList(deviceFileKey);
+            friendList.saveFriendsListToFile();
 
             // get the wall post file
-            WallPostList wallPostList = new WallPostList();
-            wallPostList.saveWallPostsToFile(Constants.applicationDataFilePath + "/user_wall.txt");
+            WallPostList wallPostList = new WallPostList(deviceFileKey);
+            wallPostList.saveWallPostsToFile();
 
             // get the notifications file
-            NotificationList notificationList = new NotificationList();
-            notificationList.saveNotificationsToFile(Constants.applicationDataFilePath + "/user_notifications.txt");
+            NotificationList notificationList = new NotificationList(deviceFileKey);
+            notificationList.saveNotificationsToFile();
 
             // get the messages file
-            ConversationList conversationList = new ConversationList();
-            conversationList.saveConversationListToFile(Constants.applicationDataFilePath + "/user_messages.txt");
+            ConversationList conversationList = new ConversationList(deviceFileKey);
+            conversationList.saveConversationListToFile();
 
             return null;
          }

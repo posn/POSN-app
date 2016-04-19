@@ -18,7 +18,6 @@ import com.posn.datatypes.FriendList;
 import com.posn.datatypes.NotificationList;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.datatypes.User;
-import com.posn.datatypes.UserGroupList;
 import com.posn.datatypes.WallPostList;
 import com.posn.encryption.AsymmetricKeyManager;
 import com.posn.encryption.SymmetricKeyManager;
@@ -46,21 +45,19 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       InitializeAsyncTask asyncTaskInitialize;
 
       public User user = null;
+      public String deviceFileKey = null;
 
       // data for wall fragment
-      public WallPostList masterWallPostList = new WallPostList();
+      public WallPostList masterWallPostList;
 
       // data for master friends list
-      public FriendList masterFriendList = new FriendList();
+      public FriendList masterFriendList;
 
       // data for notification fragment
-      public NotificationList notificationList = new NotificationList();
+      public NotificationList notificationList;
 
       // data for message fragment
-      public ConversationList conversationList = new ConversationList();
-
-      // data for groups
-      public UserGroupList userGroupList = new UserGroupList();
+      public ConversationList conversationList;
 
       public RequestedFriend requestedFriend = null;
 
@@ -78,7 +75,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             savedInstanceState.putParcelable("masterWallPostList", masterWallPostList);
             savedInstanceState.putParcelable("notificationList", notificationList);
             savedInstanceState.putParcelable("conversationList", conversationList);
-            savedInstanceState.putParcelable("userGroupList", userGroupList);
             savedInstanceState.putParcelable("requestedFriend", requestedFriend);
 
             // Always call the superclass so it can save the view hierarchy state
@@ -94,9 +90,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             // load the xml file for the logs
             setContentView(R.layout.activity_main);
 
-            // get the application
-            app = (POSNApplication) this.getApplication();
-
             // attempt to get any new friend requests
             if (getIntent().hasExtra("uri"))
                {
@@ -107,6 +100,11 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
 
             // get the user from the login activity
             user = (User) getIntent().getExtras().get("user");
+            deviceFileKey = getIntent().getStringExtra("deviceFileKey");
+            masterWallPostList = new WallPostList(deviceFileKey);
+            masterFriendList = new FriendList(deviceFileKey);
+            notificationList = new NotificationList(deviceFileKey);
+            conversationList = new ConversationList(deviceFileKey);
 
             // get the action bar to set the title
             actionBar = getActionBar();
@@ -154,6 +152,8 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                      }
                });
 
+            app = (POSNApplication)getApplication();
+
             if(app.cloud == null)
                {
                   app.cloud = new DropboxClientUsage(this);
@@ -174,7 +174,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                   masterWallPostList = savedInstanceState.getParcelable("masterWallPostList");
                   notificationList = savedInstanceState.getParcelable("notificationList");
                   conversationList = savedInstanceState.getParcelable("conversationList");
-                  userGroupList = savedInstanceState.getParcelable("userGroupList");
                   requestedFriend = savedInstanceState.getParcelable("requestedFriend");
                }
             else

@@ -61,10 +61,10 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
             group.groupFileLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
             // create new group object and add to group list
-            main.userGroupList.groups.put(group.ID, group);
+            main.user.userDefinedGroups.put(group.ID, group);
 
             // save group list to device
-            main.userGroupList.saveGroupsToFile(Constants.applicationDataFilePath + Constants.groupListFile);
+            main.user.saveUserToFile();
 
             return null;
          }

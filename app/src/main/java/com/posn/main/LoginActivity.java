@@ -33,7 +33,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener
       private EditText passwordText, emailText;
       private ProgressDialog pDialog;
 
-      private User user = new User();
+      private String devicefileKey;
+
+      private User user;
 
       Uri uri = null;
 
@@ -166,18 +168,19 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             protected String doInBackground(String... params)
                {
                   // check if password is valid
-                  String key = SymmetricKeyManager.createKeyFromString(password);
+                  devicefileKey = SymmetricKeyManager.createKeyFromString(password);
 
                   String verificationString = DeviceFileManager.loadStringFromFile(Constants.encryptionKeyFilePath + "/verify.pass");
-                  verificationString = SymmetricKeyManager.decrypt(key, verificationString);
+                  verificationString = SymmetricKeyManager.decrypt(devicefileKey, verificationString);
 
                   // verify the password
                   if (verificationString != null)
                      {
                         if (verificationString.equals("POSN - SUCCESS"))
                            {
+                              user = new User(devicefileKey);
                               // load user data from file
-                              user.loadUserFromFile(password, Constants.profileFilePath + "/user.txt");
+                              user.loadUserFromFile();
 
                               // verify email address
                               if (email.equals(user.email))
@@ -203,6 +206,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                         if (uri != null)
                            {
                               intent.putExtra("uri", uri.toString());
+                              intent.putExtra("deviceFileKey", devicefileKey);
                            }
 
                         // Close all views before launching Employer

@@ -3,6 +3,7 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.posn.Constants;
 import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
@@ -15,18 +16,21 @@ import java.util.ArrayList;
 public class ConversationList implements Parcelable
    {
       public ArrayList<Conversation> conversations;
+      private String deviceFileKey;
 
-      public ConversationList()
+      public ConversationList(String deviceFileKey)
          {
+
+            this.deviceFileKey = deviceFileKey;
             conversations = new ArrayList<>();
          }
 
-      public void loadConversationsFromFile(String fileName)
+      public void loadConversationsFromFile()
          {
             // open the file
             try
                {
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath + "/" + Constants.converstationListFile);
 
                   JSONArray messageList = data.getJSONArray("messages");
 
@@ -44,7 +48,7 @@ public class ConversationList implements Parcelable
                }
          }
 
-      public void saveConversationListToFile(String devicePath)
+      public void saveConversationListToFile()
          {
             JSONArray messagesList = new JSONArray();
 
@@ -59,7 +63,7 @@ public class ConversationList implements Parcelable
                   JSONObject object = new JSONObject();
                   object.put("messages", messagesList);
 
-                  DeviceFileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath + "/" + Constants.converstationListFile);
 
                }
             catch (JSONException e)

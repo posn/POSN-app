@@ -128,6 +128,8 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
                      if (keyGenerated)
                         {
                            Intent intent = new Intent(this, SetupGroupsActivity.class);
+                           intent.putExtra("user", user);
+                           intent.putExtra("password", password);
                            startActivity(intent);
                         }
                      else
@@ -200,10 +202,6 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
             // set the user's public and private key
             user.publicKey = keyPair.first;
             user.privateKey = keyPair.second;
-
-            // save user to file
-            user.saveUserToFile(password, Constants.profileFilePath + "/user.txt");
-
 
             return true;
          }

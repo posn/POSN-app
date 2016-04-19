@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
-import com.posn.application.POSNApplication;
 import com.posn.asynctasks.friends.NewFriendFinalAsyncTask;
 import com.posn.asynctasks.friends.NewFriendInitialAsyncTask;
 import com.posn.asynctasks.friends.NewFriendIntermediateAsyncTask;
@@ -36,8 +35,6 @@ import java.util.Map;
 
 public class UserFriendsFragment extends Fragment implements OnClickListener
    {
-
-
       // declare variables
       public MainActivity activity;
       Context context;
@@ -49,7 +46,6 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       HashMap<String, Friend> friendList;
       ArrayList<RequestedFriend> friendRequestsList;
       public ArrayList<ListViewFriendItem> listViewItems = new ArrayList<>();
-      POSNApplication app;
       public FriendsArrayAdapter adapter;
 
 
@@ -99,11 +95,10 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      }
                });
 
+            // get the main activity to access data
             activity = (MainActivity) getActivity();
-            app = activity.app;
 
-
-
+            // create a new list view adapter and set it to the list view
             adapter = new FriendsArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
@@ -111,20 +106,10 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             friendList = activity.masterFriendList.currentFriends;
             friendRequestsList = activity.masterFriendList.friendRequests;
 
-            // check if there are any notifications, if so then update listview
-
-                  updateFriendList();
-
+            // check if there are any friends, if so then update listview
+            updateFriendList();
 
             return view;
-         }
-
-
-      @Override
-      public void onActivityCreated(Bundle savedInstanceState)
-         {
-            super.onActivityCreated(savedInstanceState);
-            onResume();
          }
 
       @Override
@@ -138,13 +123,6 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             else if (requestCode == Constants.RESULT_ADD_FRIEND_GROUPS && resultCode == Activity.RESULT_OK)
                {
                   RequestedFriend friend = data.getParcelableExtra("requestedFriend");
-                  System.out.println(friend.name + " | " + friend.email);
-
-                  for (int i = 0; i < friend.groups.size(); i++)
-                     {
-                        System.out.println(activity.userGroupList.groups.get(friend.groups.get(i)).name);
-                     }
-
 
                   // create a new current friend for the accepted user and add them to the current friends list
                   friendList.put(friend.ID, new Friend(friend));
@@ -159,7 +137,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   Toast.makeText(activity, "CONFIRMED!", Toast.LENGTH_SHORT).show();
 
                   // create AsyncTask to handle the intermediate phase
-                   new NewFriendIntermediateAsyncTask(this, friend).execute();
+                  new NewFriendIntermediateAsyncTask(this, friend).execute();
                }
          }
 
@@ -176,7 +154,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      intent.putExtra("type", Constants.TYPE_FRIEND_INFO);
 
                      // pass the list of groups to the activity
-                     intent.putParcelableArrayListExtra("groups", activity.userGroupList.getList());
+                     intent.putParcelableArrayListExtra("groups", activity.user.getUserGroupsArrayList());
 
                      // start the activity and get the result from it
                      startActivityForResult(intent, Constants.RESULT_ADD_FRIEND);
@@ -209,7 +187,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      // create a new activity intent to add friend groups
                      intent = new Intent(getActivity(), AddFriendsActivity.class);
                      intent.putExtra("type", Constants.TYPE_FRIEND_GROUPS);
-                     intent.putParcelableArrayListExtra("groups", activity.userGroupList.getList());
+                     intent.putParcelableArrayListExtra("groups", activity.user.getUserGroupsArrayList());
                      intent.putExtra("requestedFriend", friend);
 
                      startActivityForResult(intent, Constants.RESULT_ADD_FRIEND_GROUPS);
@@ -235,7 +213,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      activity.updateTab(3, true);
 
                      // save the updated friends list to file
-                     activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
+                     activity.masterFriendList.saveFriendsListToFileAsyncTask();
 
                      // SEND NOTIFICATION TO FRIEND ABOUT DECLINE
                      break;
@@ -251,7 +229,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      sortFriendsList();
                      adapter.notifyDataSetChanged();
 
-                     activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
+                     activity.masterFriendList.saveFriendsListToFileAsyncTask();
                      break;
                }
          }
@@ -298,7 +276,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
                      }
 
-                  activity.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
+                  activity.masterFriendList.saveFriendsListToFileAsyncTask();
                }
 
             // add data to list view
@@ -365,7 +343,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   secondHeader++;
                }
 
-            if(secondHeader + 1 == listViewItems.size())
+            if (secondHeader + 1 == listViewItems.size())
                {
                   listViewItems.add(secondHeader + 1, new NoFriendItem("No current friends"));
                }

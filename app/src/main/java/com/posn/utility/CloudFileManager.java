@@ -2,13 +2,14 @@ package com.posn.utility;
 
 
 import com.posn.datatypes.Post;
+import com.posn.datatypes.RequestedFriend;
+import com.posn.datatypes.User;
 import com.posn.datatypes.UserGroup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CloudFileManager
@@ -62,16 +63,17 @@ public class CloudFileManager
                }
          }
 
-      public static void createFriendFile(ArrayList<String> groupIDs, HashMap<String, UserGroup> groups, String path)
+      public static void createFriendFile(User user, RequestedFriend requestedUser, String path)
          {
             JSONObject obj = new JSONObject();
             JSONArray groupList = new JSONArray();
 
+            // need to add user file link and key
             try
                {
-                  for (int i = 0; i < groupIDs.size(); i++)
+                  for (int i = 0; i < requestedUser.groups.size(); i++)
                      {
-                        UserGroup userGroup = groups.get(groupIDs.get(i));
+                        UserGroup userGroup = user.userDefinedGroups.get(requestedUser.groups.get(i));
                         groupList.put(userGroup.createFriendFileJSONObject());
                      }
                   obj.put("groups", groupList);

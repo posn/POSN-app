@@ -3,7 +3,6 @@ package com.posn.asynctasks;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
-import com.posn.Constants;
 import com.posn.main.MainActivity;
 
 
@@ -38,25 +37,21 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            // get the group list file
-            System.out.println("GETTING GROUPS!!!");
-            main.userGroupList.loadGroupsFromFile(Constants.applicationDataFilePath + Constants.groupListFile);
-
             // get the friend list file
             System.out.println("GETTING FRIENDS!!!");
-            main.masterFriendList.loadFriendsListFromFile(Constants.applicationDataFilePath + "/user_friends.txt");
+            main.masterFriendList.loadFriendsListFromFile();
 
             // get the wall post file
             System.out.println("GETTING WALL POSTS!!!");
-            main.masterWallPostList.loadWallPostsFromFile(Constants.applicationDataFilePath + Constants.wallListFile);
+            main.masterWallPostList.loadWallPostsFromFile();
 
             // get the notifications file
             System.out.println("GETTING NOTIFICATIONS!!!");
-            main.notificationList.loadNotificationsFromFile(Constants.applicationDataFilePath + "/user_notifications.txt");
+            main.notificationList.loadNotificationsFromFile();
 
             // get the messages file
             System.out.println("GETTING MESSAGES!!!");
-            main.conversationList.loadConversationsFromFile(Constants.applicationDataFilePath + "/user_messages.txt");
+            main.conversationList.loadConversationsFromFile();
 
             // check/create cloud storage directories
             main.cloud.createStorageDirectoriesOnCloud();

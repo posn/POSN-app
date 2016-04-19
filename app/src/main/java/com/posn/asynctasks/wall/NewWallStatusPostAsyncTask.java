@@ -55,7 +55,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
             main.masterWallPostList.wallPosts.put(post.postID, post);
 
             // save the main wall post list to the device
-            main.masterWallPostList.saveWallPostsToFile(Constants.applicationDataFilePath + Constants.wallListFile);
+            main.masterWallPostList.saveWallPostsToFile();
 
             // add the new wall post to the listview
             wallFrag.listViewItems.add(0, new StatusPostItem(main, main.user.firstName + " " + main.user.lastName, post));
@@ -64,7 +64,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
             for (int i = 0; i < groupIDs.size(); i++)
                {
                   // get the group from the group ID
-                  UserGroup group = main.userGroupList.groups.get(groupIDs.get(i));
+                  UserGroup group = main.user.userDefinedGroups.get(groupIDs.get(i));
 
                   // add the post ID to the group
                   group.wallPostList.add(post.postID);
@@ -78,7 +78,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
                   main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
                   // update the group in the hashmap
-                  main.userGroupList.groups.put(group.ID, group);
+                  main.user.userDefinedGroups.put(group.ID, group);
                }
 
             return null;

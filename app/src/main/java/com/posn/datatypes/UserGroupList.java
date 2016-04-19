@@ -122,8 +122,7 @@ public class UserGroupList implements Parcelable
                String key = in.readString();
                UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
                groups.put(key,value);
-            }
-         }
+            }         }
 
 
       @Override

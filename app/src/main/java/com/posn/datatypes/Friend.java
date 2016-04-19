@@ -52,7 +52,7 @@ public class Friend implements Parcelable
 
       public Friend(RequestedFriend friend)
          {
-            status = Constants.STATUS_ACCEPTED;
+            status = Constants.STATUS_TEMPORAL;
             ID = friend.ID;
             name = friend.name;
             publicKey = friend.publicKey;

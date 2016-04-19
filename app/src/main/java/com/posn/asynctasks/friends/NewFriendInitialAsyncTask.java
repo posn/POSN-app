@@ -89,7 +89,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
             friendFrag.listViewItems.add(new PendingFriendItem(requestedFriend));
             friendFrag.sortFriendsList();
 
-            main.masterFriendList.saveFriendsListToFile(Constants.applicationDataFilePath + "/user_friends.txt");
+            main.masterFriendList.saveFriendsListToFile();
 
 
             return null;

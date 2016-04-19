@@ -14,10 +14,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.posn.R;
-import com.posn.SetupFilesAsyncTask;
 import com.posn.adapters.SetupGroupArrayAdapter;
+import com.posn.asynctasks.SetupFilesAsyncTask;
+import com.posn.datatypes.User;
 import com.posn.datatypes.UserGroup;
-import com.posn.datatypes.UserGroupList;
 import com.posn.main.BaseActivity;
 import com.posn.main.LoginActivity;
 
@@ -32,7 +32,8 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
       EditText groupNameText;
       ListView lv;
 
-      public UserGroupList userGroupList = new UserGroupList();
+      public User user;
+      public String password;
 
       ArrayList<UserGroup> userGroupNames = new ArrayList<>();
       ArrayList<String> selectedGroups = new ArrayList<>();
@@ -47,6 +48,12 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
             setContentView(R.layout.activity_setup_groups);
+
+            if (getIntent().hasExtra("user"))
+               {
+                  user = (User) getIntent().getExtras().get("user");
+                  password = getIntent().getExtras().getString("password");
+               }
 
             // get the listview from the layout
             lv = (ListView) findViewById(R.id.listView1);

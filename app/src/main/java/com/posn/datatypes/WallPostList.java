@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.posn.Constants;
 import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
@@ -17,19 +18,27 @@ import java.util.Map;
 public class WallPostList implements Parcelable
    {
       public HashMap<String, Post> wallPosts;
+      private String deviceFileKey;
 
-      public WallPostList()
+      public WallPostList(String deviceFileKey)
          {
+
+            this.deviceFileKey = deviceFileKey;
             wallPosts = new HashMap<>();
          }
 
-      public void loadWallPostsFromFile(String fileName)
+      public void loadWallPostsFromFile()
          {
             wallPosts.clear();
 
             try
                {
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
+                  //String encryptedData = DeviceFileManager.loadStringFromFile(Constants.applicationDataFilePath + "/" + Constants.wallListFile);
+
+                  // decrypt the file contents
+                  //String fileContents = SymmetricKeyManager.decrypt(deviceFileKey, encryptedData);
+
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath + "/" + Constants.wallListFile);
 
                   JSONArray wallPostsArray = data.getJSONArray("posts");
 
@@ -47,19 +56,19 @@ public class WallPostList implements Parcelable
                }
          }
 
-      public void saveWallPostsToFileAsyncTask(final String devicePath)
+      public void saveWallPostsToFileAsyncTask()
       {
          new AsyncTask<Void, Void, Void>()
          {
             protected Void doInBackground(Void... params)
                {
-                  saveWallPostsToFile(devicePath);
+                  saveWallPostsToFile();
                   return null;
                }
          }.execute();
       }
 
-      public void saveWallPostsToFile(String devicePath)
+      public void saveWallPostsToFile()
          {
             JSONArray wallPostList = new JSONArray();
 
@@ -74,7 +83,12 @@ public class WallPostList implements Parcelable
                   JSONObject object = new JSONObject();
                   object.put("posts", wallPostList);
 
-                  DeviceFileManager.writeJSONToFile(object, devicePath);
+
+                  //fileContents = SymmetricKeyManager.encrypt(deviceFileKey, user.toString());
+
+                 // DeviceFileManager.writeStringToFile(fileContents, Constants.applicationDataFilePath + "/" + Constants.wallListFile);
+
+                  DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath + "/" + Constants.wallListFile);
                }
             catch (JSONException e)
                {

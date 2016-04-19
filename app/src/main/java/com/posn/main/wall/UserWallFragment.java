@@ -142,14 +142,14 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
                   case R.id.status_button:
                      Intent intent = new Intent(context, CreateNewStatusPostActivity.class);
-                     intent.putExtra("groups", activity.userGroupList.getList());
+                     intent.putExtra("groups", activity.user.getUserGroupsArrayList());
                      startActivityForResult(intent, Constants.RESULT_CREATE_STATUS_POST);
 
                      break;
 
                   case R.id.photo_button:
                      intent = new Intent(context, CreateNewPhotoPostActivity.class);
-                     intent.putExtra("groups", activity.userGroupList.getList());
+                     intent.putExtra("groups", activity.user.getUserGroupsArrayList());
                      startActivityForResult(intent, Constants.RESULT_CREATE_PHOTO_POST);
                      break;
 

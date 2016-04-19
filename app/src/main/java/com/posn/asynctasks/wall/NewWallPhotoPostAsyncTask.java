@@ -68,7 +68,7 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
             main.masterWallPostList.wallPosts.put(post.postID, post);
 
             // save the main wall post list to the device
-            main.masterWallPostList.saveWallPostsToFile(Constants.applicationDataFilePath + Constants.wallListFile);
+            main.masterWallPostList.saveWallPostsToFile();
 
             // add the new wall post to the listview
             wallFrag.listViewItems.add(0, new PhotoPostItem(main, main.user.firstName + " " + main.user.lastName, post, folder + "/" + filename));
@@ -78,7 +78,7 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
             for (int i = 0; i < groupIDs.size(); i++)
                {
                   // get the group from the group ID
-                  UserGroup group = main.userGroupList.groups.get(groupIDs.get(i));
+                  UserGroup group = main.user.userDefinedGroups.get(groupIDs.get(i));
 
                   // add the post ID to the group
                   group.wallPostList.add(post.postID);
@@ -92,54 +92,8 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
                   main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
 
                   // update the group in the hashmap
-                  main.userGroupList.groups.put(group.ID, group);
+                  main.user.userDefinedGroups.put(group.ID, group);
                }
-
-
-            /*try
-               {
-                  Bitmap original = BitmapFactory.decodeFile(photopath);
-                  System.out.println("TEST1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                  System.out.println("TEST2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  original.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                  System.out.println("TEST3!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  byte[] byteArray = stream.toByteArray();
-                  System.out.println("TEST4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  original.recycle();
-                  System.out.println("TEST5!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  stream.close();
-                  System.out.println("OMG1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  String key = SymmetricKeyManager.createRandomKey();
-                  System.out.println("OMG2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  byteArray = SymmetricKeyManager.encrypt(key, byteArray);
-                  System.out.println("OMG3!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  byteArray = SymmetricKeyManager.decrypt(key, byteArray);
-                  System.out.println("OMG4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-
-                  BitmapFactory.Options options = new BitmapFactory.Options();
-                  options.inSampleSize = 4;
-                  photo = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, options);
-                  System.out.println("OMG5!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
-                  //photo = Bitmap.createScaledBitmap(photo, photo.getWidth() / 2, photo.getHeight() / 2, true);
-                  //photo = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
-
-
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }*/
 
             return null;
          }

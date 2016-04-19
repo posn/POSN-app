@@ -4,11 +4,19 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.posn.Constants;
 import com.posn.encryption.SymmetricKeyManager;
 import com.posn.utility.DeviceFileManager;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 public class User implements Parcelable
    {
@@ -24,9 +32,14 @@ public class User implements Parcelable
       public String publicKey = null;
       public String privateKey = null;
 
-      public User()
-         {
+      public HashMap<String, UserGroup> userDefinedGroups = new HashMap<>();
 
+      public String deviceFileKey;
+
+
+      public User(String deviceFileKey)
+         {
+            this.deviceFileKey = deviceFileKey;
          }
 
       public void print()
@@ -45,7 +58,7 @@ public class User implements Parcelable
          }
 
 
-      public void saveUserToFile(String password, final String devicePath)
+      public void saveUserToFile()
          {
             String fileContents;
 
@@ -65,6 +78,19 @@ public class User implements Parcelable
                   user.put("publicKey", publicKey);
                   user.put("privateKey", privateKey);
 
+                  JSONArray groupList = new JSONArray();
+
+                  // add all of the groups into the JSON array
+                  for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
+                     {
+                        UserGroup userGroup = entry.getValue();
+                        groupList.put(userGroup.createJSONObject());
+                     }
+
+                  // create new JSON object and put the JSON array into it
+                  JSONObject object = new JSONObject();
+                  object.put("groups", groupList);
+
                }
             catch (JSONException e)
                {
@@ -72,22 +98,20 @@ public class User implements Parcelable
                }
 
             // encrypt fileContents
-            String key = SymmetricKeyManager.createKeyFromString(password);
-            fileContents = SymmetricKeyManager.encrypt(key, user.toString());
+            fileContents = SymmetricKeyManager.encrypt(deviceFileKey, user.toString());
 
-            DeviceFileManager.writeStringToFile(fileContents, devicePath);
+            DeviceFileManager.writeStringToFile(fileContents, Constants.applicationDataFilePath + "/" + Constants.userFile);
          }
 
 
-      public boolean loadUserFromFile(String pass, final String devicePath)
+      public boolean loadUserFromFile()
          {
             try
                {
-                  String encryptedData = DeviceFileManager.loadStringFromFile(devicePath);
+                  String encryptedData = DeviceFileManager.loadStringFromFile(Constants.applicationDataFilePath + "/" + Constants.userFile);
 
                   // decrypt the file contents
-                  String key = SymmetricKeyManager.createKeyFromString(pass);
-                  String fileContents = SymmetricKeyManager.decrypt(key, encryptedData);
+                  String fileContents = SymmetricKeyManager.decrypt(deviceFileKey, encryptedData);
 
                   JSONObject data = new JSONObject(fileContents);
 
@@ -105,6 +129,20 @@ public class User implements Parcelable
 
                   // need to decrypt private key
 
+                  // get array of friends
+                  JSONArray groupList = data.getJSONArray("groups");
+
+                  // loop through array and parse individual friends
+                  for (int n = 0; n < groupList.length(); n++)
+                     {
+                        // parse the friend
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.parseJSONObject(groupList.getJSONObject(n));
+
+                        // put into request or current friend list based on status
+                        userDefinedGroups.put(userGroup.ID, userGroup);
+                     }
+
 
                   return true;
                }
@@ -115,6 +153,27 @@ public class User implements Parcelable
 
 
             return false;
+         }
+
+
+      public ArrayList<UserGroup> getUserGroupsArrayList()
+         {
+            ArrayList<UserGroup> list = new ArrayList<>();
+
+            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
+               {
+                  list.add(entry.getValue());
+               }
+
+            Collections.sort(list, new Comparator<UserGroup>()
+               {
+                  @Override public int compare(UserGroup lhs, UserGroup rhs)
+                     {
+                        return lhs.name.compareTo(rhs.name);
+                     }
+               });
+
+            return list;
          }
 
 
@@ -132,7 +191,14 @@ public class User implements Parcelable
             this.publicKey = in.readString();
             this.privateKey = in.readString();
 
-//            this.publicKey = in.readString();
+            //initialize your map before
+            int size = in.readInt();
+            for (int i = 0; i < size; i++)
+               {
+                  String key = in.readString();
+                  UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
+                  userDefinedGroups.put(key, value);
+               }
 
          }
 
@@ -151,6 +217,13 @@ public class User implements Parcelable
 
             dest.writeString(this.publicKey);
             dest.writeString(this.privateKey);
+
+            dest.writeInt(userDefinedGroups.size());
+            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
+               {
+                  dest.writeString(entry.getKey());
+                  dest.writeParcelable(entry.getValue(), flags);
+               }
          }
 
       public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>()

@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.posn.Constants;
 import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
@@ -20,20 +21,23 @@ public class FriendList implements Parcelable
       public HashMap<String, Friend> currentFriends;
       public ArrayList<RequestedFriend> friendRequests;
 
-      public FriendList()
+      private String deviceFileKey;
+
+      public FriendList(String deviceFileKey)
          {
+            this.deviceFileKey = deviceFileKey;
             currentFriends = new HashMap<>();
             friendRequests = new ArrayList<>();
          }
 
-      public void loadFriendsListFromFile(String fileName)
+      public void loadFriendsListFromFile()
          {
             currentFriends.clear();
             friendRequests.clear();
             try
                {
                   // load friends list into JSON object
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath + "/" + Constants.friendListFile);
 
                   // get array of friends
                   JSONArray friendsList = data.getJSONArray("friends");
@@ -62,20 +66,20 @@ public class FriendList implements Parcelable
                }
          }
 
-      public void saveFriendsListToFileAsyncTask(final String devicePath)
+      public void saveFriendsListToFileAsyncTask()
          {
             // create new AsyncTask to execute function off main UI thread
             new AsyncTask<Void, Void, Void>()
                {
                   protected Void doInBackground(Void... params)
                      {
-                        saveFriendsListToFile(devicePath);
+                        saveFriendsListToFile();
                         return null;
                      }
                }.execute();
          }
 
-      public void saveFriendsListToFile(String devicePath)
+      public void saveFriendsListToFile()
          {
             Friend friend;
             RequestedFriend requestedFriend;
@@ -108,7 +112,7 @@ public class FriendList implements Parcelable
                   // create new JSON object and put the JSON array into it
 
                   // write the JSON object to a file
-                  DeviceFileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath + "/" + Constants.friendListFile);
                }
             catch (JSONException e)
                {
