@@ -17,8 +17,8 @@ import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.datatypes.User;
-import com.posn.encryption.AsymmetricKeyManager;
-import com.posn.encryption.SymmetricKeyManager;
+import com.posn.utility.AsymmetricKeyManager;
+import com.posn.utility.SymmetricKeyManager;
 import com.posn.utility.DeviceFileManager;
 
 

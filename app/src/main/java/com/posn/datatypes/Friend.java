@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
-import com.posn.encryption.SymmetricKeyManager;
+import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;

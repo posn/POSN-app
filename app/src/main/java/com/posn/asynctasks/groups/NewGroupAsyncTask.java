@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 
 import com.posn.Constants;
 import com.posn.datatypes.UserGroup;
-import com.posn.encryption.SymmetricKeyManager;
+import com.posn.utility.SymmetricKeyManager;
 import com.posn.main.MainActivity;
 import com.posn.utility.CloudFileManager;
 import com.posn.utility.IDGenerator;

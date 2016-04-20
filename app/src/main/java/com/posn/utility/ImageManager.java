@@ -9,7 +9,6 @@ import android.graphics.Paint;
 import android.media.ExifInterface;
 
 import com.google.common.io.Files;
-import com.posn.encryption.SymmetricKeyManager;
 
 import java.io.File;
 import java.io.IOException;

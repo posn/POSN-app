@@ -45,72 +45,90 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            boolean processFriendFile = true;
+            boolean processFriendWallFiles;
 
             // loop through all of the friends
             for (Map.Entry<String, Friend> entry : main.masterFriendList.currentFriends.entrySet())
                {
-                  processFriendFile = true;
+                  // bool value to process the friend file, set to false if the temporal file has not been updated
+                  processFriendWallFiles = true;
 
+                  // get the friend from the hash map
                   Friend friend = entry.getValue();
 
                   //check if the temporal file needs to be checked
                   if (friend.status == Constants.STATUS_TEMPORAL)
                      {
-                        System.out.println("Name: " + friend.name);
-                        System.out.println("TEMP LINK: " + friend.friendFileLink);
-
-                        // get the temporal file
+                        // get the temporal file from the cloud
                         String deviceFilepath = Constants.wallFilePath;
                         String fileName = "temporal_file.txt";
                         DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
 
                         // attempt to get the updated friend file link
-                        processFriendFile = CloudFileManager.loadTemporalFriendFile(main.user, friend, deviceFilepath + "/" + fileName);
+                        boolean fetchedFriendFile = CloudFileManager.loadTemporalFriendFile(main.user, friend, deviceFilepath + "/" + fileName);
 
                         // update friend status
-                        friend.status = Constants.STATUS_ACCEPTED;
+                        if (fetchedFriendFile)
+                           {
+                              // change the friend status to accepted
+                              friend.status = Constants.STATUS_ACCEPTED;
+
+                              // get the most up to date friend file
+                              fileName = friend.ID + "_friend_user_file.txt";
+                              deviceFilepath = Constants.wallFilePath;
+                              DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
+
+                              // load the friend file
+                              CloudFileManager.loadFriendFile(friend, deviceFilepath + "/" + fileName);
+
+                              // update the friendlist
+                              main.masterFriendList.currentFriends.put(friend.ID, friend);
+                              main.masterFriendList.saveFriendsListToFile();
+
+                           }
+                        processFriendWallFiles = fetchedFriendFile;
                      }
 
-                  if (processFriendFile)
+                  // check if the friend file should be processed
+                  if (processFriendWallFiles)
                      {
-                        // get updated friend file
-                        String fileName = friend.ID + "_friend_user_file.txt";
-                        String deviceFilepath = Constants.wallFilePath;
-                        DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
+                        System.out.println("UPDATING WALL FILES!!!");
 
-                        CloudFileManager.loadFriendFile(friend, deviceFilepath + "/" + fileName);
-
+                        // loop through all friend groups
                         for (int i = 0; i < friend.friendGroups.size(); i++)
                            {
                               FriendGroup group = friend.friendGroups.get(i);
 
-                              // download wall files
-                              fileName = "wall_file.txt";
-                              deviceFilepath = Constants.wallFilePath;
+                              // download the group's wall file
+                              String fileName = "wall_file.txt";
+                              String deviceFilepath = Constants.wallFilePath;
                               DeviceFileManager.downloadFileFromURL(group.groupFileLink, deviceFilepath, fileName);
 
+                              // get the list of posts from the wall file
                               ArrayList<Post> wallPosts = CloudFileManager.loadGroupWallFile(deviceFilepath + "/" + fileName);
 
-                              // loop through all wall posts and check if they should be added to the main wall post list
+                              // loop through all wall posts
                               for (Post post : wallPosts)
                                  {
+                                    // check if the post should be added to the main wall post list
                                     if (!main.masterWallPostList.wallPosts.containsKey(post.postID))
                                        {
+                                          // add the post to the post list
                                           main.masterWallPostList.wallPosts.put(post.postID, post);
 
-                                          if(post.type == Constants.POST_TYPE_PHOTO)
+                                          // check if there is multimedia
+                                          if (post.type == Constants.POST_TYPE_PHOTO)
                                              {
+                                                // download the multimedia from the cloud
                                                 DeviceFileManager.downloadFileFromURL(post.multimediaLink, Constants.multimediaFilePath, post.postID + ".jpg");
                                              }
                                        }
                                  }
                            }
                      }
-
-
                }
 
+            // save the updated post list to the device
             main.masterWallPostList.saveWallPostsToFile();
 
             return null;

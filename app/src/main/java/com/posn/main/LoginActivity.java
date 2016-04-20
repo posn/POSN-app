@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.posn.Constants;
 import com.posn.R;
 import com.posn.datatypes.User;
-import com.posn.encryption.SymmetricKeyManager;
+import com.posn.utility.SymmetricKeyManager;
 import com.posn.initial_setup.SetupPersonalInfoActivity;
 import com.posn.utility.DeviceFileManager;
 

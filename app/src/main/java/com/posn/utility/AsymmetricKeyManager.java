@@ -1,4 +1,4 @@
-package com.posn.encryption;
+package com.posn.utility;
 
 import android.util.Base64;
 import android.util.Pair;

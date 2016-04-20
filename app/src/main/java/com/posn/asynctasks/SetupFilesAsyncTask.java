@@ -11,7 +11,7 @@ import com.posn.datatypes.Post;
 import com.posn.datatypes.UserGroup;
 import com.posn.datatypes.NotificationList;
 import com.posn.datatypes.WallPostList;
-import com.posn.encryption.SymmetricKeyManager;
+import com.posn.utility.SymmetricKeyManager;
 import com.posn.initial_setup.SetupGroupsActivity;
 import com.posn.utility.CloudFileManager;
 import com.posn.utility.IDGenerator;

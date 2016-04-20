@@ -1,4 +1,4 @@
-package com.posn.encryption;
+package com.posn.utility;
 
 import android.util.Log;
 

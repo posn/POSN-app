@@ -5,7 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.posn.Constants;
-import com.posn.encryption.SymmetricKeyManager;
+import com.posn.utility.SymmetricKeyManager;
 import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;

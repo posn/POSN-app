@@ -6,8 +6,6 @@ import com.posn.datatypes.FriendGroup;
 import com.posn.datatypes.Post;
 import com.posn.datatypes.User;
 import com.posn.datatypes.UserGroup;
-import com.posn.encryption.AsymmetricKeyManager;
-import com.posn.encryption.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -107,7 +105,9 @@ public class CloudFileManager
                {
                   String URI = object.getString("uri");
 
-                  if (URI != null && URI != JSONObject.NULL)
+                  System.out.println("URI: " + URI);
+
+                  if (!URI.equals("null"))
                      {
                         // parse temporal file
                         String[] paths = URI.split("/");
