@@ -162,7 +162,6 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
                      // remove them from the friend request list
                      friendRequestsList.remove(friend);
-                     activity.newFriendNum--;
                      activity.updateTab(3, true);
 
                      // remove them from the list view
@@ -304,6 +303,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             // sort the friends list alphabetically
             sortFriendsList();
+
+            // update tab number
          }
 
 

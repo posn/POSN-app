@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
+import com.posn.asynctasks.GetFriendContentAsyncTask;
 import com.posn.asynctasks.wall.NewWallPhotoPostAsyncTask;
 import com.posn.asynctasks.wall.NewWallStatusPostAsyncTask;
 import com.posn.datatypes.Friend;
@@ -229,15 +230,17 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       @Override
       public void onRefresh()
          {
-            new Handler().postDelayed(new Runnable()
+            new Handler().post(new Runnable()
                {
                   @Override
                   public void run()
                      {
                         swipeLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
+                        new GetFriendContentAsyncTask(activity).execute();
+
                      }
-               }, 2000);
+               });
          }
 
       public void sortWallPostList()

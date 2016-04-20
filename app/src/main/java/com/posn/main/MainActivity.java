@@ -11,6 +11,7 @@ import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.AsyncResponseIntialize;
+import com.posn.asynctasks.GetFriendContentAsyncTask;
 import com.posn.asynctasks.InitializeAsyncTask;
 import com.posn.clouds.Dropbox.DropboxClientUsage;
 import com.posn.datatypes.ConversationList;
@@ -60,6 +61,8 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
       public ConversationList conversationList;
 
       public RequestedFriend requestedFriend = null;
+
+      boolean initialize = true;
 
       @Override
       public void onSaveInstanceState(Bundle savedInstanceState)
@@ -213,7 +216,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
 
       public void initializingFileDataFinished()
          {
-            System.out.println("GROUPS: " + user.userDefinedGroups.size());
             UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
             if (friendFrag != null)
                {
@@ -238,6 +240,12 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                {
                   notificationFrag.updateNotifications();
                }
+
+            if(initialize)
+               {
+                  new GetFriendContentAsyncTask(this).execute();
+                  initialize = false;
+               }
          }
 
 
@@ -261,6 +269,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             else if (position == 3)
                {
                   actionBar.setTitle("Friends");
+                  newFriendNum = masterFriendList.friendRequests.size();
                   tabsAdapter.updateTab(position, (selected ? R.drawable.ic_friends_blue : R.drawable.ic_friends_gray), newFriendNum, true);
                }
             else
@@ -306,7 +315,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
 
                               // get file link
                               requestedFriend.fileLink = URLDecoder.decode(params.get(6), "UTF-8");
-
+System.out.println("TEMPORAL FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + requestedFriend.fileLink);
                               // get nonce
                               requestedFriend.nonce = params.get(7);
                            }

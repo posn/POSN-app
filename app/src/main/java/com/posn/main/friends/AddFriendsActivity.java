@@ -136,8 +136,6 @@ public class AddFriendsActivity extends BaseActivity implements OnClickListener
                {
                   case R.id.add_friend_button:
 
-                     System.out.println("GROUP SIZE: " + requestedFriend.groups.size());
-
                      if (type == Constants.TYPE_FRIEND_INFO)
                         {
                            if ((!isEmpty(email)))

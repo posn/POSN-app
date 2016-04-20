@@ -6,12 +6,16 @@ import com.posn.datatypes.FriendGroup;
 import com.posn.datatypes.Post;
 import com.posn.datatypes.User;
 import com.posn.datatypes.UserGroup;
+import com.posn.encryption.AsymmetricKeyManager;
 import com.posn.encryption.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CloudFileManager
@@ -46,6 +50,34 @@ public class CloudFileManager
                }
          }
 
+      public static ArrayList<Post> loadGroupWallFile(String devicePath)
+         {
+            DeviceFileManager.loadJSONObjectFromFile(devicePath);
+            ArrayList<Post> postArrayList = new ArrayList<>();
+            try
+               {
+                  JSONObject object = DeviceFileManager.loadJSONObjectFromFile(devicePath);
+
+
+                  JSONArray postList = object.getJSONArray("posts");
+
+                  for (int i = 0; i < postList.length(); i++)
+                     {
+                        Post post = new Post();
+                        post.parseJSONObject(postList.getJSONObject(i));
+
+                        postArrayList.add(post);
+                     }
+
+                  return postArrayList;
+               }
+            catch (JSONException e)
+               {
+                  e.printStackTrace();
+               }
+            return null;
+         }
+
       public static void createTemporalFriendFile(String uri, String devicePath)
          {
             JSONObject object = new JSONObject();
@@ -63,6 +95,50 @@ public class CloudFileManager
                {
                   e.printStackTrace();
                }
+         }
+
+      public static boolean loadTemporalFriendFile(User user, Friend friend, String devicePath)
+         {
+            // read friend file in
+            JSONObject object = DeviceFileManager.loadJSONObjectFromFile(devicePath);
+
+
+            try
+               {
+                  String URI = object.getString("uri");
+
+                  if (URI != null && URI != JSONObject.NULL)
+                     {
+                        // parse temporal file
+                        String[] paths = URI.split("/");
+
+                        String encryptedSymmetricKey = paths[0];
+
+                        // decrypt symmetric key
+                        String key = AsymmetricKeyManager.decrypt(user.privateKey, encryptedSymmetricKey);
+
+                        // decrypt URI data
+                        String encryptedURI = paths[1];
+
+                        URI = SymmetricKeyManager.decrypt(key, encryptedURI);
+                        paths = URI.split("/");
+
+                        // get file link
+                        friend.friendFileLink = URLDecoder.decode(paths[1], "UTF-8");
+
+                        friend.friendFileKey = URLDecoder.decode(paths[2], "UTF-8");
+
+                        // get nonces
+                        String nonce = paths[3];
+
+                        return true;
+                     }
+               }
+            catch (JSONException | IOException e)
+               {
+                  e.printStackTrace();
+               }
+            return false;
          }
 
       public static void createFriendFile(User user, Friend friend, String path)
@@ -95,7 +171,7 @@ public class CloudFileManager
          {
             // read friend file in
             String encyrptedString = DeviceFileManager.loadStringFromFile(path);
-System.out.println("KEY!!!!!!!!!!!!!!!!!!!!!! " + friend.friendFileKey);
+
             // decrypt string
             String friendFileData = SymmetricKeyManager.decrypt(friend.friendFileKey, encyrptedString);
 

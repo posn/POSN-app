@@ -51,7 +51,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
       protected String doInBackground(String... params)
          {
             // create a new friend from requested friend
-            Friend newFriend = new Friend(requestedFriend);
+            Friend newFriend = new Friend(requestedFriend, Constants.STATUS_ACCEPTED);
 
             // create friend file with all friend group data
             String fileName = requestedFriend.ID + "_friend_file.txt";
@@ -65,20 +65,21 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
             try
                {
-                  // encode temporal URL to maintain special chars
+                  // encode the friend file URL and user friend file key to maintain special chars
                   String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
+                  String encodedKey = URLEncoder.encode(newFriend.userFriendFileKey, "UTF-8");
 
-                  URI = main.user.ID + "/" + encodedURL  + "/" + requestedFriend.nonce2;
-                  System.out.println("NONCE: " + requestedFriend.nonce2);
+                  // create URI with appropriate data
+                  URI = main.user.ID + "/" + encodedURL + "/" + encodedKey  + "/" + requestedFriend.nonce2;
 
-                  // generate symmetric key to encrypt data
+                  // generate symmetric key to encrypt the URI
                   String key = SymmetricKeyManager.createRandomKey();
-
                   String encryptedURI = SymmetricKeyManager.encrypt(key, URI);
 
-                  System.out.println("PUB KEY: " + requestedFriend.publicKey);
+                  // encrypt the symmetric key will the friend's public key
                   String encryptedKey = AsymmetricKeyManager.encrypt(requestedFriend.publicKey, key);
 
+                  // build final URI to send to friend
                   URI = encryptedKey + "/" + encryptedURI;
                }
             catch (UnsupportedEncodingException e)

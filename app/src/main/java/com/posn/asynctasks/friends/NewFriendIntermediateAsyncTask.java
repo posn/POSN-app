@@ -52,7 +52,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
       protected String doInBackground(String... params)
          {
             // create a new friend from the requested friend
-            newFriend = new Friend(requestedFriend);
+            newFriend = new Friend(requestedFriend, Constants.STATUS_TEMPORAL);
 
             // create a new current friend for the accepted user and add them to the current friends list
             main.masterFriendList.currentFriends.put(newFriend.ID, newFriend);
