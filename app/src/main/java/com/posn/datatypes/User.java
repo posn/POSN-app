@@ -5,8 +5,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.posn.Constants;
-import com.posn.utility.SymmetricKeyManager;
 import com.posn.utility.DeviceFileManager;
+import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,7 +58,7 @@ public class User implements Parcelable
             for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
                {
                   UserGroup group = entry.getValue();
-                 System.out.println(group.name);
+                  System.out.println(group.name);
                }
 
          }
@@ -181,6 +181,17 @@ public class User implements Parcelable
             return list;
          }
 
+      public ArrayList<String> getUserWallPostIDs()
+         {
+            ArrayList<String> list = new ArrayList<>();
+
+            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
+               {
+                  list.addAll(entry.getValue().wallPostList);
+               }
+            return list;
+         }
+
 
       // Parcelling part
       public User(Parcel in)
@@ -204,6 +215,8 @@ public class User implements Parcelable
                   UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
                   userDefinedGroups.put(key, value);
                }
+
+            this.deviceFileKey = in.readString();
 
          }
 
@@ -229,6 +242,8 @@ public class User implements Parcelable
                   dest.writeString(entry.getKey());
                   dest.writeParcelable(entry.getValue(), flags);
                }
+
+            dest.writeString(this.deviceFileKey);
          }
 
       public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>()

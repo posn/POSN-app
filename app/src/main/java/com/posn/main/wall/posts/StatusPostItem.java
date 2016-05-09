@@ -1,10 +1,7 @@
 package com.posn.main.wall.posts;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -12,7 +9,6 @@ import android.widget.TextView;
 import com.posn.R;
 import com.posn.datatypes.Post;
 import com.posn.main.wall.WallArrayAdapter.PostType;
-import com.posn.main.wall.comments.CommentActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,12 +16,13 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class StatusPostItem implements ListViewPostItem, OnClickListener
+public class StatusPostItem implements ListViewPostItem
    {
 
-      private Context context;
       private Post postData;
       private String friendName;
+      private View.OnClickListener buttonListener;
+
 
       static class ViewHolderItem
          {
@@ -38,11 +35,11 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
          }
 
 
-      public StatusPostItem(Context context, String friendName, Post postData)
+      public StatusPostItem(View.OnClickListener buttonListener, String friendName, Post postData)
          {
-            this.context = context;
             this.postData = postData;
             this.friendName = friendName;
+            this.buttonListener = buttonListener;
          }
 
 
@@ -73,8 +70,8 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
                   viewHolder.commentButton = (RelativeLayout) convertView.findViewById(R.id.comment_button);
                   viewHolder.shareButton = (RelativeLayout) convertView.findViewById(R.id.share_button);
 
-                  viewHolder.commentButton.setOnClickListener(this);
-                  viewHolder.shareButton.setOnClickListener(this);
+                  viewHolder.commentButton.setOnClickListener(buttonListener);
+                  viewHolder.shareButton.setOnClickListener(buttonListener);
 
                   // store the holder with the view.
                   convertView.setTag(viewHolder);
@@ -89,27 +86,13 @@ public class StatusPostItem implements ListViewPostItem, OnClickListener
             viewHolder.dateText.setText(postData.date);
             viewHolder.statusText.setText(postData.textContent);
 
+            viewHolder.commentButton.setTag(postData);
+            viewHolder.shareButton.setTag(postData);
+
+
             return convertView;
          }
 
-
-      @Override
-      public void onClick(View v)
-         {
-            switch (v.getId())
-               {
-                  case R.id.comment_button:
-
-                     // launch comment activity
-                     Intent intent = new Intent(context, CommentActivity.class);
-                     context.startActivity(intent);
-
-                     break;
-
-                  case R.id.share_button:
-                     break;
-               }
-         }
 
       @Override
       public Date getDate()

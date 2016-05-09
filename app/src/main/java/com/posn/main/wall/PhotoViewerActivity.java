@@ -16,8 +16,6 @@ public class PhotoViewerActivity extends Activity
    {
 
       // declare variables
-      private String photoPath;
-      private Post post;
       ImageView imageView;
       RelativeLayout loadingSpinner;
 
@@ -30,19 +28,20 @@ public class PhotoViewerActivity extends Activity
             setContentView(R.layout.activity_photo_viewer);
 
             Intent intent = getIntent();
-            photoPath = intent.getExtras().getString("photoPath");
-            post = intent.getExtras().getParcelable("post");
+            Post post = intent.getExtras().getParcelable("post");
 
 
             imageView = (ImageView) findViewById(R.id.image);
             loadingSpinner = (RelativeLayout) findViewById(R.id.loadingPanel);
 
-
-            imageView.setTag(R.id.photo_path, photoPath);
-            imageView.setTag(R.id.photo_key, post);
-            new LoadImageAsyncTask(imageView, loadingSpinner).execute();
-            imageView.setImageResource(android.R.color.transparent);
-            imageView.setVisibility(View.VISIBLE);         }
+            if (post != null)
+               {
+                  imageView.setTag(post);
+                  new LoadImageAsyncTask(imageView, loadingSpinner).execute();
+                  imageView.setImageResource(android.R.color.transparent);
+                  imageView.setVisibility(View.VISIBLE);
+               }
+         }
 
       @Override
       protected void onStop()

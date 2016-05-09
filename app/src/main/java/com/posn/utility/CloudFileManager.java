@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 public class CloudFileManager
    {
-      public static void createGroupWallFile(UserGroup group, HashMap<String, Post> posts, String devicePath)
+      public static void createGroupWallFile(UserGroup group, HashMap<String, Post> posts, String deviceDirectory, String fileName)
          {
             JSONObject object = new JSONObject();
 
@@ -39,8 +39,10 @@ public class CloudFileManager
                   object.put("posts", postList);
 
                   // need to encrypt data here
+                  String jsonString = object.toString();
+                  String encryptedData = SymmetricKeyManager.encrypt(group.groupFileKey, jsonString);
 
-                  DeviceFileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeStringToFile(encryptedData, deviceDirectory + "/" + fileName);
                }
             catch (JSONException e)
                {
@@ -48,14 +50,22 @@ public class CloudFileManager
                }
          }
 
-      public static ArrayList<Post> loadGroupWallFile(String devicePath)
+      public static ArrayList<Post> fetchAndLoadGroupWallFile(FriendGroup group, String deviceDirectory, String fileName)
          {
-            DeviceFileManager.loadJSONObjectFromFile(devicePath);
             ArrayList<Post> postArrayList = new ArrayList<>();
+
+            // download the wall file from the cloud
+            DeviceFileManager.downloadFileFromURL(group.groupFileLink, deviceDirectory, fileName);
+
+            // read in the encrypted data
+            String encryptedString = DeviceFileManager.loadStringFromFile(deviceDirectory + "/" + fileName);
+
+            // decrypt the file data
+            String fileData = SymmetricKeyManager.decrypt(group.groupFileKey, encryptedString);
+
             try
                {
-                  JSONObject object = DeviceFileManager.loadJSONObjectFromFile(devicePath);
-
+                  JSONObject object = new JSONObject(fileData);
 
                   JSONArray postList = object.getJSONArray("posts");
 
@@ -76,7 +86,7 @@ public class CloudFileManager
             return null;
          }
 
-      public static void createTemporalFriendFile(String uri, String devicePath)
+      public static void createTemporalFriendFile(String uri, String deviceDirectory, String fileName)
          {
             JSONObject object = new JSONObject();
 
@@ -87,7 +97,7 @@ public class CloudFileManager
                   else
                      object.put("uri", JSONObject.NULL);
 
-                  DeviceFileManager.writeJSONToFile(object, devicePath);
+                  DeviceFileManager.writeJSONToFile(object, deviceDirectory + "/" + fileName);
                }
             catch (JSONException e)
                {
@@ -95,11 +105,10 @@ public class CloudFileManager
                }
          }
 
-      public static boolean loadTemporalFriendFile(User user, Friend friend, String devicePath)
+      public static boolean loadTemporalFriendFile(User user, Friend friend, String deviceDirectory, String fileName)
          {
             // read friend file in
-            JSONObject object = DeviceFileManager.loadJSONObjectFromFile(devicePath);
-
+            JSONObject object = DeviceFileManager.loadJSONObjectFromFile(deviceDirectory + "/" + fileName);
 
             try
                {
@@ -125,7 +134,6 @@ public class CloudFileManager
 
                         // get file link
                         friend.friendFileLink = URLDecoder.decode(paths[1], "UTF-8");
-
                         friend.friendFileKey = URLDecoder.decode(paths[2], "UTF-8");
 
                         // get nonces
@@ -141,7 +149,7 @@ public class CloudFileManager
             return false;
          }
 
-      public static void createFriendFile(User user, Friend friend, String path)
+      public static void createFriendFile(User user, Friend friend, String deviceDirectory, String fileName)
          {
             JSONObject obj = new JSONObject();
             JSONArray groupList = new JSONArray();
@@ -149,6 +157,8 @@ public class CloudFileManager
             // need to add user file link and key
             try
                {
+                  // ADD USER FILE LINK AND KEY
+
                   for (int i = 0; i < friend.userGroups.size(); i++)
                      {
                         UserGroup userGroup = user.userDefinedGroups.get(friend.userGroups.get(i));
@@ -159,7 +169,7 @@ public class CloudFileManager
                   String jsonString = obj.toString();
                   String encryptedString = SymmetricKeyManager.encrypt(friend.userFriendFileKey, jsonString);
 
-                  DeviceFileManager.writeStringToFile(encryptedString, path);
+                  DeviceFileManager.writeStringToFile(encryptedString, deviceDirectory + "/" + fileName);
                }
             catch (JSONException e)
                {
@@ -167,10 +177,10 @@ public class CloudFileManager
                }
          }
 
-      public static void loadFriendFile(Friend friend, String path)
+      public static void loadFriendFile(Friend friend, String deviceDirectory, String fileName)
          {
             // read friend file in
-            String encyrptedString = DeviceFileManager.loadStringFromFile(path);
+            String encyrptedString = DeviceFileManager.loadStringFromFile(deviceDirectory + "/" + fileName);
 
             // decrypt string
             String friendFileData = SymmetricKeyManager.decrypt(friend.friendFileKey, encyrptedString);
@@ -178,6 +188,9 @@ public class CloudFileManager
             // need to add user file link and key
             try
                {
+                  // GET USER FILE LINK AND KEY
+
+
                   JSONObject obj = new JSONObject(friendFileData);
                   JSONArray groupList = obj.getJSONArray("groups");
 
@@ -195,6 +208,8 @@ public class CloudFileManager
                   e.printStackTrace();
                }
          }
+
+
 
 
    }

@@ -48,11 +48,11 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
          {
             // create empty temporal friend wall file on device to upload to cloud
             String fileName = requestedFriend.nonce + "_temp_friend_file.txt";
-            String deviceFilepath = Constants.friendsFilePath + "/" + fileName;
-            CloudFileManager.createTemporalFriendFile(null, deviceFilepath);
+            String deviceFilepath = Constants.friendsFilePath;
+            CloudFileManager.createTemporalFriendFile(null, deviceFilepath, fileName);
 
             // upload group wall to cloud and get direct link
-            String directlink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
+            String directlink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
             // create URI
             String URI = "";

@@ -7,11 +7,11 @@ import android.view.View;
 import com.posn.Constants;
 import com.posn.datatypes.Post;
 import com.posn.datatypes.UserGroup;
-import com.posn.utility.SymmetricKeyManager;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.UserWallFragment;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.utility.CloudFileManager;
+import com.posn.utility.SymmetricKeyManager;
 
 import java.util.ArrayList;
 
@@ -62,7 +62,7 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
             SymmetricKeyManager.encryptFile(post.multimediaKey, photopath, folder + "/" + filename);
 
             // upload the photo to the cloud
-           post.multimediaLink = main.cloud.uploadFileToCloud(Constants.multimediaDirectory, filename, folder + "/" + filename);
+            post.multimediaLink = main.cloud.uploadFileToCloud(Constants.multimediaDirectory, filename, folder + "/" + filename);
 
 
             // add the post new the main wall post list
@@ -72,7 +72,7 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
             main.masterWallPostList.saveWallPostsToFile();
 
             // add the new wall post to the listview
-            wallFrag.listViewItems.add(0, new PhotoPostItem(main, main.user.firstName + " " + main.user.lastName, post, folder + "/" + filename));
+            wallFrag.listViewItems.add(0, new PhotoPostItem(wallFrag, main.user.firstName + " " + main.user.lastName, post));
 
 
             // go through all the groups and add the wall post to group walls
@@ -86,15 +86,17 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
 
                   // save the group file to device
                   String fileName = "group_" + group.name + "_" + group.version + ".txt";
-                  String deviceFilepath = Constants.applicationDataFilePath + "/" + fileName;
-                  CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath);
+                  String deviceFilepath = Constants.wallFilePath;
+                  CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath, fileName);
 
                   // upload the updated group wall file to the cloud
-                  main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
+                  main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
 
                   // update the group in the hashmap
                   main.user.userDefinedGroups.put(group.ID, group);
                }
+
+            main.user.saveUserToFile();
 
             return null;
          }

@@ -28,6 +28,7 @@ import com.posn.asynctasks.wall.NewWallStatusPostAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.Post;
 import com.posn.main.MainActivity;
+import com.posn.main.wall.comments.CommentActivity;
 import com.posn.main.wall.posts.ListViewPostItem;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
@@ -45,7 +46,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
    {
       // declare variables
       Context context;
-      RelativeLayout statusButton, photoButton, checkInButton;
+      RelativeLayout statusButton, photoButton;
       public TextView noWallPostsText;
       ListView lv;
       TableRow statusBar;
@@ -79,12 +80,10 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             // get the buttons from the layout
             statusButton = (RelativeLayout) view.findViewById(R.id.status_button);
             photoButton = (RelativeLayout) view.findViewById(R.id.photo_button);
-            checkInButton = (RelativeLayout) view.findViewById(R.id.checkin_button);
 
             // set an onclick listener for each button
             statusButton.setOnClickListener(this);
             photoButton.setOnClickListener(this);
-            checkInButton.setOnClickListener(this);
 
             // get the status bar
             statusBar = (TableRow) view.findViewById(R.id.status_bar);
@@ -120,8 +119,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                         mLastFirstVisibleItem = firstVisibleItem;
                      }
                });
-
-
+            
             adapter = new WallArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
@@ -138,14 +136,15 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       @Override
       public void onClick(View v)
          {
+            Post post;
+            Intent intent;
+
             switch (v.getId())
                {
-
                   case R.id.status_button:
-                     Intent intent = new Intent(context, CreateNewStatusPostActivity.class);
+                     intent = new Intent(context, CreateNewStatusPostActivity.class);
                      intent.putExtra("groups", activity.user.getUserGroupsArrayList());
                      startActivityForResult(intent, Constants.RESULT_CREATE_STATUS_POST);
-
                      break;
 
                   case R.id.photo_button:
@@ -155,9 +154,31 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      break;
 
                   case R.id.checkin_button:
-
                      break;
 
+
+
+
+                  // buttons on individual posts
+                  case R.id.comment_button:
+                     post = (Post) v.getTag();
+                     intent = new Intent(context, CommentActivity.class);
+                     context.startActivity(intent);
+                     break;
+
+                  case R.id.photo:
+                     post = (Post) v.getTag();
+                     intent = new Intent(context, PhotoViewerActivity.class);
+                     intent.putExtra("post", post);
+                     context.startActivity(intent);
+                     break;
+
+                  case R.id.video:
+                     post = (Post) v.getTag();
+                     intent = new Intent(context, VideoPlayerActivity.class);
+                     intent.putExtra("post", post);
+                     context.startActivity(intent);
+                     break;
                }
          }
 
@@ -209,18 +230,18 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                         File imgFile = new File(photoPath);
                         if (imgFile.exists())
                            {
-                              listViewItems.add(new PhotoPostItem(getActivity(), name, post, photoPath));
+                              listViewItems.add(new PhotoPostItem(this, name, post));
                            }
                      }
                   // check if the post is a link or status
                   else if (post.type == Constants.POST_TYPE_STATUS || post.type == Constants.POST_TYPE_LINK)
                      {
-                        listViewItems.add(new StatusPostItem(getActivity(), name, post));
+                        listViewItems.add(new StatusPostItem(this, name, post));
                      }
                   // check if the post is a video
                   else if (post.type == Constants.POST_TYPE_VIDEO)
                      {
-                        listViewItems.add(new VideoPostItem(getActivity(), name, post, Constants.multimediaFilePath));
+                        listViewItems.add(new VideoPostItem(this, name, post));
                      }
                }
             sortWallPostList();

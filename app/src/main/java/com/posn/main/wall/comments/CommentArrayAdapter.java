@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.posn.R;
+import com.posn.datatypes.Comment;
 
 
 class CommentViewHolder
@@ -22,15 +23,15 @@ class CommentViewHolder
 	}
 
 
-public class CommentArrayAdapter extends ArrayAdapter<CommentItem>
+public class CommentArrayAdapter extends ArrayAdapter<Comment>
 	{
 
 		private final Context context;
-		private ArrayList<CommentItem> values;
+		private ArrayList<Comment> values;
 		CommentViewHolder mViewHolder = null;
 
 
-		public CommentArrayAdapter(Context context, ArrayList<CommentItem> values)
+		public CommentArrayAdapter(Context context, ArrayList<Comment> values)
 			{
 				super(context, R.layout.listview_comment_item, values);
 				this.context = context;

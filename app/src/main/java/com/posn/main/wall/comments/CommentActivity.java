@@ -1,11 +1,8 @@
 package com.posn.main.wall.comments;
 
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.database.Cursor;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Window;
@@ -14,19 +11,16 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.ListView;
 
 import com.posn.R;
-import com.posn.datatypes.Friend;
+import com.posn.datatypes.Comment;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Random;
 
 
 public class CommentActivity extends Activity
 	{
 
 		// declare variables
-		ArrayList<CommentItem> commentList = new ArrayList<CommentItem>();
+		ArrayList<Comment> commentList = new ArrayList<>();
 
 
 		@Override
@@ -42,7 +36,7 @@ public class CommentActivity extends Activity
 				LayoutParams params = this.getWindow().getAttributes();
 				params.alpha = 1.0f;
 				params.dimAmount = 0.5f;
-				this.getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+				this.getWindow().setAttributes(params);
 
 				Display display = getWindowManager().getDefaultDisplay();
 				Point size = new Point();
@@ -71,50 +65,11 @@ public class CommentActivity extends Activity
 		public void getComments()
 			{
 				commentList.clear();
-				int count = 0;
-				HashSet<String> emlRecsHS = new HashSet<String>();
-String comment;
-				ContentResolver cr = this.getContentResolver();
-				String[] PROJECTION = new String[] { ContactsContract.RawContacts._ID, ContactsContract.Contacts.DISPLAY_NAME, ContactsContract.Contacts.PHOTO_ID, ContactsContract.CommonDataKinds.Email.DATA, ContactsContract.CommonDataKinds.Photo.CONTACT_ID };
-				String order = "CASE WHEN " + ContactsContract.Contacts.DISPLAY_NAME + " NOT LIKE '%@%' THEN 1 ELSE 2 END, " + ContactsContract.Contacts.DISPLAY_NAME + ", " + ContactsContract.CommonDataKinds.Email.DATA + " COLLATE NOCASE";
-				String filter = ContactsContract.CommonDataKinds.Email.DATA + " NOT LIKE ''";
-				Cursor cur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, PROJECTION, filter, null, order);
-				if (cur.moveToFirst())
-					{
-						do
-							{
-								Friend phoneContact = new Friend();
-								// names comes in hand sometimes
-								phoneContact.name = cur.getString(1);
-								phoneContact.phone = cur.getString(2);
-								
-								phoneContact.email = cur.getString(3);
 
-								// keep unique only
-								if (emlRecsHS.add(phoneContact.email.toLowerCase(Locale.ENGLISH)))
-									{								
-										phoneContact.email = "sample_email@posn.com";
-
-										Random rand = new Random();
-										int random = rand.nextInt((3 - 1) + 1) + 1;
-										comment = "Test Comment!";
-										if (random == 1)
-											{
-												comment = "Happy Birthday!";
-											}
-										else if (random == 2)
-											{
-												comment = "Here is a really long sentence that will take multiple lines. Often times, comments will take multiple lines to display.!";
-											}
-										
-										commentList.add(new CommentItem(phoneContact.name, "Jan 19, 2015 at 1:56 pm", comment));
-										count++;
-									}
-							}
-						while (cur.moveToNext() && count < 8);
-					}
-
-				cur.close();
+				commentList.add(new Comment("Test User 1", "Apr 18 at 1:56 pm", "What kind of dog?"));
+				commentList.add(new Comment("Test User 2", "Apr 18 at 1:56 pm", "I think its a Jindo"));
+				commentList.add(new Comment("Test User 1", "Apr 18 at 1:56 pm", "Thanks, she is very cute!"));
+				commentList.add(new Comment("Test User 3", "Apr 18 at 1:56 pm", "How adorable"));
 			}
 
 

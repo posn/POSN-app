@@ -55,11 +55,11 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
             // create friend file with all friend group data
             String fileName = requestedFriend.ID + "_friend_file.txt";
-            String deviceFilepath = Constants.friendsFilePath + "/" + fileName;
-            CloudFileManager.createFriendFile(main.user, newFriend, deviceFilepath);
+            String deviceFilepath = Constants.friendsFilePath;
+            CloudFileManager.createFriendFile(main.user, newFriend, deviceFilepath, fileName);
 
             // upload group wall to cloud and get direct link
-            String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
+            String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
             // create URI
             String URI = "";
 
@@ -91,11 +91,11 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
             // add to temporal file and upload to cloud
             fileName = requestedFriend.nonce + "_temp_friend_file.txt";
-            deviceFilepath = Constants.friendsFilePath + "/" + fileName;
+            deviceFilepath = Constants.friendsFilePath;
             System.out.println("URI: " + URI);
-            CloudFileManager.createTemporalFriendFile(URI, deviceFilepath);
+            CloudFileManager.createTemporalFriendFile(URI, deviceFilepath, fileName);
 
-            friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
+            friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
             friendFrag.listViewItems.add(new AcceptedFriendItem(friendFrag, newFriend));
             friendFrag.sortFriendsList();
@@ -106,7 +106,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
             deviceFilepath = Constants.wallFilePath;
             DeviceFileManager.downloadFileFromURL(newFriend.friendFileLink, deviceFilepath, fileName);
 
-            CloudFileManager.loadFriendFile(newFriend, deviceFilepath + "/" + fileName);
+            CloudFileManager.loadFriendFile(newFriend, deviceFilepath, fileName);
 
             for(int i = 0; i < newFriend.friendGroups.size(); i++)
                {

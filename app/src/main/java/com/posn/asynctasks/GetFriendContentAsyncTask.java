@@ -65,7 +65,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                         DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
 
                         // attempt to get the updated friend file link
-                        boolean fetchedFriendFile = CloudFileManager.loadTemporalFriendFile(main.user, friend, deviceFilepath + "/" + fileName);
+                        boolean fetchedFriendFile = CloudFileManager.loadTemporalFriendFile(main.user, friend, deviceFilepath, fileName);
 
                         // update friend status
                         if (fetchedFriendFile)
@@ -79,7 +79,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                               DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
 
                               // load the friend file
-                              CloudFileManager.loadFriendFile(friend, deviceFilepath + "/" + fileName);
+                              CloudFileManager.loadFriendFile(friend, deviceFilepath, fileName);
 
                               // update the friendlist
                               main.masterFriendList.currentFriends.put(friend.ID, friend);
@@ -99,28 +99,28 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                            {
                               FriendGroup group = friend.friendGroups.get(i);
 
-                              // download the group's wall file
+                              // download the group's wall file and get the list of posts
                               String fileName = "wall_file.txt";
                               String deviceFilepath = Constants.wallFilePath;
-                              DeviceFileManager.downloadFileFromURL(group.groupFileLink, deviceFilepath, fileName);
+                              ArrayList<Post> wallPosts = CloudFileManager.fetchAndLoadGroupWallFile(group, deviceFilepath, fileName);
 
-                              // get the list of posts from the wall file
-                              ArrayList<Post> wallPosts = CloudFileManager.loadGroupWallFile(deviceFilepath + "/" + fileName);
-
-                              // loop through all wall posts
-                              for (Post post : wallPosts)
+                              if (wallPosts != null)
                                  {
-                                    // check if the post should be added to the main wall post list
-                                    if (!main.masterWallPostList.wallPosts.containsKey(post.postID))
+                                    // loop through all wall posts
+                                    for (Post post : wallPosts)
                                        {
-                                          // add the post to the post list
-                                          main.masterWallPostList.wallPosts.put(post.postID, post);
-
-                                          // check if there is multimedia
-                                          if (post.type == Constants.POST_TYPE_PHOTO)
+                                          // check if the post should be added to the main wall post list
+                                          if (!main.masterWallPostList.wallPosts.containsKey(post.postID))
                                              {
-                                                // download the multimedia from the cloud
-                                                DeviceFileManager.downloadFileFromURL(post.multimediaLink, Constants.multimediaFilePath, post.postID + ".jpg");
+                                                // add the post to the post list
+                                                main.masterWallPostList.wallPosts.put(post.postID, post);
+
+                                                // check if there is multimedia
+                                                if (post.type == Constants.POST_TYPE_PHOTO)
+                                                   {
+                                                      // download the multimedia from the cloud
+                                                      DeviceFileManager.downloadFileFromURL(post.multimediaLink, Constants.multimediaFilePath, post.postID + ".jpg");
+                                                   }
                                              }
                                        }
                                  }

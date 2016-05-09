@@ -60,11 +60,11 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
 
             // create friend file with all friend group data
             String fileName = requestedFriend.ID + "_friend_file.txt";
-            String deviceFilepath = Constants.friendsFilePath + "/" + fileName;
-            CloudFileManager.createFriendFile(main.user, newFriend, deviceFilepath);
+            String deviceFilepath = Constants.friendsFilePath;
+            CloudFileManager.createFriendFile(main.user, newFriend, deviceFilepath, fileName);
 
             // upload group wall to cloud and get direct link
-            String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath);
+            String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
 
             // create URI

@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.posn.R;
+import com.posn.Constants;
 import com.posn.datatypes.Post;
 import com.posn.utility.ImageManager;
 
@@ -22,9 +22,10 @@ public class LoadImageAsyncTask extends AsyncTask<Object, Void, Bitmap>
       public LoadImageAsyncTask(ImageView imv, RelativeLayout loader)
          {
             this.imageView = imv;
-            this.path = imv.getTag(R.id.photo_path).toString();
-            this.post = (Post)imv.getTag(R.id.photo_key);
+            this.post = (Post)imv.getTag();
             this.loader = loader;
+
+            path = Constants.multimediaFilePath + "/" + post.postID + ".jpg";
          }
 
       @Override
@@ -36,7 +37,12 @@ public class LoadImageAsyncTask extends AsyncTask<Object, Void, Bitmap>
       @Override
       protected void onPostExecute(Bitmap result)
          {
-            if (!imageView.getTag(R.id.photo_path).toString().equals(path))
+            Post post2 = (Post)imageView.getTag();
+
+            String pathCheck = Constants.multimediaFilePath + "/" + post2.postID + ".jpg";
+
+
+            if (!pathCheck.equals(path))
                {
                /* The path is not same. This means that this
                   image view is handled by some other async task.

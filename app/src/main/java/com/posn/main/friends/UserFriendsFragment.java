@@ -305,6 +305,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             sortFriendsList();
 
             // update tab number
+            activity.updateTab(3, true);
          }
 
 

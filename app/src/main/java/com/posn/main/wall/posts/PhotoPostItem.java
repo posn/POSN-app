@@ -1,10 +1,7 @@
 package com.posn.main.wall.posts;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -12,9 +9,7 @@ import android.widget.TextView;
 import com.posn.R;
 import com.posn.asynctasks.LoadImageAsyncTask;
 import com.posn.datatypes.Post;
-import com.posn.main.wall.PhotoViewerActivity;
 import com.posn.main.wall.WallArrayAdapter.PostType;
-import com.posn.main.wall.comments.CommentActivity;
 import com.posn.main.wall.views.SquareImageView;
 
 import java.text.ParseException;
@@ -23,7 +18,7 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class PhotoPostItem implements ListViewPostItem, OnClickListener
+public class PhotoPostItem implements ListViewPostItem
    {
       static class ViewHolderItem
          {
@@ -36,18 +31,17 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
             RelativeLayout loadingCircle;
          }
 
-      private Context context;
       private Post post;
-      private String devicePath;
       ViewHolderItem viewHolder;
       String friendName;
+      private View.OnClickListener onClickListener;
 
-      public PhotoPostItem(Context context, String name, Post postData, String devicePath)
+
+      public PhotoPostItem(View.OnClickListener onClickListener, String name, Post postData)
          {
-            this.context = context;
             this.post = postData;
-            this.devicePath = devicePath;
             this.friendName = name;
+            this.onClickListener = onClickListener;
          }
 
 
@@ -76,9 +70,9 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
                   viewHolder.commentButton = (RelativeLayout) convertView.findViewById(R.id.comment_button);
                   viewHolder.shareButton = (RelativeLayout) convertView.findViewById(R.id.share_button);
 
-                  viewHolder.commentButton.setOnClickListener(this);
-                  viewHolder.shareButton.setOnClickListener(this);
-                  viewHolder.photoImage.setOnClickListener(this);
+                  viewHolder.commentButton.setOnClickListener(onClickListener);
+                  viewHolder.shareButton.setOnClickListener(onClickListener);
+                  viewHolder.photoImage.setOnClickListener(onClickListener);
 
                   // store the holder with the view.
                   convertView.setTag(viewHolder);
@@ -92,41 +86,16 @@ public class PhotoPostItem implements ListViewPostItem, OnClickListener
             viewHolder.nameText.setText(friendName);
             viewHolder.dateText.setText(post.date);
 
-            viewHolder.photoImage.setTag(R.id.photo_path, devicePath);
-            viewHolder.photoImage.setTag(R.id.photo_key, post);
+            viewHolder.photoImage.setTag(post);
+            viewHolder.commentButton.setTag(post);
+            viewHolder.shareButton.setTag(post);
+
             new LoadImageAsyncTask(viewHolder.photoImage, viewHolder.loadingCircle).execute();
             viewHolder.photoImage.setImageResource(android.R.color.transparent);
             viewHolder.loadingCircle.setVisibility(View.VISIBLE);
             return convertView;
          }
 
-
-      @Override
-      public void onClick(View v)
-         {
-            switch (v.getId())
-               {
-                  case R.id.comment_button:
-
-                     // launch comment activity
-                     Intent intent = new Intent(context, CommentActivity.class);
-                     context.startActivity(intent);
-
-                     break;
-
-                  case R.id.share_button:
-                     break;
-
-                  case R.id.photo:
-
-                     intent = new Intent(context, PhotoViewerActivity.class);
-                     intent.putExtra("photoPath", viewHolder.photoImage.getTag(R.id.photo_path).toString());
-                     intent.putExtra("post", (Post)viewHolder.photoImage.getTag(R.id.photo_key));
-
-                     context.startActivity(intent);
-                     break;
-               }
-         }
 
       @Override
       public Date getDate()

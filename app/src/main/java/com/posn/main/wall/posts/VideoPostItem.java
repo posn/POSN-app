@@ -1,27 +1,22 @@
 package com.posn.main.wall.posts;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.datatypes.Post;
-import com.posn.main.wall.VideoPlayerActivity;
 import com.posn.main.wall.WallArrayAdapter.PostType;
-import com.posn.main.wall.comments.CommentActivity;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,7 +24,7 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, OnClickListener
+public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener
    {
       static class ViewHolderItem
          {
@@ -43,19 +38,17 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
 
       private Context context;
       private Post postData;
-      private Uri dataLink;
       private String friendName;
 
       ViewHolderItem viewHolder;
+      View.OnClickListener onClickListener;
 
 
-
-      public VideoPostItem(Context context, String friendName, Post postData, String directory)
+      public VideoPostItem(View.OnClickListener onClickListener, String friendName, Post postData)
          {
-            this.context = context;
             this.postData = postData;
-            this.dataLink = Uri.fromFile(new File(directory + "/" + postData.postID));
             this.friendName = friendName;
+            this.onClickListener = onClickListener;
          }
 
 
@@ -83,11 +76,11 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
                   viewHolder.commentButton = (RelativeLayout) convertView.findViewById(R.id.comment_button);
                   viewHolder.shareButton = (RelativeLayout) convertView.findViewById(R.id.share_button);
 
-                  viewHolder.commentButton.setOnClickListener(this);
-                  viewHolder.shareButton.setOnClickListener(this);
+                  viewHolder.commentButton.setOnClickListener(onClickListener);
+                  viewHolder.shareButton.setOnClickListener(onClickListener);
 
                   viewHolder.textureView.setSurfaceTextureListener(this);
-                  viewHolder.textureView.setOnClickListener(this);
+                  viewHolder.textureView.setOnClickListener(onClickListener);
 
                   // store the holder with the view.
                   convertView.setTag(viewHolder);
@@ -102,6 +95,10 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
             viewHolder.dateText.setText(postData.date);
 
 
+            viewHolder.textureView.setTag(postData);
+            viewHolder.commentButton.setTag(postData);
+            viewHolder.shareButton.setTag(postData);
+
 
             return convertView;
          }
@@ -114,7 +111,7 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
             try
                {
                   MediaPlayer mMediaPlayer = new MediaPlayer();
-                  mMediaPlayer.setDataSource(context, dataLink);
+                  mMediaPlayer.setDataSource(Constants.multimediaFilePath + "/" + postData.postID + ".mp4");
                   mMediaPlayer.setSurface(s);
                   mMediaPlayer.prepare();
                   mMediaPlayer.setVolume(0, 0);
@@ -126,12 +123,10 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
                }
          }
 
-
       @Override
       public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height)
          {
          }
-
 
       @Override
       public boolean onSurfaceTextureDestroyed(SurfaceTexture surface)
@@ -145,34 +140,6 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener, 
          {
          }
 
-      @Override
-      public void onClick(View v)
-         {
-            switch (v.getId())
-               {
-                  case R.id.comment_button:
-
-                     // launch comment activity
-                     Intent intent = new Intent(context, CommentActivity.class);
-                     context.startActivity(intent);
-
-                     break;
-
-                  case R.id.share_button:
-                     break;
-
-                  case R.id.video:
-
-                     intent = new Intent(context, VideoPlayerActivity.class);
-                     intent.setData(dataLink);
-
-                     context.startActivity(intent);
-
-                     System.out.println("clicked!");
-
-                     break;
-               }
-         }
 
       @Override
       public Date getDate()

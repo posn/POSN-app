@@ -40,7 +40,7 @@ public class Constants
       public static final String applicationDataFilePath = Environment.getExternalStorageDirectory() + "/Android/data/com.posn/data/appData";
 
       // device file names
-      public static final String groupListFile = "/user_groups.txt";
+      public static final String commentListFile = "/user_comments.txt";
       public static final String friendListFile = "/user_friends.txt";
       public static final String wallListFile = "/user_wall.txt";
       public static final String notificationListFile = "/user_notifications.txt";
@@ -49,7 +49,7 @@ public class Constants
 
       // cloud directory names
       public static final String wallDirectory = "wall";
-      public static final String friendDirectory = "friend";
+      public static final String friendDirectory = "friends";
       public static final String multimediaDirectory = "multimedia";
 
       public static final String[] directoryNames = {

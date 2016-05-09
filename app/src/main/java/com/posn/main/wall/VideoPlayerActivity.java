@@ -1,48 +1,52 @@
 package com.posn.main.wall;
 
 import android.app.Activity;
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
+import com.posn.Constants;
 import com.posn.R;
+import com.posn.datatypes.Post;
 
 
-public class VideoPlayerActivity extends Activity 
-	{
+public class VideoPlayerActivity extends Activity
+   {
+      @Override
+      protected void onCreate(Bundle savedInstanceState)
+         {
+            super.onCreate(savedInstanceState);
 
-		// declare variables
-		private Uri videoURI;
+            // load the xml file for the logs
+            setContentView(R.layout.activity_video_player);
 
-		@Override
-		protected void onCreate(Bundle savedInstanceState)
-			{
-				super.onCreate(savedInstanceState);
+            // videoURI = getIntent().getData();
+            Intent intent = getIntent();
+            Post post = intent.getExtras().getParcelable("post");
 
-				// load the xml file for the logs
-				setContentView(R.layout.activity_video_player);
+            if (post != null)
+               {
+                  String filepath = Constants.multimediaFilePath + "/" + post.postID + ".mp4";
 
-				videoURI = getIntent().getData();
+                  VideoView videoView = (VideoView) findViewById(R.id.video);
 
-				VideoView videoView = (VideoView) findViewById(R.id.video);
-				
-				MediaController mc = new MediaController(this);
-				videoView.setMediaController(mc);
-				mc.setAnchorView(videoView);
-				
-				videoView.setVideoURI(videoURI);
-				videoView.start();
+                  MediaController mc = new MediaController(this);
+                  videoView.setMediaController(mc);
+                  mc.setAnchorView(videoView);
 
-			}
-
-		@Override
-		protected void onStop()
-			{
-        super.onStop();
-			}
-
-		
+                  videoView.setVideoPath(filepath);
+                  videoView.start();
+               }
 
 
-	}
+         }
+
+      @Override
+      protected void onStop()
+         {
+            super.onStop();
+         }
+
+
+   }

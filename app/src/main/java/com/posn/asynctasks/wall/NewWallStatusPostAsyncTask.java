@@ -59,7 +59,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
             main.masterWallPostList.saveWallPostsToFile();
 
             // add the new wall post to the listview
-            wallFrag.listViewItems.add(0, new StatusPostItem(main, main.user.firstName + " " + main.user.lastName, post));
+            wallFrag.listViewItems.add(0, new StatusPostItem(wallFrag, main.user.firstName + " " + main.user.lastName, post));
 
             // go through all the groups and add the wall post to group walls
             for (int i = 0; i < groupIDs.size(); i++)
@@ -72,15 +72,17 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
 
                   // save the group file to device
                   String fileName = "group_" + group.name + "_" + group.version + ".txt";
-                  String deviceFilepath = Constants.applicationDataFilePath + "/" + fileName;
-                  CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath);
+                  String deviceFilepath = Constants.wallFilePath;
+                  CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath, fileName);
 
                   // upload the updated group wall file to the cloud
-                  main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
+                  main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
 
                   // update the group in the hashmap
                   main.user.userDefinedGroups.put(group.ID, group);
                }
+
+            main.user.saveUserToFile();
 
             return null;
          }
@@ -98,6 +100,4 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
             // dismiss the dialog once done
             pDialog.dismiss();
          }
-
-
    }

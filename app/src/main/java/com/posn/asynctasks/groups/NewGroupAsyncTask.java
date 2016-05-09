@@ -54,11 +54,11 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
 
             // create empty group wall file on device to upload to cloud
             String fileName = "group_" + group.name + "_" + group.version + ".txt";
-            String deviceFilepath = Constants.wallFilePath + "/" + fileName;
-            CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath);
+            String deviceFilepath = Constants.wallFilePath;
+            CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath, fileName);
 
             // upload group wall to cloud and get direct link
-            group.groupFileLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath);
+            group.groupFileLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
 
             // create new group object and add to group list
             main.user.userDefinedGroups.put(group.ID, group);
