@@ -1,12 +1,12 @@
 package com.posn.asynctasks.wall;
 
 
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 
 import java.util.ArrayList;
 
 public interface AsyncResponseWall
    {
-      void loadingWallFinished(ArrayList<Post> wallData);
+      void loadingWallFinished(ArrayList<WallPost> wallData);
 
    }

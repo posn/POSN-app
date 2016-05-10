@@ -4,15 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -23,10 +16,10 @@ public class SaveWallPostsAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<Post> wallData;
+      private ArrayList<WallPost> wallData;
 
 
-      public SaveWallPostsAsyncTask(Context context, String filePath, ArrayList<Post> wallData)
+      public SaveWallPostsAsyncTask(Context context, String filePath, ArrayList<WallPost> wallData)
          {
             super();
             this.context = context;

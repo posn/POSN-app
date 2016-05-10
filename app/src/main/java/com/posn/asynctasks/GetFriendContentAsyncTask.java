@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import com.posn.Constants;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.FriendGroup;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.main.MainActivity;
 import com.posn.utility.CloudFileManager;
 import com.posn.utility.DeviceFileManager;
@@ -102,24 +102,24 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                               // download the group's wall file and get the list of posts
                               String fileName = "wall_file.txt";
                               String deviceFilepath = Constants.wallFilePath;
-                              ArrayList<Post> wallPosts = CloudFileManager.fetchAndLoadGroupWallFile(group, deviceFilepath, fileName);
+                              ArrayList<WallPost> wallWallPosts = CloudFileManager.fetchAndLoadGroupWallFile(group, deviceFilepath, fileName);
 
-                              if (wallPosts != null)
+                              if (wallWallPosts != null)
                                  {
                                     // loop through all wall posts
-                                    for (Post post : wallPosts)
+                                    for (WallPost wallPost : wallWallPosts)
                                        {
                                           // check if the post should be added to the main wall post list
-                                          if (!main.masterWallPostList.wallPosts.containsKey(post.postID))
+                                          if (!main.masterWallPostList.wallPosts.containsKey(wallPost.postID))
                                              {
                                                 // add the post to the post list
-                                                main.masterWallPostList.wallPosts.put(post.postID, post);
+                                                main.masterWallPostList.wallPosts.put(wallPost.postID, wallPost);
 
                                                 // check if there is multimedia
-                                                if (post.type == Constants.POST_TYPE_PHOTO)
+                                                if (wallPost.type == Constants.POST_TYPE_PHOTO)
                                                    {
                                                       // download the multimedia from the cloud
-                                                      DeviceFileManager.downloadFileFromURL(post.multimediaLink, Constants.multimediaFilePath, post.postID + ".jpg");
+                                                      DeviceFileManager.downloadFileFromURL(wallPost.multimediaLink, Constants.multimediaFilePath, wallPost.postID + ".jpg");
                                                    }
                                              }
                                        }

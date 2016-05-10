@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.posn.Constants;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.utility.ImageManager;
 
 
@@ -17,29 +17,29 @@ public class LoadImageAsyncTask extends AsyncTask<Object, Void, Bitmap>
       private ImageView imageView;
       private RelativeLayout loader;
       private String path;
-      private Post post;
+      private WallPost wallPost;
 
       public LoadImageAsyncTask(ImageView imv, RelativeLayout loader)
          {
             this.imageView = imv;
-            this.post = (Post)imv.getTag();
+            this.wallPost = (WallPost)imv.getTag();
             this.loader = loader;
 
-            path = Constants.multimediaFilePath + "/" + post.postID + ".jpg";
+            path = Constants.multimediaFilePath + "/" + wallPost.postID + ".jpg";
          }
 
       @Override
       protected Bitmap doInBackground(Object... params)
          {
-            return ImageManager.loadEncryptedBitmap(post.multimediaKey, path);
+            return ImageManager.loadEncryptedBitmap(wallPost.multimediaKey, path);
          }
 
       @Override
       protected void onPostExecute(Bitmap result)
          {
-            Post post2 = (Post)imageView.getTag();
+            WallPost wallPost2 = (WallPost)imageView.getTag();
 
-            String pathCheck = Constants.multimediaFilePath + "/" + post2.postID + ".jpg";
+            String pathCheck = Constants.multimediaFilePath + "/" + wallPost2.postID + ".jpg";
 
 
             if (!pathCheck.equals(path))

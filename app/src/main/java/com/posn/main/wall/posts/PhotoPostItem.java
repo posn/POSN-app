@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.posn.R;
 import com.posn.asynctasks.LoadImageAsyncTask;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.main.wall.WallArrayAdapter.PostType;
 import com.posn.main.wall.views.SquareImageView;
 
@@ -31,15 +31,15 @@ public class PhotoPostItem implements ListViewPostItem
             RelativeLayout loadingCircle;
          }
 
-      private Post post;
+      private WallPost wallPost;
       ViewHolderItem viewHolder;
       String friendName;
       private View.OnClickListener onClickListener;
 
 
-      public PhotoPostItem(View.OnClickListener onClickListener, String name, Post postData)
+      public PhotoPostItem(View.OnClickListener onClickListener, String name, WallPost wallPostData)
          {
-            this.post = postData;
+            this.wallPost = wallPostData;
             this.friendName = name;
             this.onClickListener = onClickListener;
          }
@@ -84,11 +84,11 @@ public class PhotoPostItem implements ListViewPostItem
 
             // set the data into the views
             viewHolder.nameText.setText(friendName);
-            viewHolder.dateText.setText(post.date);
+            viewHolder.dateText.setText(wallPost.date);
 
-            viewHolder.photoImage.setTag(post);
-            viewHolder.commentButton.setTag(post);
-            viewHolder.shareButton.setTag(post);
+            viewHolder.photoImage.setTag(wallPost);
+            viewHolder.commentButton.setTag(wallPost);
+            viewHolder.shareButton.setTag(wallPost);
 
             new LoadImageAsyncTask(viewHolder.photoImage, viewHolder.loadingCircle).execute();
             viewHolder.photoImage.setImageResource(android.R.color.transparent);
@@ -103,7 +103,7 @@ public class PhotoPostItem implements ListViewPostItem
             try
                {
                   SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
-                  return dateformat.parse(post.date);
+                  return dateformat.parse(wallPost.date);
                }
             catch (ParseException e)
                {

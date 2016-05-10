@@ -7,7 +7,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.main.wall.WallArrayAdapter.PostType;
 
 import java.text.ParseException;
@@ -19,7 +19,7 @@ import java.util.Locale;
 public class StatusPostItem implements ListViewPostItem
    {
 
-      private Post postData;
+      private WallPost wallPostData;
       private String friendName;
       private View.OnClickListener buttonListener;
 
@@ -35,9 +35,9 @@ public class StatusPostItem implements ListViewPostItem
          }
 
 
-      public StatusPostItem(View.OnClickListener buttonListener, String friendName, Post postData)
+      public StatusPostItem(View.OnClickListener buttonListener, String friendName, WallPost wallPostData)
          {
-            this.postData = postData;
+            this.wallPostData = wallPostData;
             this.friendName = friendName;
             this.buttonListener = buttonListener;
          }
@@ -83,11 +83,11 @@ public class StatusPostItem implements ListViewPostItem
 
             // set the data into the views
             viewHolder.nameText.setText(friendName);
-            viewHolder.dateText.setText(postData.date);
-            viewHolder.statusText.setText(postData.textContent);
+            viewHolder.dateText.setText(wallPostData.date);
+            viewHolder.statusText.setText(wallPostData.textContent);
 
-            viewHolder.commentButton.setTag(postData);
-            viewHolder.shareButton.setTag(postData);
+            viewHolder.commentButton.setTag(wallPostData);
+            viewHolder.shareButton.setTag(wallPostData);
 
 
             return convertView;
@@ -100,7 +100,7 @@ public class StatusPostItem implements ListViewPostItem
             try
                {
                   SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
-                  return dateformat.parse(postData.date);
+                  return dateformat.parse(wallPostData.date);
                }
             catch (ParseException e)
                {

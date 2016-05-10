@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 import com.posn.Constants;
 import com.posn.datatypes.ConversationList;
 import com.posn.datatypes.FriendList;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.datatypes.UserGroup;
 import com.posn.datatypes.NotificationList;
 import com.posn.datatypes.WallPostList;
@@ -68,7 +68,7 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
                   // create empty group wall file on device to upload to cloud
                   String fileName = "group_" + group.name + "_" + group.version + ".txt";
                   String deviceFilepath = Constants.wallFilePath;
-                  CloudFileManager.createGroupWallFile(group, new HashMap<String, Post>(), deviceFilepath, fileName);
+                  CloudFileManager.createGroupWallFile(group, new HashMap<String, WallPost>(), deviceFilepath, fileName);
 
                   // upload group wall to cloud and get direct link
                   group.groupFileLink = activity.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);

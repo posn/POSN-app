@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.posn.Constants;
 import com.posn.R;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.main.wall.WallArrayAdapter.PostType;
 
 import java.io.IOException;
@@ -37,16 +37,16 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener
          }
 
       private Context context;
-      private Post postData;
+      private WallPost wallPostData;
       private String friendName;
 
       ViewHolderItem viewHolder;
       View.OnClickListener onClickListener;
 
 
-      public VideoPostItem(View.OnClickListener onClickListener, String friendName, Post postData)
+      public VideoPostItem(View.OnClickListener onClickListener, String friendName, WallPost wallPostData)
          {
-            this.postData = postData;
+            this.wallPostData = wallPostData;
             this.friendName = friendName;
             this.onClickListener = onClickListener;
          }
@@ -92,12 +92,12 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener
 
             // set the data into the views
             viewHolder.nameText.setText(friendName);
-            viewHolder.dateText.setText(postData.date);
+            viewHolder.dateText.setText(wallPostData.date);
 
 
-            viewHolder.textureView.setTag(postData);
-            viewHolder.commentButton.setTag(postData);
-            viewHolder.shareButton.setTag(postData);
+            viewHolder.textureView.setTag(wallPostData);
+            viewHolder.commentButton.setTag(wallPostData);
+            viewHolder.shareButton.setTag(wallPostData);
 
 
             return convertView;
@@ -111,7 +111,7 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener
             try
                {
                   MediaPlayer mMediaPlayer = new MediaPlayer();
-                  mMediaPlayer.setDataSource(Constants.multimediaFilePath + "/" + postData.postID + ".mp4");
+                  mMediaPlayer.setDataSource(Constants.multimediaFilePath + "/" + wallPostData.postID + ".mp4");
                   mMediaPlayer.setSurface(s);
                   mMediaPlayer.prepare();
                   mMediaPlayer.setVolume(0, 0);
@@ -147,7 +147,7 @@ public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener
             try
                {
                   SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
-                  return dateformat.parse(postData.date);
+                  return dateformat.parse(wallPostData.date);
                }
             catch (ParseException e)
                {

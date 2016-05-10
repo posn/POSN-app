@@ -8,7 +8,7 @@ import android.widget.VideoView;
 
 import com.posn.Constants;
 import com.posn.R;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 
 
 public class VideoPlayerActivity extends Activity
@@ -23,11 +23,11 @@ public class VideoPlayerActivity extends Activity
 
             // videoURI = getIntent().getData();
             Intent intent = getIntent();
-            Post post = intent.getExtras().getParcelable("post");
+            WallPost wallPost = intent.getExtras().getParcelable("post");
 
-            if (post != null)
+            if (wallPost != null)
                {
-                  String filepath = Constants.multimediaFilePath + "/" + post.postID + ".mp4";
+                  String filepath = Constants.multimediaFilePath + "/" + wallPost.postID + ".mp4";
 
                   VideoView videoView = (VideoView) findViewById(R.id.video);
 

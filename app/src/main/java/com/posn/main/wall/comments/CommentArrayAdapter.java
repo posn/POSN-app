@@ -1,7 +1,5 @@
 package com.posn.main.wall.comments;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +10,11 @@ import android.widget.TextView;
 
 import com.posn.R;
 import com.posn.datatypes.Comment;
+import com.posn.datatypes.Friend;
+import com.posn.datatypes.User;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 class CommentViewHolder
@@ -28,16 +31,18 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment>
 
 		private final Context context;
 		private ArrayList<Comment> values;
+		private HashMap<String, Friend> friends;
+		private User user;
 		CommentViewHolder mViewHolder = null;
 
 
-		public CommentArrayAdapter(Context context, ArrayList<Comment> values)
+		public CommentArrayAdapter(Context context, ArrayList<Comment> values, HashMap<String, Friend> friends, User user)
 			{
 				super(context, R.layout.listview_comment_item, values);
 				this.context = context;
 				this.values = values;
-
-
+				this.friends = friends;
+				this.user = user;
 			}
 
 
@@ -58,9 +63,19 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment>
 				mViewHolder.commentText = (TextView) convertView.findViewById(R.id.comment);
 
 
-				
+				// get friend name
+				String name;
 
-				mViewHolder.nameText.setText(values.get(position).name);
+				if(friends.containsKey(values.get(position).userID))
+					{
+						name = friends.get(values.get(position).userID).name;
+					}
+				else
+					{
+						name = user.firstName + " " + user.lastName;
+					}
+
+				mViewHolder.nameText.setText(name);
 				mViewHolder.dateText.setText(values.get(position).date);
 				
 				mViewHolder.commentText.setText(values.get(position).comment);

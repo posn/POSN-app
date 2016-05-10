@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.posn.R;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.main.wall.WallArrayAdapter.PostType;
 import com.posn.main.wall.comments.CommentActivity;
 
@@ -23,7 +23,7 @@ import java.util.Locale;
 public class LinkPostItem implements ListViewPostItem, OnClickListener
    {
       private Context context;
-      private Post postData;
+      private WallPost wallPostData;
       private String friendName;
 
       static class ViewHolderItem
@@ -36,10 +36,10 @@ public class LinkPostItem implements ListViewPostItem, OnClickListener
             RelativeLayout shareButton;
          }
 
-      public LinkPostItem(Context context, String friendName, Post postData)
+      public LinkPostItem(Context context, String friendName, WallPost wallPostData)
          {
             this.context = context;
-            this.postData = postData;
+            this.wallPostData = wallPostData;
             this.friendName = friendName;
          }
 
@@ -82,8 +82,8 @@ public class LinkPostItem implements ListViewPostItem, OnClickListener
 
             // set the data into the views
             viewHolder.nameText.setText(friendName);
-            viewHolder.dateText.setText(postData.date);
-            viewHolder.linkText.setText(postData.textContent);
+            viewHolder.dateText.setText(wallPostData.date);
+            viewHolder.linkText.setText(wallPostData.textContent);
 
             return convertView;
          }
@@ -112,7 +112,7 @@ public class LinkPostItem implements ListViewPostItem, OnClickListener
             try
                {
                   SimpleDateFormat dateformat = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
-                  return dateformat.parse(postData.date);
+                  return dateformat.parse(wallPostData.date);
                }
             catch (ParseException e)
                {

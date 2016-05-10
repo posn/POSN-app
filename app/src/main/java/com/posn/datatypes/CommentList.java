@@ -14,12 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class WallCommentList implements Parcelable
+public class CommentList implements Parcelable
    {
       public HashMap<String, Comment> comments;
       private String deviceFileKey;
 
-      public WallCommentList(String deviceFileKey)
+      public CommentList(String deviceFileKey)
          {
             this.deviceFileKey = deviceFileKey;
             comments = new HashMap<>();
@@ -85,7 +85,7 @@ public class WallCommentList implements Parcelable
 
 
       // Parcelling part
-      public WallCommentList(Parcel in)
+      public CommentList(Parcel in)
          {
             //initialize your map before
             int size = in.readInt();
@@ -107,16 +107,16 @@ public class WallCommentList implements Parcelable
             }
          }
 
-      public static final Creator<WallCommentList> CREATOR = new Creator<WallCommentList>()
+      public static final Creator<CommentList> CREATOR = new Creator<CommentList>()
          {
-            public WallCommentList createFromParcel(Parcel in)
+            public CommentList createFromParcel(Parcel in)
                {
-                  return new WallCommentList(in);
+                  return new CommentList(in);
                }
 
-            public WallCommentList[] newArray(int size)
+            public CommentList[] newArray(int size)
                {
-                  return new WallCommentList[size];
+                  return new CommentList[size];
                }
          };
 

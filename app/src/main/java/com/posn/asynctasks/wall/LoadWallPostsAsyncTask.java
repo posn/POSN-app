@@ -4,7 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +25,7 @@ public class LoadWallPostsAsyncTask extends AsyncTask<String, String, String>
       private Context context;
       private String filePath;
 
-      private ArrayList<Post> wallPostsData = new ArrayList<>();
+      private ArrayList<WallPost> wallPostsData = new ArrayList<>();
       //private ArrayList<Friend> friendRequestsList = new ArrayList<>();
 
       public AsyncResponseWall delegate = null;
@@ -81,10 +81,10 @@ public class LoadWallPostsAsyncTask extends AsyncTask<String, String, String>
 
                   for (int n = 0; n < wallPosts.length(); n++)
                      {
-                        Post post = new Post();
-                        post.parseJSONObject(wallPosts.getJSONObject(n));
+                        WallPost wallPost = new WallPost();
+                        wallPost.parseJSONObject(wallPosts.getJSONObject(n));
 
-                        wallPostsData.add(post);
+                        wallPostsData.add(wallPost);
                      }
                }
             catch (FileNotFoundException e)

@@ -9,7 +9,7 @@ import android.widget.RelativeLayout;
 
 import com.posn.R;
 import com.posn.asynctasks.LoadImageAsyncTask;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 
 
 public class PhotoViewerActivity extends Activity
@@ -28,15 +28,15 @@ public class PhotoViewerActivity extends Activity
             setContentView(R.layout.activity_photo_viewer);
 
             Intent intent = getIntent();
-            Post post = intent.getExtras().getParcelable("post");
+            WallPost wallPost = intent.getExtras().getParcelable("post");
 
 
             imageView = (ImageView) findViewById(R.id.image);
             loadingSpinner = (RelativeLayout) findViewById(R.id.loadingPanel);
 
-            if (post != null)
+            if (wallPost != null)
                {
-                  imageView.setTag(post);
+                  imageView.setTag(wallPost);
                   new LoadImageAsyncTask(imageView, loadingSpinner).execute();
                   imageView.setImageResource(android.R.color.transparent);
                   imageView.setVisibility(View.VISIBLE);

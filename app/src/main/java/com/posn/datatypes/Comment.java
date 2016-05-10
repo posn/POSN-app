@@ -3,23 +3,39 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.posn.utility.IDGenerator;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class Comment implements Parcelable
    {
       public String commentID;
       public String postID;
-      public String name;
+      public String userID;
       public String date;
       public String comment;
 
       public Comment(){}
 
-      public Comment(String name, String date, String comment)
+      public Comment(String userID, String postID, String comment)
          {
-            this.name = name;
-            this.date = date;
+            this.userID = userID;
+
+            this.postID = postID;
+
+            // create comment ID
+            this.commentID = IDGenerator.generate(userID + postID);
+
+            // create post date
+            Date currentDate = new Date();
+            SimpleDateFormat dateformatDay = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
+            this.date = dateformatDay.format(currentDate);
+
             this.comment = comment;
          }
 
@@ -31,7 +47,8 @@ public class Comment implements Parcelable
             try
                {
                   obj.put("commentID", commentID);
-                  obj.put("name", name);
+                  obj.put("userID", userID);
+                  obj.put("postID", postID);
                   obj.put("date", date);
                   obj.put("comment", comment);
                }
@@ -48,7 +65,8 @@ public class Comment implements Parcelable
             try
                {
                   commentID = obj.getString("commentID");
-                  name = obj.getString("name");
+                  userID = obj.getString("userID");
+                  postID = obj.getString("postID");
                   date = obj.getString("date");
                   comment = obj.getString("comment");
                }
@@ -66,14 +84,15 @@ public class Comment implements Parcelable
                   return false;
                }
             Comment other = (Comment) o;
-            return name.equalsIgnoreCase(other.name);
+            return commentID.equalsIgnoreCase(other.commentID);
          }
 
       // Parcelling part
       public Comment(Parcel in)
          {
             this.commentID = in.readString();
-            this.name = in.readString();
+            this.userID = in.readString();
+            this.postID = in.readString();
             this.date = in.readString();
             this.comment = in.readString();
          }
@@ -83,7 +102,8 @@ public class Comment implements Parcelable
       public void writeToParcel(Parcel dest, int flags)
          {
             dest.writeString(this.commentID);
-            dest.writeString(this.name);
+            dest.writeString(this.userID);
+            dest.writeString(this.postID);
             dest.writeString(this.date);
             dest.writeString(this.comment);
          }

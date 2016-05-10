@@ -3,7 +3,7 @@ package com.posn.utility;
 
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.FriendGroup;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.datatypes.User;
 import com.posn.datatypes.UserGroup;
 
@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 public class CloudFileManager
    {
-      public static void createGroupWallFile(UserGroup group, HashMap<String, Post> posts, String deviceDirectory, String fileName)
+      public static void createGroupWallFile(UserGroup group, HashMap<String, WallPost> posts, String deviceDirectory, String fileName)
          {
             JSONObject object = new JSONObject();
 
@@ -32,8 +32,8 @@ public class CloudFileManager
 
                   for (int i = 0; i < group.wallPostList.size(); i++)
                      {
-                        Post post = posts.get(group.wallPostList.get(i));
-                        postList.put(post.createJSONObject());
+                        WallPost wallPost = posts.get(group.wallPostList.get(i));
+                        postList.put(wallPost.createJSONObject());
                      }
 
                   object.put("posts", postList);
@@ -50,9 +50,9 @@ public class CloudFileManager
                }
          }
 
-      public static ArrayList<Post> fetchAndLoadGroupWallFile(FriendGroup group, String deviceDirectory, String fileName)
+      public static ArrayList<WallPost> fetchAndLoadGroupWallFile(FriendGroup group, String deviceDirectory, String fileName)
          {
-            ArrayList<Post> postArrayList = new ArrayList<>();
+            ArrayList<WallPost> wallPostArrayList = new ArrayList<>();
 
             // download the wall file from the cloud
             DeviceFileManager.downloadFileFromURL(group.groupFileLink, deviceDirectory, fileName);
@@ -71,13 +71,13 @@ public class CloudFileManager
 
                   for (int i = 0; i < postList.length(); i++)
                      {
-                        Post post = new Post();
-                        post.parseJSONObject(postList.getJSONObject(i));
+                        WallPost wallPost = new WallPost();
+                        wallPost.parseJSONObject(postList.getJSONObject(i));
 
-                        postArrayList.add(post);
+                        wallPostArrayList.add(wallPost);
                      }
 
-                  return postArrayList;
+                  return wallPostArrayList;
                }
             catch (JSONException e)
                {

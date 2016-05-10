@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class WallPostList implements Parcelable
    {
-      public HashMap<String, Post> wallPosts;
+      public HashMap<String, WallPost> wallPosts;
       private String deviceFileKey;
 
       public WallPostList(String deviceFileKey)
@@ -44,10 +44,10 @@ public class WallPostList implements Parcelable
 
                   for (int n = 0; n < wallPostsArray.length(); n++)
                      {
-                        Post post = new Post();
-                        post.parseJSONObject(wallPostsArray.getJSONObject(n));
+                        WallPost wallPost = new WallPost();
+                        wallPost.parseJSONObject(wallPostsArray.getJSONObject(n));
 
-                        wallPosts.put(post.postID, post);
+                        wallPosts.put(wallPost.postID, wallPost);
                      }
                }
             catch (JSONException e)
@@ -74,10 +74,10 @@ public class WallPostList implements Parcelable
 
             try
                {
-                  for (Map.Entry<String, Post> entry : wallPosts.entrySet())
+                  for (Map.Entry<String, WallPost> entry : wallPosts.entrySet())
                      {
-                        Post post = entry.getValue();
-                        wallPostList.put(post.createJSONObject());
+                        WallPost wallPost = entry.getValue();
+                        wallPostList.put(wallPost.createJSONObject());
                      }
 
                   JSONObject object = new JSONObject();
@@ -104,7 +104,7 @@ public class WallPostList implements Parcelable
             int size = in.readInt();
             for(int i = 0; i < size; i++){
                String key = in.readString();
-               Post value = in.readParcelable(Post.class.getClassLoader());
+               WallPost value = in.readParcelable(WallPost.class.getClassLoader());
                wallPosts.put(key,value);
             }
          }
@@ -114,7 +114,7 @@ public class WallPostList implements Parcelable
       public void writeToParcel(Parcel dest, int flags)
          {
             dest.writeInt(wallPosts.size());
-            for(Map.Entry<String,Post> entry : wallPosts.entrySet()){
+            for(Map.Entry<String,WallPost> entry : wallPosts.entrySet()){
                dest.writeString(entry.getKey());
                dest.writeParcelable(entry.getValue(),flags);
             }

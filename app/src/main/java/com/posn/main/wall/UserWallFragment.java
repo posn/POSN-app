@@ -26,7 +26,7 @@ import com.posn.asynctasks.GetFriendContentAsyncTask;
 import com.posn.asynctasks.wall.NewWallPhotoPostAsyncTask;
 import com.posn.asynctasks.wall.NewWallStatusPostAsyncTask;
 import com.posn.datatypes.Friend;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.comments.CommentActivity;
 import com.posn.main.wall.posts.ListViewPostItem;
@@ -52,7 +52,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       TableRow statusBar;
 
       public ArrayList<ListViewPostItem> listViewItems = new ArrayList<>();
-      HashMap<String, Post> wallPostData;
+      HashMap<String, WallPost> wallPostData;
       SwipeRefreshLayout swipeLayout;
       public WallArrayAdapter adapter;
 
@@ -136,7 +136,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       @Override
       public void onClick(View v)
          {
-            Post post;
+            WallPost wallPost;
             Intent intent;
 
             switch (v.getId())
@@ -153,30 +153,29 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      startActivityForResult(intent, Constants.RESULT_CREATE_PHOTO_POST);
                      break;
 
-                  case R.id.checkin_button:
-                     break;
-
-
 
 
                   // buttons on individual posts
                   case R.id.comment_button:
-                     post = (Post) v.getTag();
+                     wallPost = (WallPost) v.getTag();
                      intent = new Intent(context, CommentActivity.class);
+                     intent.putExtra("post", wallPost);
+                     intent.putExtra("friends", activity.masterFriendList.currentFriends);
+                     intent.putExtra("user", activity.user);
                      context.startActivity(intent);
                      break;
 
                   case R.id.photo:
-                     post = (Post) v.getTag();
+                     wallPost = (WallPost) v.getTag();
                      intent = new Intent(context, PhotoViewerActivity.class);
-                     intent.putExtra("post", post);
+                     intent.putExtra("post", wallPost);
                      context.startActivity(intent);
                      break;
 
                   case R.id.video:
-                     post = (Post) v.getTag();
+                     wallPost = (WallPost) v.getTag();
                      intent = new Intent(context, VideoPlayerActivity.class);
-                     intent.putExtra("post", post);
+                     intent.putExtra("post", wallPost);
                      context.startActivity(intent);
                      break;
                }
@@ -207,41 +206,41 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             String name;
 
             // loop through all the wall posts and add them to the listview
-            for (Map.Entry<String, Post> entry : wallPostData.entrySet())
+            for (Map.Entry<String, WallPost> entry : wallPostData.entrySet())
                {
                   // get the post
-                  Post post = entry.getValue();
+                  WallPost wallPost = entry.getValue();
 
                   // get the name of the person who created the post
-                  if (post.friendID.equals(activity.user.ID))
+                  if (wallPost.friendID.equals(activity.user.ID))
                      {
                         name = activity.user.firstName + " " + activity.user.lastName;
                      }
                   else
                      {
-                        Friend friend = activity.masterFriendList.currentFriends.get(post.friendID);
+                        Friend friend = activity.masterFriendList.currentFriends.get(wallPost.friendID);
                         name = friend.name;
                      }
 
                   // check if the post is an image
-                  if (post.type == Constants.POST_TYPE_PHOTO)
+                  if (wallPost.type == Constants.POST_TYPE_PHOTO)
                      {
-                        String photoPath = Constants.multimediaFilePath + "/" + post.postID + ".jpg";
+                        String photoPath = Constants.multimediaFilePath + "/" + wallPost.postID + ".jpg";
                         File imgFile = new File(photoPath);
                         if (imgFile.exists())
                            {
-                              listViewItems.add(new PhotoPostItem(this, name, post));
+                              listViewItems.add(new PhotoPostItem(this, name, wallPost));
                            }
                      }
                   // check if the post is a link or status
-                  else if (post.type == Constants.POST_TYPE_STATUS || post.type == Constants.POST_TYPE_LINK)
+                  else if (wallPost.type == Constants.POST_TYPE_STATUS || wallPost.type == Constants.POST_TYPE_LINK)
                      {
-                        listViewItems.add(new StatusPostItem(this, name, post));
+                        listViewItems.add(new StatusPostItem(this, name, wallPost));
                      }
                   // check if the post is a video
-                  else if (post.type == Constants.POST_TYPE_VIDEO)
+                  else if (wallPost.type == Constants.POST_TYPE_VIDEO)
                      {
-                        listViewItems.add(new VideoPostItem(this, name, post));
+                        listViewItems.add(new VideoPostItem(this, name, wallPost));
                      }
                }
             sortWallPostList();

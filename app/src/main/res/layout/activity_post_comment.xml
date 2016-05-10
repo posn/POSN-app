@@ -33,6 +33,13 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/notification_text"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:text="No Comments Yet"/>
     <ListView
         android:id="@+id/commentsListView"
         android:layout_width="match_parent"
@@ -40,11 +47,14 @@
         android:layout_below="@id/headerLayout"
         android:layout_margin="5dp"
         android:layout_marginBottom="0dp"
-        android:divider="@null"
         android:dividerHeight="0dp"
-        android:paddingBottom="50dp" />
+        android:paddingBottom="50dp"
+        android:divider="#8b9dc3"
+        android:transcriptMode="normal"
+        />
 
     <LinearLayout
+        android:id="@+id/comment_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -79,7 +89,7 @@
             </EditText>
 
             <Button
-                android:id="@+id/decline_button"
+                android:id="@+id/post_button"
                 style="@style/FriendButtonText"
                 android:layout_width="fill_parent"
                 android:layout_height="35dp"

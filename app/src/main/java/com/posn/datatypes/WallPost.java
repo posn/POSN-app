@@ -6,14 +6,16 @@ import android.os.Parcelable;
 import com.posn.Constants;
 import com.posn.utility.IDGenerator;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class Post implements Parcelable
+public class WallPost implements Parcelable
    {
       // data variables
       public int type;
@@ -25,23 +27,21 @@ public class Post implements Parcelable
       public String multimediaLink = null;
       public String multimediaKey = null;
 
-      // user interface variables
-      public boolean selected;
+      public ArrayList<Comment> comments = new ArrayList<>();
 
-      public Post()
+
+      public WallPost()
          {
          }
 
 
-      public Post(int type, String friendID, String textContent)
+      public WallPost(int type, String friendID, String textContent)
          {
             // create POST ID
             postID = IDGenerator.generate(this.friendID);
 
             // create post date
             Date currentDate = new Date();
-            System.out.println("DATE: " + currentDate.toString());
-
             SimpleDateFormat dateformatDay = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
             this.date = dateformatDay.format(currentDate);
 
@@ -50,7 +50,7 @@ public class Post implements Parcelable
             this.textContent = textContent;
          }
 
-      public Post(int type, String friendID)
+      public WallPost(int type, String friendID)
          {
             // create POST ID
             postID = IDGenerator.generate(this.friendID);
@@ -86,6 +86,14 @@ public class Post implements Parcelable
                         obj.put("multimediaLink", multimediaLink);
                      }
 
+                  // store the comments
+                  JSONArray commentList = new JSONArray();
+                  for(int i = 0; i < comments.size(); i++)
+                     {
+                        Comment comment = comments.get(i);
+                        commentList.put(comment.createJSONObject());
+                     }
+                  obj.put("comments", commentList);
                }
             catch (JSONException e)
                {
@@ -113,6 +121,15 @@ public class Post implements Parcelable
                         multimediaKey = obj.getString("multimediaKey");
                         multimediaLink = obj.getString("multimediaLink");
                      }
+
+                  // get the comments
+                  JSONArray commentList = obj.getJSONArray("comments");
+                  for(int i = 0; i < commentList.length(); i++)
+                     {
+                        Comment comment = new Comment();
+                        comment.parseJSONObject(commentList.getJSONObject(i));
+                        comments.add(comment);
+                     }
                }
             catch (JSONException e)
                {
@@ -121,7 +138,7 @@ public class Post implements Parcelable
          }
 
       // Parcelling part
-      public Post(Parcel in)
+      public WallPost(Parcel in)
          {
             this.type = in.readInt();
             this.postID = in.readString();
@@ -137,6 +154,8 @@ public class Post implements Parcelable
                   this.multimediaKey = in.readString();
                   this.multimediaLink = in.readString();
                }
+
+            in.readList(this.comments, Comment.class.getClassLoader());
          }
 
 
@@ -157,18 +176,20 @@ public class Post implements Parcelable
                   dest.writeString(this.multimediaKey);
                   dest.writeString(this.multimediaLink);
                }
+
+            dest.writeList(this.comments);
          }
 
-      public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>()
+      public static final Parcelable.Creator<WallPost> CREATOR = new Parcelable.Creator<WallPost>()
          {
-            public Post createFromParcel(Parcel in)
+            public WallPost createFromParcel(Parcel in)
                {
-                  return new Post(in);
+                  return new WallPost(in);
                }
 
-            public Post[] newArray(int size)
+            public WallPost[] newArray(int size)
                {
-                  return new Post[size];
+                  return new WallPost[size];
                }
          };
 

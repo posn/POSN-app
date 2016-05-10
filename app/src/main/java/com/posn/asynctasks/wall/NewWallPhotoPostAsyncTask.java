@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.view.View;
 
 import com.posn.Constants;
-import com.posn.datatypes.Post;
+import com.posn.datatypes.WallPost;
 import com.posn.datatypes.UserGroup;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.UserWallFragment;
@@ -51,28 +51,28 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
       protected String doInBackground(String... params)
          {
             // create a new wall post for a photo
-            Post post = new Post(Constants.POST_TYPE_PHOTO, main.user.ID);
+            WallPost wallPost = new WallPost(Constants.POST_TYPE_PHOTO, main.user.ID);
 
             // create a new symmetric key for the photo
-            post.multimediaKey = SymmetricKeyManager.createRandomKey();
+            wallPost.multimediaKey = SymmetricKeyManager.createRandomKey();
 
             // encrypt the photo and store on the device
-            String filename = post.postID + ".jpg";
+            String filename = wallPost.postID + ".jpg";
             String folder = Constants.multimediaFilePath;
-            SymmetricKeyManager.encryptFile(post.multimediaKey, photopath, folder + "/" + filename);
+            SymmetricKeyManager.encryptFile(wallPost.multimediaKey, photopath, folder + "/" + filename);
 
             // upload the photo to the cloud
-            post.multimediaLink = main.cloud.uploadFileToCloud(Constants.multimediaDirectory, filename, folder + "/" + filename);
+            wallPost.multimediaLink = main.cloud.uploadFileToCloud(Constants.multimediaDirectory, filename, folder + "/" + filename);
 
 
             // add the post new the main wall post list
-            main.masterWallPostList.wallPosts.put(post.postID, post);
+            main.masterWallPostList.wallPosts.put(wallPost.postID, wallPost);
 
             // save the main wall post list to the device
             main.masterWallPostList.saveWallPostsToFile();
 
             // add the new wall post to the listview
-            wallFrag.listViewItems.add(0, new PhotoPostItem(wallFrag, main.user.firstName + " " + main.user.lastName, post));
+            wallFrag.listViewItems.add(0, new PhotoPostItem(wallFrag, main.user.firstName + " " + main.user.lastName, wallPost));
 
 
             // go through all the groups and add the wall post to group walls
@@ -82,7 +82,7 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
                   UserGroup group = main.user.userDefinedGroups.get(groupIDs.get(i));
 
                   // add the post ID to the group
-                  group.wallPostList.add(post.postID);
+                  group.wallPostList.add(wallPost.postID);
 
                   // save the group file to device
                   String fileName = "group_" + group.name + "_" + group.version + ".txt";
