@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.posn.Constants;
-import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,68 +12,64 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-public class ConversationList implements Parcelable
+public class ConversationList implements Parcelable, ApplicationFile
    {
-      public ArrayList<Conversation> conversations;
-      private String deviceFileKey;
+      public ArrayList<Conversation> conversations = new ArrayList<>();
 
-      public ConversationList(String deviceFileKey)
+      public ConversationList()
          {
-
-            this.deviceFileKey = deviceFileKey;
-            conversations = new ArrayList<>();
          }
 
-      public void loadConversationsFromFile()
+
+      @Override
+      public void parseApplicationFileContents(String fileContents) throws JSONException
          {
-            // open the file
-            try
+            JSONObject data = new JSONObject(fileContents);
+
+            JSONArray messageList = data.getJSONArray("messages");
+
+            for (int n = 0; n < messageList.length(); n++)
                {
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath + "/" + Constants.converstationListFile);
+                  Conversation conversation = new Conversation();
+                  conversation.parseJSONObject(messageList.getJSONObject(n));
 
-                  JSONArray messageList = data.getJSONArray("messages");
-
-                  for (int n = 0; n < messageList.length(); n++)
-                     {
-                        Conversation conversation = new Conversation();
-                        conversation.parseJSONObject(messageList.getJSONObject(n));
-
-                        conversations.add(conversation);
-                     }
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
+                  conversations.add(conversation);
                }
          }
 
-      public void saveConversationListToFile()
+      @Override
+      public String getDirectoryPath()
+         {
+            return Constants.applicationDataFilePath;
+         }
+
+      @Override
+      public String getFileName()
+         {
+            return Constants.converstationListFile;
+         }
+
+      @Override
+      public String createApplicationFileContents() throws JSONException
          {
             JSONArray messagesList = new JSONArray();
 
-            try
+
+            for (int i = 0; i < conversations.size(); i++)
                {
-                  for (int i = 0; i < conversations.size(); i++)
-                     {
-                        Conversation conversation = conversations.get(i);
-                        messagesList.put(conversation.createJSONObject());
-                     }
-
-                  JSONObject object = new JSONObject();
-                  object.put("messages", messagesList);
-
-                  DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath + "/" + Constants.converstationListFile);
-
+                  Conversation conversation = conversations.get(i);
+                  messagesList.put(conversation.createJSONObject());
                }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
+
+            JSONObject object = new JSONObject();
+            object.put("messages", messagesList);
+
+            return object.toString();
          }
 
 
       // Parcelling part
-      public ConversationList (Parcel in)
+      public ConversationList(Parcel in)
          {
             this.conversations = in.readArrayList(Conversation.class.getClassLoader());
 

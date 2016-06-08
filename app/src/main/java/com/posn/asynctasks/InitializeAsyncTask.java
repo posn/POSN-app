@@ -3,7 +3,13 @@ package com.posn.asynctasks;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
+import com.posn.utility.POSNDataManager;
+
+import org.json.JSONException;
+
+import java.io.IOException;
 
 
 public class InitializeAsyncTask extends AsyncTask<String, String, String>
@@ -11,13 +17,14 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
       private ProgressDialog pDialog;
       public AsyncResponseIntialize delegate = null;
       private MainActivity main;
-
+      private POSNDataManager dataManager;
 
 
       public InitializeAsyncTask(MainActivity activity)
          {
             super();
             main = activity;
+            dataManager = main.dataManager;
          }
 
 
@@ -37,25 +44,35 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            // get the friend list file
-            System.out.println("GETTING FRIENDS!!!");
-            main.masterFriendList.loadFriendsListFromFile();
+            try
+               {
+                  // get the friend list file
+                  System.out.println("GETTING FRIENDS!!!");
+                  dataManager.loadFriendListAppFile();
 
-            // get the wall post file
-            System.out.println("GETTING WALL POSTS!!!");
-            main.masterWallPostList.loadWallPostsFromFile();
+                  // get the user groups from file
+                  System.out.println("GETTING USER GROUPS!!!");
+                  dataManager.loadUserGroupListAppFile();
 
-            // get the notifications file
-            System.out.println("GETTING NOTIFICATIONS!!!");
-            main.notificationList.loadNotificationsFromFile();
+                  // get the wall post file
+                  System.out.println("GETTING WALL POSTS!!!");
+                  dataManager.loadWallPostListAppFile();
 
-            // get the messages file
-            System.out.println("GETTING MESSAGES!!!");
-            main.conversationList.loadConversationsFromFile();
+                  // get the notifications file
+                  System.out.println("GETTING NOTIFICATIONS!!!");
+                  dataManager.loadNotificationListAppFile();
 
-            // check/create cloud storage directories
-            main.cloud.createStorageDirectoriesOnCloud();
+                  // get the messages file
+                  System.out.println("GETTING MESSAGES!!!");
+                  dataManager.loadConversationListAppFile();
 
+                  // check/create cloud storage directories
+                  main.cloud.createStorageDirectoriesOnCloud();
+               }
+            catch (IOException | JSONException | POSNCryptoException error)
+               {
+                  error.printStackTrace();
+               }
             return null;
          }
 
@@ -63,17 +80,11 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
-            delegate.initializingFileDataFinished();
+            delegate.finishedInitializingApplicationData();
 
             // dismiss the dialog once done
             pDialog.dismiss();
          }
-
-
-
-
-
-
 
 
    }

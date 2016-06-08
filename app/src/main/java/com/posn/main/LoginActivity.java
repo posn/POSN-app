@@ -1,11 +1,8 @@
 package com.posn.main;
 
-import android.app.ActionBar;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -16,28 +13,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
-import com.posn.Constants;
 import com.posn.R;
-import com.posn.datatypes.User;
-import com.posn.utility.SymmetricKeyManager;
+import com.posn.asynctasks.AuthenticateUserAsyncTask;
 import com.posn.initial_setup.SetupPersonalInfoActivity;
 import com.posn.utility.DeviceFileManager;
+import com.posn.utility.UserInterfaceManager;
 
 
 public class LoginActivity extends BaseActivity implements OnClickListener
    {
-      // variable declarations
-      private Button signupButton, loginButton;
-      private EditText passwordText, emailText;
-      private ProgressDialog pDialog;
+      // user interface variables
+      public EditText passwordText, emailText;
 
-      private String devicefileKey;
-
-      private User user;
-
-      Uri uri = null;
+      public Uri uri = null;
 
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -50,8 +39,8 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             passwordText = (EditText) findViewById(R.id.password_text);
 
             // get the buttons from the layout
-            loginButton = (Button) findViewById(R.id.login_button);
-            signupButton = (Button) findViewById(R.id.signup_button);
+            Button loginButton = (Button) findViewById(R.id.login_button);
+            Button signupButton = (Button) findViewById(R.id.signup_button);
 
             // set an onclick listener for each button
             loginButton.setOnClickListener(this);
@@ -75,16 +64,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                      }
                });
 
-            // get the action bar and set the page title
-            ActionBar actionBar = getActionBar();
-            if (actionBar != null)
-               {
-                  actionBar.setTitle("Welcome - Login");
-               }
-
             // create the storage directories
-            createDefaultStorageDirectories();
+            DeviceFileManager.createDefaultStorageDirectories();
 
+            // get the URI that opened the app (uri is null if it does not exist)
+            // URI is used for friend requests
             uri = getIntent().getData();
          }
 
@@ -97,34 +81,31 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                   case R.id.login_button:
 
                      // check if the email field is empty
-                     if (!isEmpty(emailText))
+                     if (!UserInterfaceManager.isEditTextEmpty(emailText))
                         {
                            // check if the password field is empty
-                           if (!isEmpty(passwordText))
+                           if (!UserInterfaceManager.isEditTextEmpty(passwordText))
                               {
-                                 // get the passwords from the edit texts
+                                 // get the email and password from the edit texts
                                  String email = emailText.getText().toString();
                                  String password = passwordText.getText().toString();
 
-                                 // passwordText.setCursorVisible(false);
-                                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                                 imm.hideSoftInputFromWindow(passwordText.getWindowToken(), 0);
-                                 passwordText.clearFocus();
+                                 // close the keyboard and clear the focus
+                                 UserInterfaceManager.hideKeyboard(this);
 
-                                 new AuthenticateUser(this, email, password).execute();
-
-
+                                 // start a new asynctask to authenticate the user
+                                 new AuthenticateUserAsyncTask(this, email, password).execute();
                               }
                            // show toast for empty password field
                            else
                               {
-                                 Toast.makeText(this, "Please Enter the Password for your POSN Account.", Toast.LENGTH_SHORT).show();
+                                 UserInterfaceManager.showToast(this, "Please Enter the Password for your POSN Account.");
                               }
                         }
                      // show toast for empty email field
                      else
                         {
-                           Toast.makeText(this, "Please Enter the Email for your POSN Account.", Toast.LENGTH_SHORT).show();
+                           UserInterfaceManager.showToast(this, "Please Enter the Email for your POSN Account.");
                         }
                      break;
 
@@ -135,115 +116,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                      startActivity(intent);
                      break;
                }
-
-         }
-
-
-      class AuthenticateUser extends AsyncTask<String, String, String>
-         {
-            String email, password;
-            boolean loginVerify;
-            Context context;
-
-            public AuthenticateUser(Context context, String email, String password)
-               {
-                  super();
-                  this.email = email;
-                  this.password = password;
-                  this.context = context;
-                  loginVerify = false;
-               }
-
-            @Override
-            protected void onPreExecute()
-               {
-                  super.onPreExecute();
-                  pDialog = new ProgressDialog(context);
-                  pDialog.setMessage("Authenticating...");
-                  pDialog.setIndeterminate(false);
-                  pDialog.setCancelable(false);
-                  pDialog.show();
-               }
-
-            protected String doInBackground(String... params)
-               {
-                  // check if password is valid
-                  devicefileKey = SymmetricKeyManager.createKeyFromString(password);
-
-                  String verificationString = DeviceFileManager.loadStringFromFile(Constants.encryptionKeyFilePath + "/verify.pass");
-                  verificationString = SymmetricKeyManager.decrypt(devicefileKey, verificationString);
-
-                  // verify the password
-                  if (verificationString != null)
-                     {
-                        if (verificationString.equals("POSN - SUCCESS"))
-                           {
-                              user = new User(devicefileKey);
-                              // load user data from file
-                              user.loadUserFromFile();
-
-                              // verify email address
-                              if (email.equals(user.email))
-                                 {
-                                    loginVerify = true;
-                                 }
-                           }
-                     }
-
-                  return null;
-               }
-
-            protected void onPostExecute(String file_url)
-               {
-                  // dismiss the dialog once done
-                  pDialog.dismiss();
-
-                  if (loginVerify)
-                     {
-                        Intent intent = new Intent(context, MainActivity.class);
-                        intent.putExtra("user", user);
-                        intent.putExtra("deviceFileKey", devicefileKey);
-
-                        if (uri != null)
-                           {
-                              intent.putExtra("uri", uri.toString());
-                           }
-
-                        // Close all views before launching Employer
-                        startActivity(intent);
-                        finish();
-
-                     }
-                  else
-                     {
-                        // clear the email and password edit text
-                        emailText.getText().clear();
-                        passwordText.getText().clear();
-
-                        // display an error
-                        Toast.makeText(context, "Invalid email address or password. Please log in again.", Toast.LENGTH_SHORT).show();
-                     }
-               }
-         }
-
-
-      private boolean isEmpty(EditText etText)
-         {
-            // check if the length of the text is greater than 0
-            return (etText.getText().toString().trim().length() <= 0);
-         }
-
-
-      void createDefaultStorageDirectories()
-         {
-            DeviceFileManager.createDirectory(Constants.archiveFilePath);
-            DeviceFileManager.createDirectory(Constants.encryptionKeyFilePath);
-            DeviceFileManager.createDirectory(Constants.multimediaFilePath);
-            DeviceFileManager.createDirectory(Constants.profileFilePath);
-            DeviceFileManager.createDirectory(Constants.wallFilePath);
-            DeviceFileManager.createDirectory(Constants.messagesFilePath);
-            DeviceFileManager.createDirectory(Constants.applicationDataFilePath);
-            DeviceFileManager.createDirectory(Constants.friendsFilePath);
          }
 
 

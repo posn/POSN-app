@@ -72,7 +72,7 @@ public class MessageArrayAdapter extends ArrayAdapter<Conversation>
 
                }
             Conversation conversation = values.get(position);
-            String friendName = ((MainActivity)context).masterFriendList.currentFriends.get(conversation.friend).name;
+            String friendName = ((MainActivity)context).dataManager.masterFriendList.currentFriends.get(conversation.friend).name;
 
 
             friendName = "<b>" + friendName + "</b>";

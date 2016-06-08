@@ -6,5 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="main_activity">Home</string>
     <string name="title_activity_maps">Map</string>
+    <string name="login_activity_title">Welcome - Login</string>
 
 </resources>

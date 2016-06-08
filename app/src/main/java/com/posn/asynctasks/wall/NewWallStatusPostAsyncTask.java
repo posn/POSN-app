@@ -5,13 +5,17 @@ import android.os.AsyncTask;
 import android.view.View;
 
 import com.posn.Constants;
-import com.posn.datatypes.WallPost;
 import com.posn.datatypes.UserGroup;
+import com.posn.datatypes.WallPost;
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.UserWallFragment;
 import com.posn.main.wall.posts.StatusPostItem;
-import com.posn.utility.CloudFileManager;
+import com.posn.utility.POSNDataManager;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -22,6 +26,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
       private UserWallFragment wallFrag;
       private ArrayList<String> groupIDs;
       private MainActivity main;
+      private POSNDataManager dataManager;
 
       public NewWallStatusPostAsyncTask(UserWallFragment frag, ArrayList<String> groupIDs, String status)
          {
@@ -30,6 +35,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
             this.status = status;
             this.groupIDs = groupIDs;
             main = wallFrag.activity;
+            dataManager = main.dataManager;
          }
 
 
@@ -49,41 +55,47 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            // create a new wall post
-            WallPost wallPost = new WallPost(Constants.POST_TYPE_STATUS, main.user.ID, status);
-
-            // add the post new the main wall post list
-            main.masterWallPostList.wallPosts.put(wallPost.postID, wallPost);
-
-            // save the main wall post list to the device
-            main.masterWallPostList.saveWallPostsToFile();
-
-            // add the new wall post to the listview
-            wallFrag.listViewItems.add(0, new StatusPostItem(wallFrag, main.user.firstName + " " + main.user.lastName, wallPost));
-
-            // go through all the groups and add the wall post to group walls
-            for (int i = 0; i < groupIDs.size(); i++)
+            try
                {
-                  // get the group from the group ID
-                  UserGroup group = main.user.userDefinedGroups.get(groupIDs.get(i));
+                  // create a new wall post
+                  WallPost wallPost = new WallPost(Constants.POST_TYPE_STATUS, dataManager.user.ID, status);
 
-                  // add the post ID to the group
-                  group.wallPostList.add(wallPost.postID);
+                  // add the post new the main wall post list
+                  dataManager.masterWallPostList.wallPosts.put(wallPost.postID, wallPost);
 
-                  // save the group file to device
-                  String fileName = "group_" + group.name + "_" + group.version + ".txt";
-                  String deviceFilepath = Constants.wallFilePath;
-                  CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath, fileName);
+                  // save the main wall post list to the device
+                  dataManager.saveWallPostListAppFile();
 
-                  // upload the updated group wall file to the cloud
-                  main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
+                  // add the new wall post to the listview
+                  wallFrag.listViewItems.add(0, new StatusPostItem(wallFrag, dataManager.user.firstName + " " + dataManager.user.lastName, wallPost));
 
-                  // update the group in the hashmap
-                  main.user.userDefinedGroups.put(group.ID, group);
+                  // go through all the groups and add the wall post to group walls
+                  for (int i = 0; i < groupIDs.size(); i++)
+                     {
+                        // get the group from the group ID
+                        UserGroup group = dataManager.userGroupList.getUserGroup(groupIDs.get(i));
+
+                        // add the post ID to the group
+                        group.wallPostList.add(wallPost.postID);
+
+                        // save the group file to device
+                        String fileName = "group_" + group.name + "_" + group.version + ".txt";
+                        String deviceFilepath = Constants.wallFilePath;
+                        dataManager.createGroupWallFile(group.ID, deviceFilepath, fileName);
+
+                        // upload the updated group wall file to the cloud
+                        main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
+
+                        // update the group in the hashmap
+                        dataManager.userGroupList.userGroups.put(group.ID, group);
+                     }
+
+                  dataManager.saveUserGroupListAppFile();
                }
-
-            main.user.saveUserToFile();
-
+            catch (JSONException | IOException | POSNCryptoException error)
+               {
+                  error.printStackTrace();
+               }
             return null;
          }
 

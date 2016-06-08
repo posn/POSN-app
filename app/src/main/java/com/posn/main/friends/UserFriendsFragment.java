@@ -22,9 +22,14 @@ import com.posn.asynctasks.friends.NewFriendInitialAsyncTask;
 import com.posn.asynctasks.friends.NewFriendIntermediateAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.main.groups.CreateGroupDialogFragment;
+import com.posn.utility.POSNDataManager;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,6 +41,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
    {
       // declare variables
       public MainActivity activity;
+      POSNDataManager dataManager;
       Context context;
       ListView lv;
       TableRow statusBar;
@@ -96,14 +102,15 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             // get the main activity to access data
             activity = (MainActivity) getActivity();
+            dataManager = activity.dataManager;
 
             // create a new list view adapter and set it to the list view
             adapter = new FriendsArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
             // get the friends and friend request list from the main activity
-            friendList = activity.masterFriendList.currentFriends;
-            friendRequestsList = activity.masterFriendList.friendRequests;
+            friendList = dataManager.masterFriendList.currentFriends;
+            friendRequestsList = dataManager.masterFriendList.friendRequests;
 
             // check if there are any friends, if so then update listview
             updateFriendList();
@@ -139,7 +146,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      intent.putExtra("type", Constants.TYPE_FRIEND_INFO);
 
                      // pass the list of groups to the activity
-                     intent.putParcelableArrayListExtra("groups", activity.user.getUserGroupsArrayList());
+                     intent.putParcelableArrayListExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
 
                      // start the activity and get the result from it
                      startActivityForResult(intent, Constants.RESULT_ADD_FRIEND);
@@ -171,7 +178,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      // create a new activity intent to add friend groups
                      intent = new Intent(getActivity(), AddFriendsActivity.class);
                      intent.putExtra("type", Constants.TYPE_FRIEND_GROUPS);
-                     intent.putParcelableArrayListExtra("groups", activity.user.getUserGroupsArrayList());
+                     intent.putParcelableArrayListExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
                      intent.putExtra("requestedFriend", friend);
 
                      startActivityForResult(intent, Constants.RESULT_ADD_FRIEND_GROUPS);
@@ -197,9 +204,15 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      activity.updateTab(3, true);
 
                      // save the updated friends list to file
-                     activity.masterFriendList.saveFriendsListToFileAsyncTask();
+                     try
+                        {
+                           dataManager.saveFriendListAppFile();
+                        }
+                     catch (IOException | JSONException | POSNCryptoException e)
+                        {
+                           e.printStackTrace();
+                        }
 
-                     // SEND NOTIFICATION TO FRIEND ABOUT DECLINE
                      break;
 
 
@@ -213,7 +226,14 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      sortFriendsList();
                      adapter.notifyDataSetChanged();
 
-                     activity.masterFriendList.saveFriendsListToFileAsyncTask();
+                     try
+                        {
+                           dataManager.saveFriendListAppFile();
+                        }
+                     catch (IOException | JSONException | POSNCryptoException e)
+                        {
+                           e.printStackTrace();
+                        }
                      break;
                }
          }
@@ -223,45 +243,22 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             System.out.println("CREATING FRIENDS!!");
 
             // check if a new friend needs to be added from URI
-            if (activity.requestedFriend != null)
+            if (activity.newFriendRequest)
                {
-                  // check if the friend is a new incoming friend request
-                  if (activity.requestedFriend.status == Constants.STATUS_REQUEST)
+                  try
                      {
-                        System.out.println("ADDED");
-                        friendRequestsList.add(activity.requestedFriend);
-                        activity.requestedFriend = null;
-                     }
-                  // check if the friend accepted the sent request
-                  else if (activity.requestedFriend.status == Constants.STATUS_ACCEPTED)
-                     {
-                        System.out.println("ACCEPT!!!: " + activity.requestedFriend.name + " | " + activity.masterFriendList.friendRequests.contains(activity.requestedFriend));
-
-                        // get the requested from from the friend request list
-                        int index = activity.masterFriendList.friendRequests.indexOf(activity.requestedFriend);
-                        RequestedFriend pendingFriend = activity.masterFriendList.friendRequests.get(index);
-
-                        // merge data
-                        RequestedFriend friend = new RequestedFriend();
-
-                        friend.name = pendingFriend.name;
-                        friend.email = pendingFriend.email;
-                        friend.groups = pendingFriend.groups;
-                        friend.fileLink = activity.requestedFriend.fileLink;
-                        friend.fileKey = activity.requestedFriend.fileKey;
-                        friend.publicKey = activity.requestedFriend.publicKey;
-                        friend.ID = activity.requestedFriend.ID;
-                        friend.nonce = activity.requestedFriend.nonce;
-                        friend.nonce2 = activity.requestedFriend.nonce2;
-
-                        activity.masterFriendList.friendRequests.remove(activity.requestedFriend);
-                        activity.requestedFriend = null;
+                        RequestedFriend requestedFriend = dataManager.processFriendRequest();
 
                         // start phase 3
-                        new NewFriendFinalAsyncTask(this, friend).execute();
+                        if (requestedFriend.status == Constants.STATUS_ACCEPTED)
+                           {
+                              new NewFriendFinalAsyncTask(this, requestedFriend).execute();
+                           }
                      }
-
-                  activity.masterFriendList.saveFriendsListToFileAsyncTask();
+                  catch (IOException | JSONException | POSNCryptoException e)
+                     {
+                        e.printStackTrace();
+                     }
                }
 
             // add data to list view

@@ -36,7 +36,6 @@ public class SetupCloudProvidersActivity extends BaseActivity implements OnClick
                {
                   user = (User) getIntent().getExtras().get("user");
                   password = getIntent().getExtras().getString("password");
-                  user.print();
                }
 
             // get the buttons from the layout

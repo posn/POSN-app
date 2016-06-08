@@ -1,10 +1,12 @@
 package com.posn.datatypes;
 
-import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.posn.utility.DeviceFileManager;
+import com.posn.Constants;
+import com.posn.exceptions.POSNCryptoException;
+import com.posn.utility.IDGenerator;
+import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,94 +19,113 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class UserGroupList implements Parcelable
+public class UserGroupList implements Parcelable, ApplicationFile
    {
-      public HashMap<String, UserGroup> groups;
+      public HashMap<String, UserGroup> userGroups = new HashMap<>();
 
       public UserGroupList()
          {
-            groups = new HashMap<>();
+
          }
 
-      public void loadGroupsFromFile(String fileName)
+
+      public UserGroup createNewUserGroup(String groupName) throws POSNCryptoException
          {
-            try
-               {
-                  // load friends list into JSON object
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(fileName);
+            UserGroup group = new UserGroup();
+            group.name = groupName;
 
-                  // get array of friends
-                  JSONArray groupList = data.getJSONArray("groups");
+            // generate group ID
+            group.ID = IDGenerator.generate(group.name);
 
-                  // loop through array and parse individual friends
-                  for (int n = 0; n < groupList.length(); n++)
-                     {
-                        // parse the friend
-                        UserGroup userGroup = new UserGroup();
-                        userGroup.parseJSONObject(groupList.getJSONObject(n));
+            // generate group wall and archive key
+            group.groupFileKey = SymmetricKeyManager.createRandomKey();
+            group.groupFileLink = null;
 
-                        // put into request or current friend list based on status
-                        groups.put(userGroup.ID, userGroup);
-                     }
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
+            userGroups.put(group.ID, group);
+
+            return group;
          }
 
-      public void saveGroupsToFileAsyncTask(final String devicePath)
+      public void updateUserGroup(UserGroup group)
          {
-            // create new AsyncTask to execute function off main UI thread
-            new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     saveGroupsToFile(devicePath);
-                     return null;
-                  }
-            }.execute();
+            userGroups.put(group.ID, group);
          }
 
-      public void saveGroupsToFile(String devicePath)
+      public UserGroup getUserGroup(String groupID)
          {
-            JSONArray groupList = new JSONArray();
-            UserGroup userGroup;
+            return userGroups.get(groupID);
+         }
 
-            try
+
+      @Override
+      public String createApplicationFileContents() throws JSONException
+         {
+            JSONArray userGroupList = new JSONArray();
+
+            for (Map.Entry<String, UserGroup> entry : userGroups.entrySet())
                {
-                  // add all of the friends in the current friends list into the JSON array
-                  for (Map.Entry<String, UserGroup> entry : groups.entrySet())
-                     {
-                        userGroup = entry.getValue();
-                        groupList.put(userGroup.createJSONObject());
-                     }
-
-                  // create new JSON object and put the JSON array into it
-                  JSONObject object = new JSONObject();
-                  object.put("groups", groupList);
-
-                  // write the JSON object to a file
-                  DeviceFileManager.writeJSONToFile(object, devicePath);
+                  UserGroup group = entry.getValue();
+                  userGroupList.put(group.createJSONObject());
                }
-            catch (JSONException e)
+
+            JSONObject object = new JSONObject();
+            object.put("groups", userGroupList);
+
+            return object.toString();
+         }
+
+      @Override
+      public void parseApplicationFileContents(String fileContents) throws JSONException
+         {
+            userGroups.clear();
+
+            JSONObject data = new JSONObject(fileContents);
+
+            JSONArray userGroupArray = data.getJSONArray("groups");
+
+            for (int n = 0; n < userGroupArray.length(); n++)
                {
-                  e.printStackTrace();
+                  UserGroup group = new UserGroup();
+                  group.parseJSONObject(userGroupArray.getJSONObject(n));
+
+                  userGroups.put(group.ID, group);
                }
          }
 
-      public ArrayList<UserGroup> getList()
+      @Override
+      public String getDirectoryPath()
          {
+            return Constants.applicationDataFilePath;
+         }
+
+      @Override
+      public String getFileName()
+         {
+            return Constants.userGroupListFile;
+         }
+
+      /**
+       * Creates a arraylist of user defined groups from the hashmap and sorts them alphabetically
+       *
+       * @return Arraylist of groups
+       **/
+      public ArrayList<UserGroup> getUserGroupsArrayList()
+         {
+            // create a new arraylist
             ArrayList<UserGroup> list = new ArrayList<>();
 
-            for (Map.Entry<String, UserGroup> entry : groups.entrySet())
+            // loop through the hashmap and get all the groups
+            for (Map.Entry<String, UserGroup> entry : userGroups.entrySet())
                {
+                  // add the group to arraylist
                   list.add(entry.getValue());
                }
 
+            // sort the groups by name (alphabetical order)
             Collections.sort(list, new Comparator<UserGroup>()
                {
-                  @Override public int compare(UserGroup lhs, UserGroup rhs)
+                  @Override
+                  public int compare(UserGroup lhs, UserGroup rhs)
                      {
                         return lhs.name.compareTo(rhs.name);
                      }
@@ -113,29 +134,33 @@ public class UserGroupList implements Parcelable
             return list;
          }
 
+
       // Parcelling part
       public UserGroupList(Parcel in)
          {
             //initialize your map before
             int size = in.readInt();
-            for(int i = 0; i < size; i++){
-               String key = in.readString();
-               UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
-               groups.put(key,value);
-            }         }
+            for (int i = 0; i < size; i++)
+               {
+                  String key = in.readString();
+                  UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
+                  userGroups.put(key, value);
+               }
+         }
 
 
       @Override
       public void writeToParcel(Parcel dest, int flags)
          {
-            dest.writeInt(groups.size());
-            for(Map.Entry<String,UserGroup> entry : groups.entrySet()){
-               dest.writeString(entry.getKey());
-               dest.writeParcelable(entry.getValue(),flags);
-            }
+            dest.writeInt(userGroups.size());
+            for (Map.Entry<String, UserGroup> entry : userGroups.entrySet())
+               {
+                  dest.writeString(entry.getKey());
+                  dest.writeParcelable(entry.getValue(), flags);
+               }
          }
 
-      public static final Parcelable.Creator<UserGroupList> CREATOR = new Parcelable.Creator<UserGroupList>()
+      public static final Creator<UserGroupList> CREATOR = new Creator<UserGroupList>()
          {
             public UserGroupList createFromParcel(Parcel in)
                {
@@ -153,5 +178,4 @@ public class UserGroupList implements Parcelable
          {
             return 0;
          }
-
    }

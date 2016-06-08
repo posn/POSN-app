@@ -5,7 +5,6 @@ import android.os.Parcelable;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
-import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,10 +47,10 @@ public class Friend implements Parcelable
          }
 
 
-      public Friend(RequestedFriend friend, int status)
+      public Friend(RequestedFriend friend, String key, int status)
          {
             // generate a user friend file key to encrypt the friend file
-            userFriendFileKey = SymmetricKeyManager.createRandomKey();
+            userFriendFileKey = key;
 
             this.status = status;
             ID = friend.ID;

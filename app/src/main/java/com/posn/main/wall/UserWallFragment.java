@@ -33,6 +33,7 @@ import com.posn.main.wall.posts.ListViewPostItem;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
 import com.posn.main.wall.posts.VideoPostItem;
+import com.posn.utility.POSNDataManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       public WallArrayAdapter adapter;
 
       public MainActivity activity;
+      POSNDataManager dataManager;
 
 
       @Override
@@ -72,6 +74,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
             // get the main activity
             activity = (MainActivity) getActivity();
+            dataManager = activity.dataManager;
 
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
@@ -124,7 +127,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             lv.setAdapter(adapter);
 
             // get the wall post data from activity
-            wallPostData = activity.masterWallPostList.wallPosts;
+            wallPostData = dataManager.masterWallPostList.wallPosts;
             if (wallPostData.size() != 0)
                {
                   updateWallPosts();
@@ -143,13 +146,13 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                {
                   case R.id.status_button:
                      intent = new Intent(context, CreateNewStatusPostActivity.class);
-                     intent.putExtra("groups", activity.user.getUserGroupsArrayList());
+                     intent.putExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
                      startActivityForResult(intent, Constants.RESULT_CREATE_STATUS_POST);
                      break;
 
                   case R.id.photo_button:
                      intent = new Intent(context, CreateNewPhotoPostActivity.class);
-                     intent.putExtra("groups", activity.user.getUserGroupsArrayList());
+                     intent.putExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
                      startActivityForResult(intent, Constants.RESULT_CREATE_PHOTO_POST);
                      break;
 
@@ -160,8 +163,8 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      wallPost = (WallPost) v.getTag();
                      intent = new Intent(context, CommentActivity.class);
                      intent.putExtra("post", wallPost);
-                     intent.putExtra("friends", activity.masterFriendList.currentFriends);
-                     intent.putExtra("user", activity.user);
+                     intent.putExtra("friends", dataManager.masterFriendList.currentFriends);
+                     intent.putExtra("user", dataManager.user);
                      context.startActivity(intent);
                      break;
 
@@ -212,13 +215,13 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   WallPost wallPost = entry.getValue();
 
                   // get the name of the person who created the post
-                  if (wallPost.friendID.equals(activity.user.ID))
+                  if (wallPost.friendID.equals(dataManager.user.ID))
                      {
-                        name = activity.user.firstName + " " + activity.user.lastName;
+                        name = dataManager.user.firstName + " " + dataManager.user.lastName;
                      }
                   else
                      {
-                        Friend friend = activity.masterFriendList.currentFriends.get(wallPost.friendID);
+                        Friend friend = dataManager.masterFriendList.currentFriends.get(wallPost.friendID);
                         name = friend.name;
                      }
 

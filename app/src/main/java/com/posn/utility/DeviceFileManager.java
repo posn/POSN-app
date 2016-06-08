@@ -3,6 +3,8 @@ package com.posn.utility;
 
 import android.util.Log;
 
+import com.posn.Constants;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,134 +20,155 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * This class provides methods to process files to and from the Android device
+ **/
 public class DeviceFileManager
    {
-      public static JSONObject loadJSONObjectFromFile(String devicePath)
+      /**
+       * Loads a JSON formatted file from the device
+       *
+       * @param deviceDirectoryPath device directory path of the file
+       * @param deviceFileName      name of the file on the device
+       * @return File contents as a JSON object
+       * @throws IOException
+       * @throws JSONException
+       **/
+      public static JSONObject loadJSONObjectFromFile(String deviceDirectoryPath, String deviceFileName) throws IOException, JSONException
          {
-            String data = loadStringFromFile(devicePath);
-            JSONObject object = null;
-
-            try
-               {
-                  object = new JSONObject(data);
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-            return object;
+            String data = loadStringFromFile(deviceDirectoryPath, deviceFileName);
+            return new JSONObject(data);
          }
 
-      public static String loadStringFromFile(String filename)
+
+      /**
+       * Loads a string from a file on the device
+       *
+       * @param deviceDirectoryPath device directory path of the file
+       * @param deviceFileName      name of the file on the device
+       * @return File contents as a string
+       * @throws IOException
+       **/
+      public static String loadStringFromFile(String deviceDirectoryPath, String deviceFileName) throws IOException
          {
-            String line, fileContents = null;
+            String line;
+
             // open the file
-            try
-               {
-                  BufferedReader br = new BufferedReader(new FileReader(filename));
+            BufferedReader br = new BufferedReader(new FileReader(deviceDirectoryPath + "/" + deviceFileName));
 
-                  StringBuilder sb = new StringBuilder();
-                  while ((line = br.readLine()) != null)
-                     {
-                        sb.append(line);
-                     }
-
-                  br.close();
-                  fileContents = sb.toString();
-               }
-            catch (IOException e)
+            StringBuilder sb = new StringBuilder();
+            while ((line = br.readLine()) != null)
                {
-                  System.out.println(e.getMessage());
+                  sb.append(line);
                }
 
-            return fileContents;
+            br.close();
+
+            return sb.toString();
          }
 
-      public static void writeJSONToFile(JSONObject data, String devicePath)
+
+      /**
+       * Writes a JSON object into a new file on the device
+       *
+       * @param data                the data to be written to the file
+       * @param deviceDirectoryPath device directory path of the file
+       * @param deviceFileName      name of the file to be created on the device
+       * @throws IOException
+       **/
+      public static void writeJSONToFile(JSONObject data, String deviceDirectoryPath, String deviceFileName) throws IOException
          {
-            writeStringToFile(data.toString(), devicePath);
+            writeStringToFile(data.toString(), deviceDirectoryPath, deviceFileName);
          }
 
-      public static void writeStringToFile(String data, String devicePath)
+
+      /**
+       * Writes a string into a new file on the device
+       *
+       * @param data                the data to be written to the file
+       * @param deviceDirectoryPath device directory path of the file
+       * @param deviceFileName      name of the file to be created on the device
+       * @throws IOException
+       **/
+      public static void writeStringToFile(String data, String deviceDirectoryPath, String deviceFileName) throws IOException
          {
-            try
-               {
-                  FileWriter fw = new FileWriter(devicePath);
-                  BufferedWriter bw = new BufferedWriter(fw);
-                  bw.write(data);
-                  bw.close();
-               }
-            catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
-
+            FileWriter fw = new FileWriter(deviceDirectoryPath + "/" + deviceFileName);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(data);
+            bw.close();
          }
 
-      public static void downloadFileFromURL(String urlLink, String filePath, String fileName)
+
+      /**
+       * Downloads a file from a URL and writes it to the device
+       *
+       * @param urlLink             URL to the file to be downloaded
+       * @param deviceDirectoryPath device directory path of the file
+       * @param deviceFileName      name of the file to be created on the device
+       * @throws IOException
+       **/
+      public static void downloadFileFromURL(String urlLink, String deviceDirectoryPath, String deviceFileName) throws IOException
          {
-            InputStream input = null;
-            OutputStream output = null;
-            HttpURLConnection connection = null;
-            try
+
+            URL url = new URL(urlLink);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+
+            // expect HTTP 200 OK, so we don't mistakenly save error report instead of the file
+            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
                {
-                  URL url = new URL(urlLink);
-                  connection = (HttpURLConnection) url.openConnection();
-                  connection.connect();
-
-                  // expect HTTP 200 OK, so we don't mistakenly save error report
-                  // instead of the file
-                  if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
-                     {
-                        System.out.println("Server returned HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
-                        return;
-                     }
-
-                  // download the file
-                  input = connection.getInputStream();
-                  output = new FileOutputStream(filePath + "/" + fileName);
-
-                  byte data[] = new byte[4096];
-                  long total = 0;
-                  int count;
-                  while ((count = input.read(data)) != -1)
-                     {
-                        total += count;
-                        output.write(data, 0, count);
-                     }
+                  System.out.println("Server returned HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
+                  return;
                }
-            catch (Exception e)
+
+            // download the file
+            InputStream input = connection.getInputStream();
+            OutputStream output = new FileOutputStream(deviceDirectoryPath + "/" + deviceFileName);
+
+            byte data[] = new byte[4096];
+            int count;
+            while ((count = input.read(data)) != -1)
                {
-                  System.out.println(e.toString());
+                  output.write(data, 0, count);
                }
-            finally
-               {
-                  try
-                     {
-                        if (output != null)
-                           output.close();
-                        if (input != null)
-                           input.close();
-                     }
-                  catch (IOException ignored)
-                     {
-                     }
 
-                  if (connection != null)
-                     connection.disconnect();
-               }
+            // close the streams and connections
+            output.close();
+            input.close();
+            connection.disconnect();
+
          }
 
-      public static void createDirectory(String path)
+      /**
+       * Creates the default storage directories on the device if it does not already exist
+       **/
+      public static void createDefaultStorageDirectories()
+         {
+            DeviceFileManager.createDirectory(Constants.archiveFilePath);
+            DeviceFileManager.createDirectory(Constants.encryptionKeyFilePath);
+            DeviceFileManager.createDirectory(Constants.multimediaFilePath);
+            DeviceFileManager.createDirectory(Constants.profileFilePath);
+            DeviceFileManager.createDirectory(Constants.wallFilePath);
+            DeviceFileManager.createDirectory(Constants.messagesFilePath);
+            DeviceFileManager.createDirectory(Constants.applicationDataFilePath);
+            DeviceFileManager.createDirectory(Constants.friendsFilePath);
+         }
+
+      /**
+       * Creates a new directory on the device if it does not already exist
+       *
+       * @param newDirectoryPath name of the new device directory
+       **/
+      private static void createDirectory(String newDirectoryPath)
          {
             // check if directory exists
-            File storageDir = new File(path);
+            File storageDir = new File(newDirectoryPath);
             if (!storageDir.exists())
                {
-                 boolean status = storageDir.mkdirs();
-                  if(!status)
+                  boolean status = storageDir.mkdirs();
+                  if (!status)
                      {
-                        Log.d("DeviceFileManager", "Failed to created device directory: " + path);
+                        Log.d("DeviceFileManager", "Failed to created device directory: " + newDirectoryPath);
                      }
                }
          }

@@ -5,10 +5,15 @@ import android.os.AsyncTask;
 
 import com.posn.Constants;
 import com.posn.datatypes.UserGroup;
-import com.posn.utility.SymmetricKeyManager;
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
-import com.posn.utility.CloudFileManager;
 import com.posn.utility.IDGenerator;
+import com.posn.utility.POSNDataManager;
+import com.posn.utility.SymmetricKeyManager;
+
+import org.json.JSONException;
+
+import java.io.IOException;
 
 
 public class NewGroupAsyncTask extends AsyncTask<String, String, String>
@@ -17,12 +22,14 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
 
       private MainActivity main;
       private String newGroupName;
+      private POSNDataManager dataManager;
 
       public NewGroupAsyncTask(MainActivity mainActivity, String groupName)
          {
             super();
             main = mainActivity;
             newGroupName = groupName;
+            dataManager = main.dataManager;
          }
 
 
@@ -42,29 +49,36 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            // create new group object
-            UserGroup group = new UserGroup();
+            try
+               {
+                  // create new group object
+                  UserGroup group = new UserGroup();
 
-            // generate group ID
-            group.ID = IDGenerator.generate(newGroupName);
-            group.name = newGroupName;
+                  // generate group ID
+                  group.ID = IDGenerator.generate(newGroupName);
+                  group.name = newGroupName;
 
-            // generate group wall and archive key
-            group.groupFileLink = SymmetricKeyManager.createRandomKey();
+                  // generate group wall and archive key
+                  group.groupFileLink = SymmetricKeyManager.createRandomKey();
 
-            // create empty group wall file on device to upload to cloud
-            String fileName = "group_" + group.name + "_" + group.version + ".txt";
-            String deviceFilepath = Constants.wallFilePath;
-            CloudFileManager.createGroupWallFile(group, main.masterWallPostList.wallPosts, deviceFilepath, fileName);
+                  // create empty group wall file on device to upload to cloud
+                  String fileName = "group_" + group.name + "_" + group.version + ".txt";
+                  String deviceFilepath = Constants.wallFilePath;
+                  dataManager.createGroupWallFile(group.ID, deviceFilepath, fileName);
 
-            // upload group wall to cloud and get direct link
-            group.groupFileLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
+                  // upload group wall to cloud and get direct link
+                  group.groupFileLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
 
-            // create new group object and add to group list
-            main.user.userDefinedGroups.put(group.ID, group);
+                  // create new group object and add to group list
+                  dataManager.userGroupList.userGroups.put(group.ID, group);
 
-            // save group list to device
-            main.user.saveUserToFile();
+                  // save group list to device
+                  dataManager.saveUserAppFile();
+               }
+            catch (IOException | JSONException | POSNCryptoException error)
+               {
+                  error.printStackTrace();
+               }
 
             return null;
          }

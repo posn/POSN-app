@@ -7,78 +7,51 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
-import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.AsyncResponseIntialize;
 import com.posn.asynctasks.GetFriendContentAsyncTask;
 import com.posn.asynctasks.InitializeAsyncTask;
 import com.posn.clouds.Dropbox.DropboxClientUsage;
-import com.posn.datatypes.ConversationList;
-import com.posn.datatypes.FriendList;
-import com.posn.datatypes.NotificationList;
-import com.posn.datatypes.RequestedFriend;
-import com.posn.datatypes.User;
-import com.posn.datatypes.WallPostList;
-import com.posn.utility.AsymmetricKeyManager;
-import com.posn.utility.SymmetricKeyManager;
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.main.messages.UserConversationFragment;
 import com.posn.main.notifications.UserNotificationsFragment;
 import com.posn.main.wall.UserWallFragment;
+import com.posn.utility.POSNDataManager;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.List;
 
 
 public class MainActivity extends BaseActivity implements AsyncResponseIntialize
    {
+      // user interface variables
       private ViewPager viewPager;
       private ActionBar actionBar;
       private MainTabsPagerAdapter tabsAdapter;
 
+      // count variables used to show the number of new posts/notifications/messages/friend requests
       public int newWallPostsNum = 0;
       public int newNotificationNum = 0;
       public int newMessagesNum = 0;
       public int newFriendNum = 0;
 
-      InitializeAsyncTask asyncTaskInitialize;
-
-      public User user = null;
-      public String deviceFileKey = null;
-
-      // data for wall fragment
-      public WallPostList masterWallPostList;
-
-      // data for master friends list
-      public FriendList masterFriendList;
-
-      // data for notification fragment
-      public NotificationList notificationList;
-
-      // data for message fragment
-      public ConversationList conversationList;
-
-      public RequestedFriend requestedFriend = null;
+      // data manager object that holds all the application data and methods to create different files
+      public POSNDataManager dataManager;
 
       boolean initialize = true;
+      public boolean newFriendRequest = false;
 
       @Override
       public void onSaveInstanceState(Bundle savedInstanceState)
          {
-            // Save the user's current game state
+            // save the current notification numbers
             savedInstanceState.putInt("newWallPostsNum", newWallPostsNum);
             savedInstanceState.putInt("newNotificationNum", newNotificationNum);
             savedInstanceState.putInt("newMessagesNum", newMessagesNum);
             savedInstanceState.putInt("newFriendNum", newFriendNum);
 
-            savedInstanceState.putParcelable("user", user);
-            savedInstanceState.putParcelable("masterFriendList", masterFriendList);
-            savedInstanceState.putParcelable("masterWallPostList", masterWallPostList);
-            savedInstanceState.putParcelable("notificationList", notificationList);
-            savedInstanceState.putParcelable("conversationList", conversationList);
-            savedInstanceState.putParcelable("requestedFriend", requestedFriend);
+            savedInstanceState.putParcelable("dataManager", dataManager);
 
             // Always call the superclass so it can save the view hierarchy state
             super.onSaveInstanceState(savedInstanceState);
@@ -93,26 +66,21 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             // load the xml file for the logs
             setContentView(R.layout.activity_main);
 
-            // get the user from the login activity
-            user = (User) getIntent().getExtras().get("user");
+            // create a new data manager object
+            dataManager = (POSNDataManager) getIntent().getExtras().get("dataManager");
 
             // attempt to get any new friend requests
             if (getIntent().hasExtra("uri"))
                {
-                  processURI(Uri.parse(getIntent().getExtras().getString("uri")));
-
-                  //requestedFriend = (RequestedFriend) getIntent().getExtras().get("newFriend");
+                  try
+                     {
+                        newFriendRequest = dataManager.parseFriendRequestURI(Uri.parse(getIntent().getExtras().getString("uri")));
+                     }
+                  catch (UnsupportedEncodingException | POSNCryptoException e)
+                     {
+                        e.printStackTrace();
+                     }
                }
-
-
-            deviceFileKey = getIntent().getStringExtra("deviceFileKey");
-            masterWallPostList = new WallPostList(deviceFileKey);
-            masterFriendList = new FriendList(deviceFileKey);
-            notificationList = new NotificationList(deviceFileKey);
-            conversationList = new ConversationList(deviceFileKey);
-
-            // get the action bar to set the title
-            actionBar = getActionBar();
 
             // find the viewpager in the xml file
             viewPager = (ViewPager) findViewById(R.id.system_viewpager);
@@ -122,18 +90,18 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             tabsAdapter = new MainTabsPagerAdapter(this.getSupportFragmentManager(), this);
             viewPager.setAdapter(tabsAdapter);
 
-            final TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
             tabLayout.setupWithViewPager(viewPager);
 
-            System.out.println("MAIN OnCreate!!!");
-
-            // set initial values
+            // set the tabs with the correct icon and number of notifications bubble
             tabLayout.getTabAt(0).setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_blue, newWallPostsNum, false));
             tabLayout.getTabAt(1).setCustomView(tabsAdapter.getTabView(R.drawable.ic_notification_gray, newNotificationNum, true));
-            tabLayout.getTabAt(2).setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_gray, newMessagesNum, true)); //setIcon(R.drawable.ic_message_gray);
+            tabLayout.getTabAt(2).setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_gray, newMessagesNum, true));
             tabLayout.getTabAt(3).setCustomView(tabsAdapter.getTabView(R.drawable.ic_friends_gray, newFriendNum, true));
             tabLayout.getTabAt(4).setCustomView(tabsAdapter.getTabView(R.drawable.ic_settings_gray, 0, false));
 
+            // get the action bar to set the title
+            actionBar = getActionBar();
             actionBar.setTitle("Wall");
 
             tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
@@ -157,8 +125,10 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                      }
                });
 
+            // get the application
             app = (POSNApplication) getApplication();
 
+            // initialize the cloud provider
             if (app.cloud == null)
                {
                   app.cloud = new DropboxClientUsage(this);
@@ -167,6 +137,7 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                   app.cloud.initializeCloud();
                }
 
+            // check if the activity was saved previous and fetch the previous data
             if (savedInstanceState != null)
                {
                   newWallPostsNum = savedInstanceState.getInt("newWallPostsNum");
@@ -174,20 +145,15 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                   newMessagesNum = savedInstanceState.getInt("newMessagesNum");
                   newFriendNum = savedInstanceState.getInt("newFriendNum");
 
-                  user = savedInstanceState.getParcelable("user");
-                  masterFriendList = savedInstanceState.getParcelable("masterFriendList");
-                  masterWallPostList = savedInstanceState.getParcelable("masterWallPostList");
-                  notificationList = savedInstanceState.getParcelable("notificationList");
-                  conversationList = savedInstanceState.getParcelable("conversationList");
-                  requestedFriend = savedInstanceState.getParcelable("requestedFriend");
+                  dataManager = savedInstanceState.getParcelable("dataManager");
                }
+            // otherwise fetch the data from the application files
             else
                {
-                  asyncTaskInitialize = new InitializeAsyncTask(this);
+                  InitializeAsyncTask asyncTaskInitialize = new InitializeAsyncTask(this);
                   asyncTaskInitialize.delegate = this;
                   asyncTaskInitialize.execute();
                }
-
          }
 
 
@@ -214,34 +180,39 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
          }
 
 
-      public void initializingFileDataFinished()
+      public void finishedInitializingApplicationData()
          {
+            // get the friend fragment and update the friend list with app data
             UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
             if (friendFrag != null)
                {
+                  // process the new friend request
                   friendFrag.updateFriendList();
                   tabsAdapter.updateTab(3, R.drawable.ic_friends_gray, newFriendNum, true);
                }
 
+            // get the wall fragment and update the wall post list with app data
             UserWallFragment wallFrag = (UserWallFragment) tabsAdapter.getRegisteredFragment(0);
             if (wallFrag != null)
                {
                   wallFrag.updateWallPosts();
                }
 
+            // get the message fragment and update the conversation list with app data
             UserConversationFragment messagesFrag = (UserConversationFragment) tabsAdapter.getRegisteredFragment(2);
             if (messagesFrag != null)
                {
                   messagesFrag.updateConversations();
                }
 
+            // get the notification fragment and update the notification list with app data
             UserNotificationsFragment notificationFrag = (UserNotificationsFragment) tabsAdapter.getRegisteredFragment(1);
             if (notificationFrag != null)
                {
                   notificationFrag.updateNotifications();
                }
 
-            if(initialize)
+            if (initialize)
                {
                   new GetFriendContentAsyncTask(this).execute();
                   initialize = false;
@@ -269,7 +240,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
             else if (position == 3)
                {
                   actionBar.setTitle("Friends");
-                  newFriendNum = masterFriendList.friendRequests.size();
                   tabsAdapter.updateTab(position, (selected ? R.drawable.ic_friends_blue : R.drawable.ic_friends_gray), newFriendNum, true);
                }
             else
@@ -279,97 +249,6 @@ public class MainActivity extends BaseActivity implements AsyncResponseIntialize
                }
          }
 
-      private void processURI(Uri uriData)
-         {
-            if (uriData != null)
-               {
-                  requestedFriend = new RequestedFriend();
 
-                  // get the path segments of the URI
-                  List<String> params = uriData.getPathSegments();
-
-                  // check the type of URI
-                  String uriType = params.get(0);
-
-                  System.out.println("TYPE: " + uriType);
-
-                  if (uriType.equals("request"))
-                     {
-                        try
-                           {
-                              // set friend status
-                              requestedFriend.status = Constants.STATUS_REQUEST;
-
-                              // get ID
-                              requestedFriend.ID = params.get(1);
-
-                              // get email
-                              requestedFriend.email = params.get(2);
-
-                              // get first and last name
-                              requestedFriend.name = params.get(3) + " " + params.get(4);
-
-                              // get public key
-                              requestedFriend.publicKey = URLDecoder.decode(params.get(5), "UTF-8");
-                              requestedFriend.publicKey = requestedFriend.publicKey.replace("%2B", "+");
-
-                              // get file link
-                              requestedFriend.fileLink = URLDecoder.decode(params.get(6), "UTF-8");
-System.out.println("TEMPORAL FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + requestedFriend.fileLink);
-                              // get nonce
-                              requestedFriend.nonce = params.get(7);
-                           }
-                        catch (UnsupportedEncodingException e)
-                           {
-                              e.printStackTrace();
-                           }
-                     }
-                  else if (uriType.equals("accept"))
-                     {
-                        // get encrypted key
-                        String encryptedSymmetricKey = params.get(1);
-
-                        // decrypt symmetric key
-                        String key = AsymmetricKeyManager.decrypt(user.privateKey, encryptedSymmetricKey);
-
-                        // decrypt URI data
-                        String encryptedURI = params.get(2);
-
-                        String URI = SymmetricKeyManager.decrypt(key, encryptedURI);
-                        String[] paths = URI.split("/");
-
-                        try
-                           {
-                              // set friend status
-                              requestedFriend.status = Constants.STATUS_ACCEPTED;
-
-                              // get ID
-                              requestedFriend.ID = paths[0];
-
-                              // get first and last name
-                              requestedFriend.name = paths[1] + " " + paths[2];
-
-                              // get public key
-                              requestedFriend.publicKey = URLDecoder.decode(paths[3], "UTF-8");
-                              requestedFriend.publicKey = requestedFriend.publicKey.replace("%2B", "+");
-
-                              // get file link
-                              requestedFriend.fileLink = URLDecoder.decode(paths[4], "UTF-8");
-
-                              requestedFriend.fileKey = URLDecoder.decode(paths[5], "UTF-8");
-
-                              // get nonces
-                              requestedFriend.nonce = paths[6];
-                              requestedFriend.nonce2 = paths[7];
-                           }
-                        catch (UnsupportedEncodingException e)
-                           {
-                              e.printStackTrace();
-                           }
-
-
-                     }
-               }
-         }
    }
 

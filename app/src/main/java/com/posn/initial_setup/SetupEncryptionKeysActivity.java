@@ -15,20 +15,20 @@ import android.widget.Toast;
 
 import com.posn.Constants;
 import com.posn.R;
-import com.posn.application.POSNApplication;
 import com.posn.datatypes.User;
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.utility.AsymmetricKeyManager;
-import com.posn.utility.SymmetricKeyManager;
 import com.posn.utility.DeviceFileManager;
+import com.posn.utility.SymmetricKeyManager;
+
+import java.io.IOException;
 
 
 public class SetupEncryptionKeysActivity extends FragmentActivity implements OnClickListener
    {
-
-      private Button next, generate;
+      // user interface variables
       private DrawingView dv;
       private ProgressBar progressBar;
-      private RadioButton lowEncryption, highEncryption;
 
       private User user;
       private String password;
@@ -38,7 +38,6 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
       private boolean keyGenerated = false;
       private int numEncryptBits;
 
-      POSNApplication app;
 
       // runs without a timer by reposting this handler at the end of the runnable
       Handler timerHandler = new Handler();
@@ -75,15 +74,12 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_setup_encryption_keys);
 
+            // get the user data from the previous activity
             if (getIntent().hasExtra("user"))
                {
                   user = (User) getIntent().getExtras().get("user");
                   password = getIntent().getExtras().getString("password");
-                  user.print();
                }
-
-            // get the application to store data
-            app = (POSNApplication) this.getApplication();
 
             // get the drawing view from the layout
             dv = (DrawingView) findViewById(R.id.draw_view);
@@ -92,12 +88,12 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
             // get the radio buttons from the layout
-            lowEncryption = (RadioButton) findViewById(R.id.radio0);
-            highEncryption = (RadioButton) findViewById(R.id.radio1);
+            RadioButton lowEncryption = (RadioButton) findViewById(R.id.radio0);
+            RadioButton highEncryption = (RadioButton) findViewById(R.id.radio1);
 
             // get the buttons from the layout
-            next = (Button) findViewById(R.id.next_button);
-            generate = (Button) findViewById(R.id.generate_button);
+            Button next = (Button) findViewById(R.id.next_button);
+            Button generate = (Button) findViewById(R.id.generate_button);
 
             // set the onclick listener for the buttons
             next.setOnClickListener(this);
@@ -112,8 +108,8 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
                   actionBar.setTitle("Generate Encryption Keys");
                }
 
+            // default the number of bits for the encyrption key to 2048
             numEncryptBits = 2048;
-
          }
 
 
@@ -125,13 +121,16 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
 
                   case R.id.next_button:
 
+                     // check if the key has been generated
                      if (keyGenerated)
                         {
+                           // start the next activity
                            Intent intent = new Intent(this, SetupGroupsActivity.class);
                            intent.putExtra("user", user);
                            intent.putExtra("password", password);
                            startActivity(intent);
                         }
+                     // display toast with error message
                      else
                         {
                            Toast.makeText(this, "You must generate an encryption key", Toast.LENGTH_SHORT).show();
@@ -146,9 +145,9 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
                      dv.allowDrawing();
 
                      // set up progress bar
-                     progressBar.setProgress(0
+                     progressBar.setProgress(0);
 
-                     );
+                     // set the timer limt and start the timer
                      timeCount = 80;
                      timerHandler.postDelayed(timerRunnable, 0);
                      keyGenerated = false;
@@ -166,43 +165,42 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
          }
 
 
-      void createEncryptionKey()
+      private void createEncryptionKey()
          {
+            // disable drawing in the view
             dv.disableDrawing();
-            createEncryptionKeys(dv.getRandomValues());
-            keyGenerated = true;
+
+            // generate encryption keys
+            keyGenerated = generateEncryptionKeys(dv.getRandomValues());
          }
 
 
-      public boolean createEncryptionKeys(int seed)
+      public boolean generateEncryptionKeys(int seed)
          {
-            System.out.println("PASS: " + password);
-
-            // create a new Symmetric Key from the user's password
-            String key = SymmetricKeyManager.createKeyFromString(password);
-            if (key == null)
+            try
                {
-                  Toast.makeText(this, "Failed to create AES Key.", Toast.LENGTH_SHORT).show();
-                  return false;
+                  // create a new Symmetric Key from the user's password
+                  String key = SymmetricKeyManager.createKeyFromString(password);
+
+                  // create password verification file contents by encrypting a the string
+                  String verificationString = SymmetricKeyManager.encrypt(key, "POSN - SUCCESS");
+
+                  // write the encrypted file contents to a file
+                  DeviceFileManager.writeStringToFile(verificationString, Constants.encryptionKeyFilePath, "verify.pass");
+
+                  // create a new RSA Public and Private key based on the random input
+                  Pair<String, String> keyPair = AsymmetricKeyManager.generateKeys(numEncryptBits, seed);
+
+                  // set the user's public and private key
+                  user.publicKey = keyPair.first;
+                  user.privateKey = keyPair.second;
+
+                  return true;
                }
-
-            // create a password verification file
-            String verificationString = SymmetricKeyManager.encrypt(key, "POSN - SUCCESS");
-            DeviceFileManager.writeStringToFile(verificationString, Constants.encryptionKeyFilePath + "/verify.pass");
-
-
-            // create a new RSA Public and Private key based on the random input
-            Pair<String, String> keyPair = AsymmetricKeyManager.generateKeys(numEncryptBits, seed);
-            if (keyPair == null)
+            catch (POSNCryptoException | IOException e)
                {
-                  Toast.makeText(this, "Failed to create RSA Key.", Toast.LENGTH_SHORT).show();
-                  return false;
+                  e.printStackTrace();
                }
-
-            // set the user's public and private key
-            user.publicKey = keyPair.first;
-            user.privateKey = keyPair.second;
-
-            return true;
+            return false;
          }
    }

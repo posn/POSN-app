@@ -5,21 +5,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.posn.Constants;
-import com.posn.utility.DeviceFileManager;
-import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-
-public class User implements Parcelable
+/**
+ * <p></p>This class represents a data owner user and his or her data. Methods are included to read and write the data to and from a file.</p>
+ * <p>Implements parcelable to easily pass this class between activities</p>
+ **/
+public class User implements Parcelable, ApplicationFile
    {
+      // user personal information
       public String ID = null;
       public String firstName = null;
       public String lastName = null;
@@ -27,160 +24,121 @@ public class User implements Parcelable
       public String phoneNumber = null;
       public String birthday = null;
       public String gender = null;
+
+      // which cloud provider is being used
       public String cloudProvider = null;
 
+
+      // public and private key
       public String publicKey = null;
       public String privateKey = null;
 
-      public HashMap<String, UserGroup> userDefinedGroups = new HashMap<>();
-
-      public String deviceFileKey;
+      // hashmap of all of the groups the user has created for his/her friends
 
 
-      public User(String deviceFileKey)
+      /**
+       * Constructor to create new User object
+       **/
+      public User()
          {
-            this.deviceFileKey = deviceFileKey;
-         }
-
-      public void print()
-         {
-            System.out.println("ID: " + ID);
-            System.out.println("FIRST: " + firstName);
-            System.out.println("LAST: " + lastName);
-            System.out.println("EMAIL: " + email);
-            System.out.println("PHONE: " + phoneNumber);
-            System.out.println("BIRTHDAY: " + birthday);
-            System.out.println("GENDER: " + gender);
-
-            System.out.println("PUB: " + publicKey);
-            System.out.println("PRIVATE: " + privateKey);
-
-            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
-               {
-                  UserGroup group = entry.getValue();
-                  System.out.println(group.name);
-               }
-
          }
 
 
-      public void saveUserToFile()
-         {
-            String fileContents;
 
-            // store personal data
+      /**
+       * Creates a JSON formatted string from the user data
+       *
+       * @return JSON formatted string containing user data
+       * @throws JSONException
+       **/
+      @Override
+      public String createApplicationFileContents() throws JSONException
+         {
+            // add personal information to the JSON object
             JSONObject user = new JSONObject();
-            try
-               {
-                  user.put("ID", ID);
-                  user.put("firstname", firstName);
-                  user.put("lastname", lastName);
-                  user.put("email", email);
-                  user.put("phone", phoneNumber);
-                  user.put("birthday", birthday);
-                  user.put("gender", gender);
-                  user.put("cloudprovider", cloudProvider);
+            user.put("ID", ID);
+            user.put("firstname", firstName);
+            user.put("lastname", lastName);
+            user.put("email", email);
+            user.put("phone", phoneNumber);
+            user.put("birthday", birthday);
+            user.put("gender", gender);
+            user.put("cloudprovider", cloudProvider);
 
-                  user.put("publicKey", publicKey);
-                  user.put("privateKey", privateKey);
+            // add public/private key to the JSON object
+            user.put("publicKey", publicKey);
+            user.put("privateKey", privateKey);
 
-                  JSONArray groupList = new JSONArray();
+            JSONArray groupList = new JSONArray();
 
-                  // add all of the groups into the JSON array
-                  for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
-                     {
-                        UserGroup userGroup = entry.getValue();
-                        groupList.put(userGroup.createJSONObject());
-                     }
-
-                  // create new JSON object and put the JSON array into it
-                  user.put("groups", groupList);
-
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-
-            // encrypt fileContents
-            fileContents = SymmetricKeyManager.encrypt(deviceFileKey, user.toString());
-
-            DeviceFileManager.writeStringToFile(fileContents, Constants.applicationDataFilePath + "/" + Constants.userFile);
-         }
-
-
-      public boolean loadUserFromFile()
-         {
-            try
-               {
-                  String encryptedData = DeviceFileManager.loadStringFromFile(Constants.applicationDataFilePath + "/" + Constants.userFile);
-
-                  // decrypt the file contents
-                  String fileContents = SymmetricKeyManager.decrypt(deviceFileKey, encryptedData);
-
-                  JSONObject data = new JSONObject(fileContents);
-
-                  ID = data.getString("ID");
-                  firstName = data.getString("firstname");
-                  lastName = data.getString("lastname");
-                  email = data.getString("email");
-                  phoneNumber = data.getString("phone");
-                  birthday = data.getString("birthday");
-                  gender = data.getString("gender");
-                  cloudProvider = data.getString("cloudprovider");
-
-                  publicKey = data.getString("publicKey");
-                  privateKey = data.getString("privateKey");
-
-                  // need to decrypt private key
-
-                  // get array of friends
-                  JSONArray groupList = data.getJSONArray("groups");
-
-                  // loop through array and parse individual friends
-                  for (int n = 0; n < groupList.length(); n++)
-                     {
-                        // parse the friend
-                        UserGroup userGroup = new UserGroup();
-                        userGroup.parseJSONObject(groupList.getJSONObject(n));
-
-                        // put into request or current friend list based on status
-                        userDefinedGroups.put(userGroup.ID, userGroup);
-                     }
-
-
-                  return true;
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
-
-
-            return false;
-         }
-
-
-      public ArrayList<UserGroup> getUserGroupsArrayList()
-         {
-            ArrayList<UserGroup> list = new ArrayList<>();
-
+            /*
+            // add all of the groups into the JSON array
             for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
                {
-                  list.add(entry.getValue());
+                  UserGroup userGroup = entry.getValue();
+                  groupList.put(userGroup.createJSONObject());
                }
+*/
+            // create new JSON object and put the JSON array into it
+            user.put("groups", groupList);
 
-            Collections.sort(list, new Comparator<UserGroup>()
-               {
-                  @Override public int compare(UserGroup lhs, UserGroup rhs)
-                     {
-                        return lhs.name.compareTo(rhs.name);
-                     }
-               });
-
-            return list;
+            // return the JSON formatted string
+            return user.toString();
          }
 
+      @Override
+      public String getDirectoryPath()
+         {
+            return Constants.applicationDataFilePath;
+         }
+
+      @Override
+      public String getFileName()
+         {
+            return Constants.userFile;
+         }
+
+      /**
+       * Parses the user info data file from a JSON formatted string
+       *
+       * @param fileContents file contents stored as a JSON formatted string
+       * @throws JSONException
+       **/
+      @Override
+      public void parseApplicationFileContents(String fileContents) throws JSONException
+         {
+            // create a JSON object from the string and parse the user data
+            JSONObject data = new JSONObject(fileContents);
+            ID = data.getString("ID");
+            firstName = data.getString("firstname");
+            lastName = data.getString("lastname");
+            email = data.getString("email");
+            phoneNumber = data.getString("phone");
+            birthday = data.getString("birthday");
+            gender = data.getString("gender");
+            cloudProvider = data.getString("cloudprovider");
+
+            publicKey = data.getString("publicKey");
+            privateKey = data.getString("privateKey");
+
+            /*
+            // get array of groups
+            JSONArray groupList = data.getJSONArray("groups");
+
+            // loop through array and parse individual groups
+            for (int n = 0; n < groupList.length(); n++)
+               {
+                  // parse the group
+                  UserGroup userGroup = new UserGroup();
+                  userGroup.parseJSONObject(groupList.getJSONObject(n));
+
+                  // add the group to the hashmap
+                  userDefinedGroups.put(userGroup.ID, userGroup);
+               }*/
+         }
+
+
+/*
       public ArrayList<String> getUserWallPostIDs()
          {
             ArrayList<String> list = new ArrayList<>();
@@ -191,7 +149,7 @@ public class User implements Parcelable
                }
             return list;
          }
-
+*/
 
       // Parcelling part
       public User(Parcel in)
@@ -207,6 +165,7 @@ public class User implements Parcelable
             this.publicKey = in.readString();
             this.privateKey = in.readString();
 
+            /*
             //initialize your map before
             int size = in.readInt();
             for (int i = 0; i < size; i++)
@@ -214,10 +173,7 @@ public class User implements Parcelable
                   String key = in.readString();
                   UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
                   userDefinedGroups.put(key, value);
-               }
-
-            this.deviceFileKey = in.readString();
-
+               }*/
          }
 
 
@@ -236,14 +192,13 @@ public class User implements Parcelable
             dest.writeString(this.publicKey);
             dest.writeString(this.privateKey);
 
+            /*
             dest.writeInt(userDefinedGroups.size());
             for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
                {
                   dest.writeString(entry.getKey());
                   dest.writeParcelable(entry.getValue(), flags);
-               }
-
-            dest.writeString(this.deviceFileKey);
+               }*/
          }
 
       public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>()

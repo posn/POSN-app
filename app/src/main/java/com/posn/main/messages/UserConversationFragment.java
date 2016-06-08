@@ -67,7 +67,7 @@ public class UserConversationFragment extends Fragment implements OnClickListene
             main = (MainActivity) getActivity();
 
             // get the conversation list from the main activity
-            conversationList = main.conversationList.conversations;
+            conversationList = main.dataManager.conversationList.conversations;
 
             // check if there are any notifications, if so then update listview
             if (conversationList.size() > 0)
@@ -89,7 +89,7 @@ public class UserConversationFragment extends Fragment implements OnClickListene
                         Conversation conversation = (Conversation) parent.getItemAtPosition(position);
 
                         String FriendID = conversation.friend;
-                        Friend friend = main.masterFriendList.currentFriends.get(FriendID);
+                        Friend friend = main.dataManager.masterFriendList.currentFriends.get(FriendID);
                         intent.putExtra("friendID", FriendID);
                         intent.putExtra("friend", friend);
 

@@ -7,14 +7,26 @@ import com.google.common.hash.Hashing;
 import java.nio.charset.Charset;
 import java.util.Calendar;
 
+/**
+ * This class provides methods to generate unique IDs
+ **/
 public class IDGenerator
    {
-      public static String generate(String seed)
+      /**
+       * <p>Generates a unique ID based on the initial value and the date/time the ID was created</p>
+       *
+       * <p>Uses SHA-256 hashing algorithm</p>
+       *
+       * @param inputString value used to generate IDs
+       * @return unique ID string
+       **/
+      public static String generate(String inputString)
          {
+            // get the current
             Calendar c = Calendar.getInstance();
             String timeDate = c.toString();
 
-            HashCode hashCode = Hashing.sha256().hashString(seed + timeDate, Charset.defaultCharset());
+            HashCode hashCode = Hashing.sha256().hashString(inputString + timeDate, Charset.defaultCharset());
 
             return hashCode.toString();
          }

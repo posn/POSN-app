@@ -46,6 +46,7 @@ public class Constants
       public static final String notificationListFile = "/user_notifications.txt";
       public static final String converstationListFile = "/user_messages.txt";
       public static final String userFile = "/user.txt";
+      public static final String userGroupListFile = "/user_groups.txt";
 
       // cloud directory names
       public static final String wallDirectory = "wall";

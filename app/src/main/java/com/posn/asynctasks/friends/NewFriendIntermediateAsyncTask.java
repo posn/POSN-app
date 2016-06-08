@@ -7,13 +7,16 @@ import com.posn.Constants;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.email.EmailSender;
-import com.posn.utility.AsymmetricKeyManager;
-import com.posn.utility.SymmetricKeyManager;
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.main.friends.UserFriendsFragment;
-import com.posn.utility.CloudFileManager;
+import com.posn.utility.AsymmetricKeyManager;
+import com.posn.utility.POSNDataManager;
+import com.posn.utility.SymmetricKeyManager;
 
-import java.io.UnsupportedEncodingException;
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.net.URLEncoder;
 
 
@@ -23,6 +26,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
       private RequestedFriend requestedFriend;
       private UserFriendsFragment friendFrag;
       private MainActivity main;
+      private POSNDataManager dataManager;
 
       Friend newFriend;
 
@@ -32,6 +36,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
             friendFrag = frag;
             this.requestedFriend = requestedFriend;
             main = friendFrag.activity;
+            main.dataManager = dataManager;
          }
 
 
@@ -51,29 +56,29 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            // create a new friend from the requested friend
-            newFriend = new Friend(requestedFriend, Constants.STATUS_TEMPORAL);
-
-            // create a new current friend for the accepted user and add them to the current friends list
-            main.masterFriendList.currentFriends.put(newFriend.ID, newFriend);
-
-
-            // create friend file with all friend group data
-            String fileName = requestedFriend.ID + "_friend_file.txt";
-            String deviceFilepath = Constants.friendsFilePath;
-            CloudFileManager.createFriendFile(main.user, newFriend, deviceFilepath, fileName);
-
-            // upload group wall to cloud and get direct link
-            String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
-
-
-            // create URI
-            String URI = "";
-
             try
                {
+                  // create a new friend from the requested friend
+                  String symmetricKey = SymmetricKeyManager.createRandomKey();
+                  newFriend = new Friend(requestedFriend, symmetricKey, Constants.STATUS_TEMPORAL);
+
+                  // create a new current friend for the accepted user and add them to the current friends list
+                  dataManager.masterFriendList.currentFriends.put(newFriend.ID, newFriend);
+
+
+                  // create friend file with all friend group data
+                  String fileName = requestedFriend.ID + "_friend_file.txt";
+                  String deviceFilepath = Constants.friendsFilePath;
+                  dataManager.createFriendFile(newFriend.ID, deviceFilepath, fileName);
+
+                  // upload group wall to cloud and get direct link
+                  String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
+
+                  // create URI
+                  String URI;
+
                   // replace all + chars in the key to the hex value
-                  String publicKey = main.user.publicKey;
+                  String publicKey = dataManager.user.publicKey;
                   publicKey = publicKey.replace("+", "%2B");
 
                   // encode the key to maintain special chars
@@ -83,7 +88,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
                   String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
                   String encodedFriendFileKey = URLEncoder.encode(newFriend.userFriendFileKey, "UTF-8");
 
-                  URI = main.user.ID + "/" + main.user.firstName + "/" + main.user.lastName.trim() + "/" + publicKey + "/" + encodedURL + "/" + encodedFriendFileKey + "/" + requestedFriend.nonce + "/" + requestedFriend.nonce2;
+                  URI = dataManager.user.ID + "/" + dataManager.user.firstName + "/" + dataManager.user.lastName.trim() + "/" + publicKey + "/" + encodedURL + "/" + encodedFriendFileKey + "/" + requestedFriend.nonce + "/" + requestedFriend.nonce2;
 
                   // generate symmetric key to encrypt data
                   String key = SymmetricKeyManager.createRandomKey();
@@ -94,20 +99,21 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
                   String encryptedKey = AsymmetricKeyManager.encrypt(requestedFriend.publicKey, key);
 
                   URI = "http://posn.com/accept/" + encryptedKey + "/" + encryptedURI;
+
+
+                  // encrypt URI with friend's public key
+
+                  // send the email the the user (THIS IS BAD TO HARDCODE USERNAME AND PASS
+                  EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
+                  email.sendMail("POSN - New Friend Request", "SUCCESS!\n\n" + URI, "POSN", requestedFriend.email);
+
+                  dataManager.saveFriendListAppFile();
+
                }
-            catch (UnsupportedEncodingException e)
+            catch (JSONException | IOException | POSNCryptoException error)
                {
-                  e.printStackTrace();
+                  error.printStackTrace();
                }
-
-
-            // encrypt URI with friend's public key
-
-            // send the email the the user (THIS IS BAD TO HARDCODE USERNAME AND PASS
-            EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
-            email.sendMail("POSN - New Friend Request", "SUCCESS!\n\n" + URI, "POSN", requestedFriend.email);
-
-            main.masterFriendList.saveFriendsListToFile();
 
             /*
             // add pending friend to request friends list

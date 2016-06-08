@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class CommentList implements Parcelable
             comments = new HashMap<>();
          }
 
-      public void loadWallCommentsFromFile()
+      public void loadWallCommentsFromFile() throws IOException, JSONException
          {
             comments.clear();
 
@@ -36,7 +37,7 @@ public class CommentList implements Parcelable
                   // decrypt the file contents
                   //String fileContents = SymmetricKeyManager.decrypt(deviceFileKey, encryptedData);
 
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath + "/" + Constants.wallListFile);
+                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath, Constants.wallListFile);
 
                   JSONArray wallCommentsArray = data.getJSONArray("comments");
 
@@ -55,32 +56,27 @@ public class CommentList implements Parcelable
          }
 
 
-      public void saveWallCommentsToFile()
+      public void saveWallCommentsToFile() throws IOException, JSONException
          {
             JSONArray wallCommentList = new JSONArray();
 
-            try
+
+            for (Map.Entry<String, Comment> entry : comments.entrySet())
                {
-                  for (Map.Entry<String, Comment> entry : comments.entrySet())
-                     {
-                        Comment comment = entry.getValue();
-                        wallCommentList.put(comment.createJSONObject());
-                     }
-
-                  JSONObject object = new JSONObject();
-                  object.put("comments", wallCommentList);
-
-
-                  //fileContents = SymmetricKeyManager.encrypt(deviceFileKey, user.toString());
-
-                 // DeviceFileManager.writeStringToFile(fileContents, Constants.applicationDataFilePath + "/" + Constants.wallListFile);
-
-                  DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath + "/" + Constants.wallListFile);
+                  Comment comment = entry.getValue();
+                  wallCommentList.put(comment.createJSONObject());
                }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
+
+            JSONObject object = new JSONObject();
+            object.put("comments", wallCommentList);
+
+
+            //fileContents = SymmetricKeyManager.encrypt(deviceFileKey, user.toString());
+
+            // DeviceFileManager.writeStringToFile(fileContents, Constants.applicationDataFilePath + "/" + Constants.wallListFile);
+
+            DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath, Constants.wallListFile);
+
          }
 
 
@@ -89,11 +85,12 @@ public class CommentList implements Parcelable
          {
             //initialize your map before
             int size = in.readInt();
-            for(int i = 0; i < size; i++){
-               String key = in.readString();
-               Comment value = in.readParcelable(Comment.class.getClassLoader());
-               comments.put(key,value);
-            }
+            for (int i = 0; i < size; i++)
+               {
+                  String key = in.readString();
+                  Comment value = in.readParcelable(Comment.class.getClassLoader());
+                  comments.put(key, value);
+               }
          }
 
 
@@ -101,10 +98,11 @@ public class CommentList implements Parcelable
       public void writeToParcel(Parcel dest, int flags)
          {
             dest.writeInt(comments.size());
-            for(Map.Entry<String,Comment> entry : comments.entrySet()){
-               dest.writeString(entry.getKey());
-               dest.writeParcelable(entry.getValue(),flags);
-            }
+            for (Map.Entry<String, Comment> entry : comments.entrySet())
+               {
+                  dest.writeString(entry.getKey());
+                  dest.writeParcelable(entry.getValue(), flags);
+               }
          }
 
       public static final Creator<CommentList> CREATOR = new Creator<CommentList>()

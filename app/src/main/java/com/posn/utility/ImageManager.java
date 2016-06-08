@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.media.ExifInterface;
 
 import com.google.common.io.Files;
+import com.posn.exceptions.POSNCryptoException;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,7 +101,7 @@ public class ImageManager
                   return photo;
 
                }
-            catch (IOException e)
+            catch (IOException | POSNCryptoException e)
                {
                   e.printStackTrace();
                }

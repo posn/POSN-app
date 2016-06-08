@@ -38,6 +38,7 @@ public class UserGroup implements Parcelable
             this.ID = ID;
             this.groupFileLink = groupFileLink;
             this.groupFileKey = groupFileKey;
+            this.version = 0;
             selected = false;
          }
 
@@ -145,17 +146,17 @@ public class UserGroup implements Parcelable
          }
 
       public static final Creator<UserGroup> CREATOR = new Creator<UserGroup>()
-      {
-         public UserGroup createFromParcel(Parcel in)
-            {
-               return new UserGroup(in);
-            }
+         {
+            public UserGroup createFromParcel(Parcel in)
+               {
+                  return new UserGroup(in);
+               }
 
-         public UserGroup[] newArray(int size)
-            {
-               return new UserGroup[size];
-            }
-      };
+            public UserGroup[] newArray(int size)
+               {
+                  return new UserGroup[size];
+               }
+         };
 
       @Override
       public int describeContents()

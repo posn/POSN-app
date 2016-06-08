@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.posn.Constants;
-import com.posn.utility.DeviceFileManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,63 +12,58 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-public class NotificationList implements Parcelable
+public class NotificationList implements Parcelable, ApplicationFile
    {
-      public ArrayList<Notification> notifications;
-      private String deviceFileKey;
+      public ArrayList<Notification> notifications = new ArrayList<>();;
 
-      public NotificationList(String deviceFileKey)
+      public NotificationList()
          {
-            this.deviceFileKey = deviceFileKey;
-            notifications = new ArrayList<>();
          }
 
-      public void loadNotificationsFromFile()
+
+      @Override
+      public void parseApplicationFileContents(String fileContents) throws JSONException
          {
-            // open the file
-            try
+            JSONObject data = new JSONObject(fileContents);
+
+            JSONArray notificationsArray = data.getJSONArray("notifications");
+
+            for (int n = 0; n < notificationsArray.length(); n++)
                {
-                  JSONObject data = DeviceFileManager.loadJSONObjectFromFile(Constants.applicationDataFilePath + "/" + Constants.notificationListFile);
+                  Notification notification = new Notification();
+                  notification.parseJSONObject(notificationsArray.getJSONObject(n));
 
-                  JSONArray notificationsArray = data.getJSONArray("notifications");
-
-                  for (int n = 0; n < notificationsArray.length(); n++)
-                     {
-                        Notification notification = new Notification();
-                        notification.parseJSONObject(notificationsArray.getJSONObject(n));
-
-                        notifications.add(notification);
-                     }
-               }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
+                  notifications.add(notification);
                }
          }
 
-      public void saveNotificationsToFile()
+      @Override
+      public String getDirectoryPath()
+         {
+            return Constants.applicationDataFilePath;
+         }
+
+      @Override
+      public String getFileName()
+         {
+            return Constants.notificationListFile;
+         }
+
+      @Override
+      public String createApplicationFileContents() throws JSONException
          {
             JSONArray notificationList = new JSONArray();
 
-            try
+            for (int i = 0; i < notifications.size(); i++)
                {
-                  for (int i = 0; i < notifications.size(); i++)
-                     {
-                        Notification notification = notifications.get(i);
-                        notificationList.put(notification.createJSONObject());
-                     }
-
-                  JSONObject object = new JSONObject();
-                  object.put("notifications", notificationList);
-
-
-                  DeviceFileManager.writeJSONToFile(object, Constants.applicationDataFilePath + "/" + Constants.notificationListFile);
-
+                  Notification notification = notifications.get(i);
+                  notificationList.put(notification.createJSONObject());
                }
-            catch (JSONException e)
-               {
-                  e.printStackTrace();
-               }
+
+            JSONObject object = new JSONObject();
+            object.put("notifications", notificationList);
+            
+            return object.toString();
          }
 
       // Parcelling part

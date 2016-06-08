@@ -5,19 +5,16 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.posn.Constants;
-import com.posn.datatypes.ConversationList;
-import com.posn.datatypes.FriendList;
-import com.posn.datatypes.WallPost;
 import com.posn.datatypes.UserGroup;
-import com.posn.datatypes.NotificationList;
-import com.posn.datatypes.WallPostList;
-import com.posn.utility.SymmetricKeyManager;
+import com.posn.exceptions.POSNCryptoException;
 import com.posn.initial_setup.SetupGroupsActivity;
-import com.posn.utility.CloudFileManager;
-import com.posn.utility.IDGenerator;
+import com.posn.utility.POSNDataManager;
+import com.posn.utility.SymmetricKeyManager;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
@@ -54,51 +51,52 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
       // Checking login in background
       protected String doInBackground(String... params)
          {
-            for (int i = 0; i < groupList.size(); i++)
+            try
                {
-                  UserGroup group = new UserGroup();
-                  group.name = groupList.get(i);
+                  // generate symmetric key from user password
+                  String deviceFileKey = SymmetricKeyManager.createKeyFromString(activity.password);
 
-                  // generate group ID
-                  group.ID = IDGenerator.generate(group.name);
+                  POSNDataManager dataManager = new POSNDataManager(activity.user, deviceFileKey);
 
-                  // generate group wall and archive key
-                  group.groupFileKey = SymmetricKeyManager.createRandomKey();
+                  // loop and create all the new groups
+                  for (int i = 0; i < groupList.size(); i++)
+                     {
+                        UserGroup group = dataManager.userGroupList.createNewUserGroup(groupList.get(i));
 
-                  // create empty group wall file on device to upload to cloud
-                  String fileName = "group_" + group.name + "_" + group.version + ".txt";
-                  String deviceFilepath = Constants.wallFilePath;
-                  CloudFileManager.createGroupWallFile(group, new HashMap<String, WallPost>(), deviceFilepath, fileName);
+                        String fileName = "group_" + group.name + "_" + group.version + ".txt";
+                        String directory = Constants.wallFilePath;
 
-                  // upload group wall to cloud and get direct link
-                  group.groupFileLink = activity.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
+                        dataManager.createGroupWallFile(group.ID, directory, fileName);
 
-                  // create new group object and add to group list
-                  activity.user.userDefinedGroups.put(group.ID, group);
+                        // upload group wall to cloud and get direct link
+                        group.groupFileLink = activity.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, Constants.wallFilePath + "/" + fileName);
+
+                        // create new group object and add to group list
+                        dataManager.userGroupList.updateUserGroup(group);
+                     }
+
+                  // save the user group list to a file
+                  dataManager.saveUserGroupListAppFile();
+
+                  // save the user data to a file
+                  dataManager.saveUserAppFile();
+
+                  // get the friend list file
+                  dataManager.saveFriendListAppFile();
+
+                  // get the wall post file
+                  dataManager.saveWallPostListAppFile();
+
+                  // get the notifications file
+                  dataManager.saveNotificationListAppFile();
+
+                  // get the messages file
+                  dataManager.saveConversationListAppFile();
                }
-
-            // generate symmetric key from user password
-            String deviceFileKey = SymmetricKeyManager.createKeyFromString(activity.password);
-
-            // save group list to device
-            activity.user.deviceFileKey = deviceFileKey;
-            activity.user.saveUserToFile();
-
-            // get the friend list file
-            FriendList friendList = new FriendList(deviceFileKey);
-            friendList.saveFriendsListToFile();
-
-            // get the wall post file
-            WallPostList wallPostList = new WallPostList(deviceFileKey);
-            wallPostList.saveWallPostsToFile();
-
-            // get the notifications file
-            NotificationList notificationList = new NotificationList(deviceFileKey);
-            notificationList.saveNotificationsToFile();
-
-            // get the messages file
-            ConversationList conversationList = new ConversationList(deviceFileKey);
-            conversationList.saveConversationListToFile();
+            catch (IOException | JSONException | POSNCryptoException error)
+               {
+                  error.printStackTrace();
+               }
 
             return null;
          }

@@ -70,7 +70,7 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
             noNotificationsText = (TextView) view.findViewById(R.id.notification_text);
 
             // get the notification list from the main activity
-            notificationsList = main.notificationList.notifications;
+            notificationsList = main.dataManager.notificationList.notifications;
 
             // check if there are any notifications, if so then update listview
             if (notificationsList.size() > 0)
