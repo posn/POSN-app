@@ -12,7 +12,7 @@ import com.posn.main.friends.AcceptedFriendItem;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.utility.AsymmetricKeyManager;
 import com.posn.utility.DeviceFileManager;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONException;
@@ -27,7 +27,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
       private RequestedFriend requestedFriend;
       private UserFriendsFragment friendFrag;
       private MainActivity main;
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
       public NewFriendFinalAsyncTask(UserFriendsFragment frag, RequestedFriend requestedFriend )
          {
@@ -57,6 +57,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
          {
             try
                {
+                  System.out.println("FINAL STARTED!!!");
                   // create a new friend object from the requested friend
                   Friend newFriend = dataManager.masterFriendList.addNewAcceptedFriendRequest(requestedFriend);
 
@@ -110,7 +111,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
                   dataManager.loadFriendFile(newFriend.ID, deviceFilepath, fileName);
 
-                  dataManager.saveFriendListAppFile();
+                  dataManager.saveFriendListAppFile(false);
                }
             catch (POSNCryptoException | IOException | JSONException e)
                {

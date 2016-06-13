@@ -8,7 +8,7 @@ import com.posn.datatypes.UserGroup;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.utility.IDGenerator;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONException;
@@ -22,7 +22,7 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
 
       private MainActivity main;
       private String newGroupName;
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
       public NewGroupAsyncTask(MainActivity mainActivity, String groupName)
          {

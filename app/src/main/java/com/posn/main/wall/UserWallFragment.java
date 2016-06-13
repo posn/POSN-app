@@ -1,7 +1,6 @@
 package com.posn.main.wall;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,7 +32,7 @@ import com.posn.main.wall.posts.ListViewPostItem;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
 import com.posn.main.wall.posts.VideoPostItem;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,23 +41,29 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class implements the functionality for the user wall fragment:
+ * <ul><li>Populates the list view using the data stored in the wall post hashmap located in the data manager class in the main activity
+ * <li>Allows the comments for each post to be view (launches a new activity for comments)
+ * <li>Allows the user to create new status or photo wall posts</ul>
+ **/
 
 public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener
    {
-      // declare variables
-      Context context;
+      // user interface variables
       RelativeLayout statusButton, photoButton;
       public TextView noWallPostsText;
       ListView lv;
       TableRow statusBar;
+      SwipeRefreshLayout swipeLayout;
+
 
       public ArrayList<ListViewPostItem> listViewItems = new ArrayList<>();
       HashMap<String, WallPost> wallPostData;
-      SwipeRefreshLayout swipeLayout;
       public WallArrayAdapter adapter;
 
-      public MainActivity activity;
-      POSNDataManager dataManager;
+      public MainActivity main;
+      public AppDataManager dataManager;
 
 
       @Override
@@ -66,15 +71,12 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
          {
             super.onCreate(savedInstanceState);
 
-            // load the system tab layout
+            // load the wall fragment layout
             View view = inflater.inflate(R.layout.fragment_user_wall, container, false);
-            context = getActivity();
-
-            // get the application
 
             // get the main activity
-            activity = (MainActivity) getActivity();
-            dataManager = activity.dataManager;
+            main = (MainActivity) getActivity();
+            dataManager = main.dataManager;
 
             // get the listview from the layout
             lv = (ListView) view.findViewById(R.id.listView1);
@@ -88,7 +90,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             statusButton.setOnClickListener(this);
             photoButton.setOnClickListener(this);
 
-            // get the status bar
+            // get the bottom status bar  from the layout
             statusBar = (TableRow) view.findViewById(R.id.status_bar);
 
             swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
@@ -98,8 +100,6 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             //
             lv.setOnScrollListener(new OnScrollListener()
                {
-                  private int mLastFirstVisibleItem;
-
                   @Override
                   public void onScrollStateChanged(AbsListView view, int scrollState)
                      {
@@ -110,19 +110,9 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      {
                         int topRowVerticalPosition = (lv == null || lv.getChildCount() == 0) ? 0 : lv.getChildAt(0).getTop();
                         swipeLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-
-                        if (mLastFirstVisibleItem < firstVisibleItem)
-                           {
-                              statusBar.setVisibility(View.GONE);
-                           }
-                        if (mLastFirstVisibleItem > firstVisibleItem)
-                           {
-                              statusBar.setVisibility(View.VISIBLE);
-                           }
-                        mLastFirstVisibleItem = firstVisibleItem;
                      }
                });
-            
+
             adapter = new WallArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
@@ -145,13 +135,13 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             switch (v.getId())
                {
                   case R.id.status_button:
-                     intent = new Intent(context, CreateNewStatusPostActivity.class);
+                     intent = new Intent(main, CreateNewStatusPostActivity.class);
                      intent.putExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
                      startActivityForResult(intent, Constants.RESULT_CREATE_STATUS_POST);
                      break;
 
                   case R.id.photo_button:
-                     intent = new Intent(context, CreateNewPhotoPostActivity.class);
+                     intent = new Intent(main, CreateNewPhotoPostActivity.class);
                      intent.putExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
                      startActivityForResult(intent, Constants.RESULT_CREATE_PHOTO_POST);
                      break;
@@ -161,25 +151,25 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                   // buttons on individual posts
                   case R.id.comment_button:
                      wallPost = (WallPost) v.getTag();
-                     intent = new Intent(context, CommentActivity.class);
+                     intent = new Intent(main, CommentActivity.class);
                      intent.putExtra("post", wallPost);
                      intent.putExtra("friends", dataManager.masterFriendList.currentFriends);
                      intent.putExtra("user", dataManager.user);
-                     context.startActivity(intent);
+                     main.startActivity(intent);
                      break;
 
                   case R.id.photo:
                      wallPost = (WallPost) v.getTag();
-                     intent = new Intent(context, PhotoViewerActivity.class);
+                     intent = new Intent(main, PhotoViewerActivity.class);
                      intent.putExtra("post", wallPost);
-                     context.startActivity(intent);
+                     main.startActivity(intent);
                      break;
 
                   case R.id.video:
                      wallPost = (WallPost) v.getTag();
-                     intent = new Intent(context, VideoPlayerActivity.class);
+                     intent = new Intent(main, VideoPlayerActivity.class);
                      intent.putExtra("post", wallPost);
-                     context.startActivity(intent);
+                     main.startActivity(intent);
                      break;
                }
          }
@@ -188,12 +178,14 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       @Override
       public void onActivityResult(int requestCode, int resultCode, Intent data)
          {
+            // check if the created post was a status text
             if (requestCode == Constants.RESULT_CREATE_STATUS_POST && resultCode == Activity.RESULT_OK)
                {
                   String status = data.getStringExtra("status");
                   ArrayList<String> selectGroups = data.getStringArrayListExtra("groups");
                   new NewWallStatusPostAsyncTask(this, selectGroups, status).execute();
                }
+            // check if the created post was a photo
             else if (requestCode == Constants.RESULT_CREATE_PHOTO_POST && resultCode == Activity.RESULT_OK)
                {
                   String photopath = data.getStringExtra("photopath");
@@ -204,15 +196,20 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
       public void createWallPostsList()
          {
-            listViewItems.clear();
-            System.out.println("CREATING WALL POSTS!!!");
+            // declared variables
             String name;
+            WallPost wallPost;
+
+            // clear the list view
+            listViewItems.clear();
+
+            System.out.println("CREATING WALL POSTS!!!");
 
             // loop through all the wall posts and add them to the listview
             for (Map.Entry<String, WallPost> entry : wallPostData.entrySet())
                {
-                  // get the post
-                  WallPost wallPost = entry.getValue();
+                  // get the post from the hashmap
+                  wallPost = entry.getValue();
 
                   // get the name of the person who created the post
                   if (wallPost.friendID.equals(dataManager.user.ID))
@@ -260,7 +257,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      {
                         swipeLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
-                        new GetFriendContentAsyncTask(activity).execute();
+                        new GetFriendContentAsyncTask(main).execute();
 
                      }
                });

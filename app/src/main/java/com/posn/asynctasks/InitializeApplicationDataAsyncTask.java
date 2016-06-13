@@ -5,22 +5,21 @@ import android.os.AsyncTask;
 
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 
 
-public class InitializeAsyncTask extends AsyncTask<String, String, String>
+public class InitializeApplicationDataAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
-      public AsyncResponseIntialize delegate = null;
       private MainActivity main;
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
 
-      public InitializeAsyncTask(MainActivity activity)
+      public InitializeApplicationDataAsyncTask(MainActivity activity)
          {
             super();
             main = activity;
@@ -34,7 +33,7 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
          {
             super.onPreExecute();
             pDialog = new ProgressDialog(main);
-            pDialog.setMessage("Loading Friend Data...");
+            pDialog.setMessage("Loading Application Data...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -80,7 +79,7 @@ public class InitializeAsyncTask extends AsyncTask<String, String, String>
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
-            delegate.finishedInitializingApplicationData();
+            new GetFriendContentAsyncTask(main).execute();
 
             // dismiss the dialog once done
             pDialog.dismiss();

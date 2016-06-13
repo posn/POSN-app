@@ -10,7 +10,7 @@ import com.posn.datatypes.WallPost;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.utility.DeviceFileManager;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 
 import org.json.JSONException;
 
@@ -22,10 +22,9 @@ import java.util.Map;
 public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
-      public AsyncResponseIntialize delegate = null;
       private MainActivity main;
 
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
 
       public GetFriendContentAsyncTask(MainActivity activity)
@@ -92,7 +91,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
 
                                     // update the friendlist
                                     dataManager.masterFriendList.currentFriends.put(friend.ID, friend);
-                                    dataManager.saveFriendListAppFile();
+                                    dataManager.saveFriendListAppFile(false);
 
                                  }
                               processFriendWallFiles = fetchedFriendFile;
@@ -101,8 +100,6 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                         // check if the friend file should be processed
                         if (processFriendWallFiles)
                            {
-                              System.out.println("UPDATING WALL FILES!!!");
-
                               // loop through all friend groups
                               for (int i = 0; i < friend.friendGroups.size(); i++)
                                  {
@@ -132,7 +129,6 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                                                       // download the multimedia from the cloud
                                                       DeviceFileManager.downloadFileFromURL(wallPost.multimediaLink, Constants.multimediaFilePath, wallPost.postID + ".jpg");
                                                    }
-
                                              }
                                        }
                                  }
@@ -154,7 +150,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
-            main.finishedInitializingApplicationData();
+            main.notifyFragmentsOnNewDataChange();
             // dismiss the dialog once done
             pDialog.dismiss();
          }

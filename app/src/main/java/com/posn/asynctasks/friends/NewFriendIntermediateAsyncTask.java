@@ -11,7 +11,7 @@ import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.utility.AsymmetricKeyManager;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONException;
@@ -26,7 +26,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
       private RequestedFriend requestedFriend;
       private UserFriendsFragment friendFrag;
       private MainActivity main;
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
       Friend newFriend;
 
@@ -36,7 +36,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
             friendFrag = frag;
             this.requestedFriend = requestedFriend;
             main = friendFrag.activity;
-            main.dataManager = dataManager;
+            dataManager = main.dataManager;
          }
 
 
@@ -107,7 +107,7 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
                   EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
                   email.sendMail("POSN - New Friend Request", "SUCCESS!\n\n" + URI, "POSN", requestedFriend.email);
 
-                  dataManager.saveFriendListAppFile();
+                  dataManager.saveFriendListAppFile(false);
 
                }
             catch (JSONException | IOException | POSNCryptoException error)

@@ -64,6 +64,10 @@ public class LoginActivity extends BaseActivity implements OnClickListener
                      }
                });
 
+            // set the actionbar title
+            getActionBar().setTitle("Welcome - Login");
+
+
             // create the storage directories
             DeviceFileManager.createDefaultStorageDirectories();
 

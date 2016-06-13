@@ -8,7 +8,7 @@ import com.posn.Constants;
 import com.posn.datatypes.UserGroup;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.initial_setup.SetupGroupsActivity;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONException;
@@ -56,7 +56,7 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
                   // generate symmetric key from user password
                   String deviceFileKey = SymmetricKeyManager.createKeyFromString(activity.password);
 
-                  POSNDataManager dataManager = new POSNDataManager(activity.user, deviceFileKey);
+                  AppDataManager dataManager = new AppDataManager(activity.user, deviceFileKey);
 
                   // loop and create all the new groups
                   for (int i = 0; i < groupList.size(); i++)
@@ -82,7 +82,7 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
                   dataManager.saveUserAppFile();
 
                   // get the friend list file
-                  dataManager.saveFriendListAppFile();
+                  dataManager.saveFriendListAppFile(false);
 
                   // get the wall post file
                   dataManager.saveWallPostListAppFile();

@@ -9,7 +9,7 @@ import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.LoginActivity;
 import com.posn.main.MainActivity;
 import com.posn.utility.DeviceFileManager;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 import com.posn.utility.SymmetricKeyManager;
 import com.posn.utility.UserInterfaceManager;
 
@@ -26,7 +26,7 @@ public class AuthenticateUserAsyncTask extends AsyncTask<String, String, String>
       private boolean loginVerify;
       private LoginActivity activity;
 
-      POSNDataManager dataManager;
+      AppDataManager dataManager;
 
 
       public AuthenticateUserAsyncTask(LoginActivity activity, String email, String password)
@@ -66,7 +66,7 @@ public class AuthenticateUserAsyncTask extends AsyncTask<String, String, String>
                         if (verificationString.equals("POSN - SUCCESS"))
                            {
                               // create a new data manager object
-                              dataManager = new POSNDataManager(deviceFileKey);
+                              dataManager = new AppDataManager(deviceFileKey);
 
                               // load the user application file from the device
                               dataManager.loadUserAppFile();

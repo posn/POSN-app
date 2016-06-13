@@ -40,6 +40,8 @@ public class CommentActivity extends Activity implements View.OnClickListener
       User user;
       CommentArrayAdapter adapter;
 
+      ArrayList<Comment> newUserComments = new ArrayList<>();
+
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
@@ -92,8 +94,11 @@ public class CommentActivity extends Activity implements View.OnClickListener
                      if (!isEmpty(commentBoxText))
                         {
                            String comment = commentBoxText.getText().toString().trim();
-                           commentList.add(new Comment(user.ID, post.postID, comment));
 
+                           Comment newComment = new Comment(user.ID, post.postID, comment);
+
+                           commentList.add(newComment);
+                           newUserComments.add(newComment);
                            updateAdapter();
                         }
 
@@ -106,7 +111,24 @@ public class CommentActivity extends Activity implements View.OnClickListener
          {
             if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0)
                {
-                  // do something on back.
+                  // check if new comments need to be processed
+                  if(newUserComments.size() > 0)
+                     {
+                        // THIS NEEDS TO GO IN THE ASYNC TASK TO PROCESS THE COMMENT
+                           // NEED TO DO THIS CHECK TO DETERMINE IF THE COMMENTS ARE EMBEDDED DIRECTLY INTO POST AND UPDATE THE WALLS
+
+                        // check if the post is a user or friend post
+                        if(post.friendID.equals(user.ID))
+                           {
+
+                           }
+                        else
+                           {
+
+                           }
+
+                        finish();
+                     }
 
                   return true;
                }

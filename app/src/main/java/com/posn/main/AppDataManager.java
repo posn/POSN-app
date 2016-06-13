@@ -1,7 +1,8 @@
-package com.posn.utility;
+package com.posn.main;
 
 
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -19,6 +20,9 @@ import com.posn.datatypes.UserGroupList;
 import com.posn.datatypes.WallPost;
 import com.posn.datatypes.WallPostList;
 import com.posn.exceptions.POSNCryptoException;
+import com.posn.utility.AsymmetricKeyManager;
+import com.posn.utility.DeviceFileManager;
+import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,10 +38,13 @@ import java.util.List;
 /**
  * This class stores all of the application data and provides methods to create and process files used to
  **/
-public class POSNDataManager implements Parcelable
+public class AppDataManager implements Parcelable
    {
       // symmetric key used to encrypt/decrypt the user file on the device (created from the user's password)
       private String deviceFileKey = null;
+
+      // boolean flag used to determine if a new friend request needs to be processed in the processFriendRequest function
+      private boolean newFriendRequest = false;
 
       // user object used to hold data belonging to the data owner
       public User user = null;
@@ -61,59 +68,62 @@ public class POSNDataManager implements Parcelable
       public RequestedFriend requestedFriend = null;
 
 
-      public POSNDataManager(String deviceFileKey)
+      public AppDataManager(String deviceFileKey)
          {
             this.user = new User();
             this.deviceFileKey = deviceFileKey;
          }
 
-      public POSNDataManager(User user, String deviceFileKey)
+      public AppDataManager(User user, String deviceFileKey)
          {
             this.user = user;
             this.deviceFileKey = deviceFileKey;
          }
 
 
-      public RequestedFriend processFriendRequest() throws IOException, JSONException, POSNCryptoException
+      public RequestedFriend processFriendRequest() throws POSNCryptoException
          {
-            // check if the friend is a new incoming friend request
-            if (requestedFriend.status == Constants.STATUS_REQUEST)
+            if (newFriendRequest)
                {
-                  masterFriendList.friendRequests.add(requestedFriend);
-                  //requestedFriend = null;
-                  return requestedFriend;
-               }
-            // check if the friend accepted the sent request
-            else if (requestedFriend.status == Constants.STATUS_ACCEPTED)
-               {
-                  System.out.println("ACCEPT!!!: " + requestedFriend.name + " | " + masterFriendList.friendRequests.contains(requestedFriend));
+                  // check if the friend is a new incoming friend request
+                  if (requestedFriend.status == Constants.STATUS_REQUEST)
+                     {
+                        masterFriendList.friendRequests.add(requestedFriend);
+                        newFriendRequest = false;
+                        return requestedFriend;
+                     }
+                  // check if the friend accepted the sent request
+                  else if (requestedFriend.status == Constants.STATUS_ACCEPTED)
+                     {
+                        System.out.println("ACCEPT!!!: " + requestedFriend.name + " | " + masterFriendList.friendRequests.contains(requestedFriend));
 
-                  // get the requested from from the friend request list
-                  int index = masterFriendList.friendRequests.indexOf(requestedFriend);
-                  RequestedFriend pendingFriend = masterFriendList.friendRequests.get(index);
+                        // get the requested from from the friend request list
+                        int index = masterFriendList.friendRequests.indexOf(requestedFriend);
+                        RequestedFriend pendingFriend = masterFriendList.friendRequests.get(index);
 
-                  // merge data
-                  RequestedFriend friend = new RequestedFriend();
+                        // merge data
+                        RequestedFriend friend = new RequestedFriend();
 
-                  friend.name = pendingFriend.name;
-                  friend.email = pendingFriend.email;
-                  friend.groups = pendingFriend.groups;
-                  friend.fileLink = requestedFriend.fileLink;
-                  friend.fileKey = requestedFriend.fileKey;
-                  friend.publicKey = requestedFriend.publicKey;
-                  friend.ID = requestedFriend.ID;
-                  friend.nonce = requestedFriend.nonce;
-                  friend.nonce2 = requestedFriend.nonce2;
+                        friend.status = Constants.STATUS_ACCEPTED;
+                        friend.name = pendingFriend.name;
+                        friend.email = pendingFriend.email;
+                        friend.groups = pendingFriend.groups;
+                        friend.fileLink = requestedFriend.fileLink;
+                        friend.fileKey = requestedFriend.fileKey;
+                        friend.publicKey = requestedFriend.publicKey;
+                        friend.ID = requestedFriend.ID;
+                        friend.nonce = requestedFriend.nonce;
+                        friend.nonce2 = requestedFriend.nonce2;
 
-                  requestedFriend = null;
-
-                  return friend;
+                        newFriendRequest = false;
+                        return friend;
+                     }
                }
             return null;
          }
 
 
-      public boolean parseFriendRequestURI(Uri uriData) throws UnsupportedEncodingException, POSNCryptoException
+      public void parseFriendRequestURI(Uri uriData) throws UnsupportedEncodingException, POSNCryptoException
          {
             if (uriData != null)
                {
@@ -149,11 +159,11 @@ public class POSNDataManager implements Parcelable
 
                         // get nonce
                         requestedFriend.nonce = params.get(7);
-                        return true;
+                        newFriendRequest = true;
                      }
                   else if (uriType.equals("accept"))
                      {
-
+                        System.out.println("HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                         // get encrypted key
                         String encryptedSymmetricKey = params.get(1);
 
@@ -187,11 +197,9 @@ public class POSNDataManager implements Parcelable
                         // get nonces
                         requestedFriend.nonce = paths[6];
                         requestedFriend.nonce2 = paths[7];
-                        return true;
+                        newFriendRequest = true;
                      }
                }
-
-            return false;
          }
 
 
@@ -225,9 +233,12 @@ public class POSNDataManager implements Parcelable
             saveAppDataFileToDevice(conversationList);
          }
 
-      public void saveFriendListAppFile() throws IOException, JSONException, POSNCryptoException
+      public void saveFriendListAppFile(boolean executeAsAsync) throws IOException, JSONException, POSNCryptoException
          {
-            saveAppDataFileToDevice(masterFriendList);
+            if (executeAsAsync)
+               saveAppDataFileToDeviceAsync(masterFriendList);
+            else
+               saveAppDataFileToDevice(masterFriendList);
          }
 
       public void loadFriendListAppFile() throws IOException, JSONException, POSNCryptoException
@@ -435,6 +446,26 @@ public class POSNDataManager implements Parcelable
             DeviceFileManager.writeStringToFile(encryptedFileContents, object.getDirectoryPath(), object.getFileName());
          }
 
+      private void saveAppDataFileToDeviceAsync(final ApplicationFile object)
+         {
+            new AsyncTask<Void, Void, Void>()
+               {
+                  protected Void doInBackground(Void... unused)
+                     {
+                        try
+                           {
+                              saveAppDataFileToDevice(object);
+                           }
+                        catch (IOException | JSONException | POSNCryptoException e)
+                           {
+                              e.printStackTrace();
+                           }
+                        return null;
+                     }
+
+               }.execute();
+         }
+
       private void loadAppDataFileFromDevice(ApplicationFile object) throws IOException, JSONException, POSNCryptoException
          {
             String encryptedFileContents = DeviceFileManager.loadStringFromFile(object.getDirectoryPath(), object.getFileName());
@@ -447,7 +478,7 @@ public class POSNDataManager implements Parcelable
 
 
       // Parcelling part
-      public POSNDataManager(Parcel in)
+      public AppDataManager(Parcel in)
          {
             this.deviceFileKey = in.readString();
             this.user = in.readParcelable(User.class.getClassLoader());
@@ -473,16 +504,16 @@ public class POSNDataManager implements Parcelable
             dest.writeParcelable(requestedFriend, flags);
          }
 
-      public static final Parcelable.Creator<POSNDataManager> CREATOR = new Parcelable.Creator<POSNDataManager>()
+      public static final Parcelable.Creator<AppDataManager> CREATOR = new Parcelable.Creator<AppDataManager>()
          {
-            public POSNDataManager createFromParcel(Parcel in)
+            public AppDataManager createFromParcel(Parcel in)
                {
-                  return new POSNDataManager(in);
+                  return new AppDataManager(in);
                }
 
-            public POSNDataManager[] newArray(int size)
+            public AppDataManager[] newArray(int size)
                {
-                  return new POSNDataManager[size];
+                  return new AppDataManager[size];
                }
          };
 

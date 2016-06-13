@@ -9,11 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AbsListView.OnScrollListener;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TableRow;
 
 import com.posn.Constants;
 import com.posn.R;
@@ -24,8 +21,8 @@ import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
+import com.posn.main.AppDataManager;
 import com.posn.main.groups.CreateGroupDialogFragment;
-import com.posn.utility.POSNDataManager;
 
 import org.json.JSONException;
 
@@ -41,10 +38,9 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
    {
       // declare variables
       public MainActivity activity;
-      POSNDataManager dataManager;
+      AppDataManager dataManager;
       Context context;
       ListView lv;
-      TableRow statusBar;
       RelativeLayout addFriendButton;
       RelativeLayout addGroupButton;
 
@@ -73,33 +69,6 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             lv = (ListView) view.findViewById(R.id.listView1);
 
-            // get the status bar
-            statusBar = (TableRow) view.findViewById(R.id.status_bar);
-
-            lv.setOnScrollListener(new OnScrollListener()
-               {
-                  private int mLastFirstVisibleItem;
-
-                  @Override
-                  public void onScrollStateChanged(AbsListView view, int scrollState)
-                     {
-                     }
-
-                  @Override
-                  public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-                     {
-                        if (mLastFirstVisibleItem < firstVisibleItem)
-                           {
-                              statusBar.setVisibility(View.GONE);
-                           }
-                        if (mLastFirstVisibleItem > firstVisibleItem)
-                           {
-                              statusBar.setVisibility(View.VISIBLE);
-                           }
-                        mLastFirstVisibleItem = firstVisibleItem;
-                     }
-               });
-
             // get the main activity to access data
             activity = (MainActivity) getActivity();
             dataManager = activity.dataManager;
@@ -113,7 +82,10 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             friendRequestsList = dataManager.masterFriendList.friendRequests;
 
             // check if there are any friends, if so then update listview
-            updateFriendList();
+            if (activity.isInitialized)
+               {
+                  updateFriendList();
+               }
 
             return view;
          }
@@ -206,7 +178,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      // save the updated friends list to file
                      try
                         {
-                           dataManager.saveFriendListAppFile();
+                           dataManager.saveFriendListAppFile(true);
                         }
                      catch (IOException | JSONException | POSNCryptoException e)
                         {
@@ -228,7 +200,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
                      try
                         {
-                           dataManager.saveFriendListAppFile();
+                           dataManager.saveFriendListAppFile(true);
                         }
                      catch (IOException | JSONException | POSNCryptoException e)
                         {
@@ -241,25 +213,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       public void createFriendsList()
          {
             System.out.println("CREATING FRIENDS!!");
-
-            // check if a new friend needs to be added from URI
-            if (activity.newFriendRequest)
-               {
-                  try
-                     {
-                        RequestedFriend requestedFriend = dataManager.processFriendRequest();
-
-                        // start phase 3
-                        if (requestedFriend.status == Constants.STATUS_ACCEPTED)
-                           {
-                              new NewFriendFinalAsyncTask(this, requestedFriend).execute();
-                           }
-                     }
-                  catch (IOException | JSONException | POSNCryptoException e)
-                     {
-                        e.printStackTrace();
-                     }
-               }
+            activity.newFriendNum = 0;
 
             // add data to list view
             listViewItems.clear();
@@ -308,6 +262,29 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
       public void updateFriendList()
          {
+
+            // check if a new friend needs to be added from URI
+            try
+               {
+                  RequestedFriend requestedFriend = dataManager.processFriendRequest();
+
+                  // check if a requested friend was returned (null indicates no new request)
+                  if (requestedFriend != null)
+                     {
+                        dataManager.saveFriendListAppFile(true);
+
+                        // start phase 3
+                        if (requestedFriend.status == Constants.STATUS_ACCEPTED)
+                           {
+                              new NewFriendFinalAsyncTask(this, requestedFriend).execute();
+                           }
+                     }
+               }
+            catch (IOException | JSONException | POSNCryptoException e)
+               {
+                  e.printStackTrace();
+               }
+
             createFriendsList();
 
             // notify the adapter about the data change

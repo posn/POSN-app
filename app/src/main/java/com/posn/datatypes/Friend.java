@@ -98,7 +98,7 @@ public class Friend implements Parcelable
                         FriendGroup friendGroup = friendGroups.get(i);
                         jsArray.put(friendGroup.createJSONObject());
                      }
-                  obj.put("friendGroups", friendGroups);
+                  obj.put("friendGroups", jsArray);
 
                   jsArray = new JSONArray(userGroups);
                   obj.put("userGroups", jsArray);

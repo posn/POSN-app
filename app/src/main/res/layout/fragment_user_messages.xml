@@ -19,7 +19,7 @@
         android:id="@+id/listView1"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_below="@id/divider"
+        android:layout_above="@id/status_bar"
         android:divider="@null"
         android:dividerHeight="0dp">
     </ListView>

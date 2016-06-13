@@ -11,7 +11,7 @@ import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.UserWallFragment;
 import com.posn.main.wall.posts.StatusPostItem;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 
 import org.json.JSONException;
 
@@ -26,7 +26,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
       private UserWallFragment wallFrag;
       private ArrayList<String> groupIDs;
       private MainActivity main;
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
       public NewWallStatusPostAsyncTask(UserWallFragment frag, ArrayList<String> groupIDs, String status)
          {
@@ -34,7 +34,7 @@ public class NewWallStatusPostAsyncTask extends AsyncTask<String, String, String
             wallFrag = frag;
             this.status = status;
             this.groupIDs = groupIDs;
-            main = wallFrag.activity;
+            main = wallFrag.main;
             dataManager = main.dataManager;
          }
 

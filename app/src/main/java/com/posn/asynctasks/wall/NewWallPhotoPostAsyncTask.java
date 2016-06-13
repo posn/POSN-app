@@ -11,7 +11,7 @@ import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.UserWallFragment;
 import com.posn.main.wall.posts.PhotoPostItem;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONException;
@@ -28,7 +28,7 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
       private ArrayList<String> groupIDs;
       private MainActivity main;
 
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
       public NewWallPhotoPostAsyncTask(UserWallFragment frag, ArrayList<String> groupIDs, String photopath)
          {
@@ -36,8 +36,8 @@ public class NewWallPhotoPostAsyncTask extends AsyncTask<String, String, String>
             wallFrag = frag;
             this.photopath = photopath;
             this.groupIDs = groupIDs;
-            main = wallFrag.activity;
-            dataManager = wallFrag.activity.dataManager;
+            main = wallFrag.main;
+            dataManager = wallFrag.dataManager;
          }
 
 

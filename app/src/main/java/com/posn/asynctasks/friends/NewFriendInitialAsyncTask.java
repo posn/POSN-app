@@ -9,7 +9,7 @@ import com.posn.email.EmailSender;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.MainActivity;
 import com.posn.main.friends.UserFriendsFragment;
-import com.posn.utility.POSNDataManager;
+import com.posn.main.AppDataManager;
 
 import org.json.JSONException;
 
@@ -23,7 +23,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
       private RequestedFriend requestedFriend;
       private UserFriendsFragment friendFrag;
       private MainActivity main;
-      private POSNDataManager dataManager;
+      private AppDataManager dataManager;
 
       public NewFriendInitialAsyncTask(UserFriendsFragment frag, RequestedFriend requestedFriend)
          {
@@ -86,7 +86,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
                   // add pending friend to request friends list
                   dataManager.masterFriendList.friendRequests.add(requestedFriend);
 
-                  dataManager.saveFriendListAppFile();
+                  dataManager.saveFriendListAppFile(false);
                }
             catch (JSONException | IOException | POSNCryptoException error)
                {
