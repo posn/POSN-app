@@ -31,12 +31,13 @@ public class MainActivity extends BaseActivity
       private ViewPager viewPager;
       private ActionBar actionBar;
       private MainTabsPagerAdapter tabsAdapter;
+      private String tabNames[] = {"Wall", "Notifications", "Messages", "Friends", "Settings"};
+      private int selectedIcons[] = {R.drawable.ic_wall_blue, R.drawable.ic_notification_blue, R.drawable.ic_message_blue, R.drawable.ic_friends_blue, R.drawable.ic_settings_blue};
+      private int unselectedIcons[] = {R.drawable.ic_wall_gray, R.drawable.ic_notification_gray, R.drawable.ic_message_gray, R.drawable.ic_friends_gray, R.drawable.ic_settings_gray};
 
       // count variables used to show the number of new posts/notifications/messages/friend requests
-      public int newWallPostsNum = 0;
       public int newNotificationNum = 0;
       public int newMessagesNum = 0;
-      public int newFriendNum = 0;
 
       // data manager object that holds all the app data and methods to create different files
       public AppDataManager dataManager;
@@ -51,10 +52,8 @@ public class MainActivity extends BaseActivity
       public void onSaveInstanceState(Bundle savedInstanceState)
          {
             // save the current notification numbers
-            savedInstanceState.putInt("newWallPostsNum", newWallPostsNum);
             savedInstanceState.putInt("newNotificationNum", newNotificationNum);
             savedInstanceState.putInt("newMessagesNum", newMessagesNum);
-            savedInstanceState.putInt("newFriendNum", newFriendNum);
 
             savedInstanceState.putParcelable("dataManager", dataManager);
 
@@ -104,28 +103,36 @@ public class MainActivity extends BaseActivity
             tabLayout.setupWithViewPager(viewPager);
 
             // set the tabs with the correct icon and number of notifications bubble
-            tabLayout.getTabAt(0).setCustomView(tabsAdapter.getTabView(R.drawable.ic_wall_blue, newWallPostsNum, false));
-            tabLayout.getTabAt(1).setCustomView(tabsAdapter.getTabView(R.drawable.ic_notification_gray, newNotificationNum, true));
-            tabLayout.getTabAt(2).setCustomView(tabsAdapter.getTabView(R.drawable.ic_message_gray, newMessagesNum, true));
-            tabLayout.getTabAt(3).setCustomView(tabsAdapter.getTabView(R.drawable.ic_friends_gray, newFriendNum, true));
-            tabLayout.getTabAt(4).setCustomView(tabsAdapter.getTabView(R.drawable.ic_settings_gray, 0, false));
+            tabLayout.getTabAt(0).setCustomView(tabsAdapter.createTabView(R.drawable.ic_wall_blue, true));
+            tabLayout.getTabAt(1).setCustomView(tabsAdapter.createTabView(R.drawable.ic_notification_gray, true));
+            tabLayout.getTabAt(2).setCustomView(tabsAdapter.createTabView(R.drawable.ic_message_gray, true));
+            tabLayout.getTabAt(3).setCustomView(tabsAdapter.createTabView(R.drawable.ic_friends_gray, true));
+            tabLayout.getTabAt(4).setCustomView(tabsAdapter.createTabView(R.drawable.ic_settings_gray, false));
 
             // get the action bar to set the title
             actionBar = getActionBar();
+            actionBar.setTitle("Wall");
 
             tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
                {
                   @Override
                   public void onTabSelected(TabLayout.Tab tab)
                      {
-                        viewPager.setCurrentItem(tab.getPosition(), true);
-                        updateTab(tab.getPosition(), true);
+                        int index = tab.getPosition();
+                        viewPager.setCurrentItem(index, true);
+                        tabsAdapter.updateTabIcon(index, selectedIcons[index]);
+                        actionBar.setTitle(tabNames[index]);
+
+                        // updateTab(tab.getPosition(), true);
                      }
 
                   @Override
                   public void onTabUnselected(TabLayout.Tab tab)
                      {
-                        updateTab(tab.getPosition(), false);
+                        int index = tab.getPosition();
+                        tabsAdapter.updateTabIcon(index, unselectedIcons[index]);
+
+                        // updateTab(tab.getPosition(), false);
                      }
 
                   @Override
@@ -146,10 +153,8 @@ public class MainActivity extends BaseActivity
             // check if the activity was saved previous and fetch the previous data
             if (savedInstanceState != null)
                {
-                  newWallPostsNum = savedInstanceState.getInt("newWallPostsNum");
                   newNotificationNum = savedInstanceState.getInt("newNotificationNum");
                   newMessagesNum = savedInstanceState.getInt("newMessagesNum");
-                  newFriendNum = savedInstanceState.getInt("newFriendNum");
 
                   dataManager = savedInstanceState.getParcelable("dataManager");
                }
@@ -204,7 +209,6 @@ public class MainActivity extends BaseActivity
             if (friendFrag != null)
                {
                   friendFrag.updateFriendList();
-                  tabsAdapter.updateTab(3, R.drawable.ic_friends_gray, newFriendNum, true);
                }
 
             // get the wall fragment and update the wall post list with app data
@@ -212,8 +216,6 @@ public class MainActivity extends BaseActivity
             if (wallFrag != null)
                {
                   wallFrag.updateWallPosts();
-                  tabsAdapter.updateTab(0, R.drawable.ic_wall_blue, newWallPostsNum, true);
-                  actionBar.setTitle("Wall");
                }
 
             // get the message fragment and update the conversation list with app data
@@ -221,7 +223,6 @@ public class MainActivity extends BaseActivity
             if (messagesFrag != null)
                {
                   messagesFrag.updateConversations();
-                  tabsAdapter.updateTab(2, R.drawable.ic_message_gray, newMessagesNum, true);
                }
 
             // get the notification fragment and update the notification list with app data
@@ -229,7 +230,6 @@ public class MainActivity extends BaseActivity
             if (notificationFrag != null)
                {
                   notificationFrag.updateNotifications();
-                  tabsAdapter.updateTab(1, R.drawable.ic_notification_gray, newNotificationNum, true);
                }
 
             isInitialized = true;
@@ -238,35 +238,9 @@ public class MainActivity extends BaseActivity
       /**
        * This method changes the action bar title to the current tab name and changes the icon to be selected or not. Also updates the number of new items for that tab.
        **/
-      public void updateTab(int position, boolean selected)
+      public void updateTabNotificationNum(int position, int numNotifications)
          {
-            if (position == 0)
-               {
-                  actionBar.setTitle("Wall");
-                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_wall_blue : R.drawable.ic_wall_gray), newWallPostsNum, true);
-               }
-            else if (position == 1)
-               {
-                  actionBar.setTitle("Notifications");
-                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_notification_blue : R.drawable.ic_notification_gray), newNotificationNum, true);
-               }
-            else if (position == 2)
-               {
-                  actionBar.setTitle("Messages");
-                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_message_blue : R.drawable.ic_message_gray), newMessagesNum, true);
-               }
-            else if (position == 3)
-               {
-                  actionBar.setTitle("Friends");
-                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_friends_blue : R.drawable.ic_friends_gray), newFriendNum, true);
-               }
-            else
-               {
-                  actionBar.setTitle("Settings");
-                  tabsAdapter.updateTab(position, (selected ? R.drawable.ic_settings_blue : R.drawable.ic_settings_gray), 0, false);
-               }
+            tabsAdapter.updateNotificationNum(position, numNotifications);
          }
-
-
    }
 

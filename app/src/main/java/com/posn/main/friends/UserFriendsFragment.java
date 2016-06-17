@@ -36,6 +36,8 @@ import java.util.Map;
 
 public class UserFriendsFragment extends Fragment implements OnClickListener
    {
+      final int FRAG_NUM = 3;
+      
       // declare variables
       public MainActivity activity;
       AppDataManager dataManager;
@@ -48,6 +50,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       ArrayList<RequestedFriend> friendRequestsList;
       public ArrayList<ListViewFriendItem> listViewItems = new ArrayList<>();
       public FriendsArrayAdapter adapter;
+
+      public int newFriendNum = 0;
 
 
       @Override
@@ -141,7 +145,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
                      // remove them from the friend request list
                      friendRequestsList.remove(friend);
-                     activity.updateTab(3, true);
+                     newFriendNum--;
+                     activity.updateTabNotificationNum(FRAG_NUM, newFriendNum);
 
                      // remove them from the list view
                      listViewItems.remove(new RequestFriendItem(this, this, friend));
@@ -172,8 +177,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      // sort the friends and update the list view
                      sortFriendsList();
                      adapter.notifyDataSetChanged();
-                     activity.newFriendNum--;
-                     activity.updateTab(3, true);
+                     newFriendNum--;
+                     activity.updateTabNotificationNum(FRAG_NUM, newFriendNum);
 
                      // save the updated friends list to file
                      try
@@ -213,7 +218,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
       public void createFriendsList()
          {
             System.out.println("CREATING FRIENDS!!");
-            activity.newFriendNum = 0;
+            newFriendNum = 0;
 
             // add data to list view
             listViewItems.clear();
@@ -228,7 +233,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   if (friend.status == Constants.STATUS_REQUEST)
                      {
                         listViewItems.add(new RequestFriendItem(this, this, friend));
-                        activity.newFriendNum++;
+                        newFriendNum++;
                      }
                }
 
@@ -256,7 +261,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             sortFriendsList();
 
             // update tab number
-            activity.updateTab(3, true);
+            activity.updateTabNotificationNum(FRAG_NUM, newFriendNum);
          }
 
 
@@ -273,7 +278,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      {
                         dataManager.saveFriendListAppFile(true);
 
-                        // start phase 3
+                        // start phase FRAG_NUM
                         if (requestedFriend.status == Constants.STATUS_ACCEPTED)
                            {
                               new NewFriendFinalAsyncTask(this, requestedFriend).execute();

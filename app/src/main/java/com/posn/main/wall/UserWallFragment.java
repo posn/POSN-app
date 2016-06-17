@@ -26,13 +26,13 @@ import com.posn.asynctasks.wall.NewWallPhotoPostAsyncTask;
 import com.posn.asynctasks.wall.NewWallStatusPostAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.WallPost;
+import com.posn.main.AppDataManager;
 import com.posn.main.MainActivity;
 import com.posn.main.wall.comments.CommentActivity;
 import com.posn.main.wall.posts.ListViewPostItem;
 import com.posn.main.wall.posts.PhotoPostItem;
 import com.posn.main.wall.posts.StatusPostItem;
 import com.posn.main.wall.posts.VideoPostItem;
-import com.posn.main.AppDataManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,6 +50,8 @@ import java.util.Map;
 
 public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener
    {
+      private int index;
+
       // user interface variables
       RelativeLayout statusButton, photoButton;
       public TextView noWallPostsText;
@@ -57,6 +59,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       TableRow statusBar;
       SwipeRefreshLayout swipeLayout;
 
+      public int newWallPostsNum = 0;
 
       public ArrayList<ListViewPostItem> listViewItems = new ArrayList<>();
       HashMap<String, WallPost> wallPostData;
@@ -147,7 +150,6 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                      break;
 
 
-
                   // buttons on individual posts
                   case R.id.comment_button:
                      wallPost = (WallPost) v.getTag();
@@ -208,7 +210,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
             // loop through all the wall posts and add them to the listview
             for (Map.Entry<String, WallPost> entry : wallPostData.entrySet())
                {
-                  // get the post from the hashmap
+                  // get the post from the hash map
                   wallPost = entry.getValue();
 
                   // get the name of the person who created the post
@@ -280,14 +282,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
          {
             createWallPostsList();
 
-            if (wallPostData.size() > 0)
-               {
-                  noWallPostsText.setVisibility(View.GONE);
-               }
-            else
-               {
-                  noWallPostsText.setVisibility(View.VISIBLE);
-               }
+            noWallPostsText.setVisibility(wallPostData.size() > 0 ? View.GONE : View.VISIBLE);
 
             // notify the adapter about the data change
             adapter.notifyDataSetChanged();

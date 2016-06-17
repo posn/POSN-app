@@ -49,7 +49,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                   case 0:
                      if (wallTab == null)
                         {
-                           wallTab = new UserWallFragment();
+                           wallTab = new UserWallFragment(0);
                         }
                      //registeredFragments.put(index, wallTab);
 
@@ -113,35 +113,43 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
             return 5;
          }
 
-      public View getTabView(int resource, int numNotifications, boolean showNotifications)
+      public View createTabView(int resource, boolean showNotifications)
          {
-            // Given you have a custom layout in `res/layout/custom_tab.xml` with a TextView and ImageView
+            // inflate the custom icon view
             View v = LayoutInflater.from(context).inflate(R.layout.icon_test, null);
-            TextView tv = (TextView) v.findViewById(R.id.notification_textview);
-            if (showNotifications && numNotifications > 0)
-               {
-                  tv.setVisibility(View.VISIBLE);
-                  tv.setText(Integer.toString(numNotifications));
-               }
-            else
-               {
-                  tv.setVisibility(View.GONE);
-               }
 
+            // get the notification number textview and set it to gone
+            TextView tv = (TextView) v.findViewById(R.id.notification_textview);
+            tv.setTag(showNotifications);
+            tv.setVisibility(View.GONE);
+
+            // set the tab icon resource to the image view
             ImageView img = (ImageView) v.findViewById(R.id.icon_imageview);
             img.setImageResource(resource);
 
+            // add the view to the arraylist
             views.add(v);
 
             return v;
          }
 
-      public void updateTab(int position, int resource, int numNotifications, boolean showNotifications)
+      public void updateTabIcon(int position, int resource)
+         {
+            // Given you have a custom layout in `res/layout/custom_tab.xml` with a TextView and ImageView
+            View v = views.get(position);
+
+            ImageView img = (ImageView) v.findViewById(R.id.icon_imageview);
+            img.setImageResource(resource);
+         }
+
+      public void updateNotificationNum(int position, int numNotifications)
          {
             // Given you have a custom layout in `res/layout/custom_tab.xml` with a TextView and ImageView
             View v = views.get(position);
 
             TextView tv = (TextView) v.findViewById(R.id.notification_textview);
+            boolean showNotifications = (boolean) tv.getTag();
+
             if (showNotifications && numNotifications > 0)
                {
                   tv.setVisibility(View.VISIBLE);
@@ -151,9 +159,6 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                {
                   tv.setVisibility(View.GONE);
                }
-
-            ImageView img = (ImageView) v.findViewById(R.id.icon_imageview);
-            img.setImageResource(resource);
          }
 
       public Fragment getRegisteredFragment(int position)
