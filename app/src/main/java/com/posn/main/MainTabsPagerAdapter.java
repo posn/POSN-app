@@ -49,7 +49,7 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                   case 0:
                      if (wallTab == null)
                         {
-                           wallTab = new UserWallFragment(0);
+                           wallTab = new UserWallFragment();
                         }
                      //registeredFragments.put(index, wallTab);
 
