@@ -6,6 +6,7 @@ import android.content.Intent;
 
 public abstract class CloudProvider
    {
+      public boolean isConnected = false;
 
       public CloudProvider()
          {

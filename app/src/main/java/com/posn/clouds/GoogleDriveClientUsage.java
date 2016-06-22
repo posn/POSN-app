@@ -1,4 +1,4 @@
-package com.posn.clouds.GoogleDrive;
+package com.posn.clouds;
 
 import android.app.Activity;
 import android.content.Context;
@@ -66,7 +66,6 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
                                    .addConnectionCallbacks(this)
                                    .addOnConnectionFailedListener(this)
                                    .build();
-
             mGoogleApiClient.connect();
          }
 
@@ -274,10 +273,7 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
                {
                   // update the Drive file with new contents
                   com.google.android.gms.common.api.Status status = driveContents.commit(mGoogleApiClient, null).await();
-                  //System.out.println("Updated file: " + (status.getStatus().isSuccess() ? "True" : "False"));
                }
-
-            //System.out.println("Google LINK: " + directLink);
 
             // release the metadata
             metaData.release();
@@ -307,8 +303,7 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
       public void onConnected(Bundle connectionHint)
          {
             Log.i(TAG, "GoogleApiClient connected");
-
-            System.out.println("Starting FOLDERS!!");
+            isConnected = true;
 
             //  googleDrive.createStorageDirectories();
          }

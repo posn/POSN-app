@@ -67,19 +67,19 @@ public class EmailSender extends javax.mail.Authenticator
             return new PasswordAuthentication(user, password);
          }
 
+      public String emailBodyFormatter(String bodyText, String url, String linkText)
+         {
+            return "<p>" + bodyText + "</p>" + "<p><a href=\"" + url + "\">" + linkText + "</a></p>";
+         }
 
       public synchronized void sendMail(String subject, String body, String sender, String recipients)
          {
-
             try
                {
                   message = new MimeMessage(session);
-                  DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
+                  message.setText(body, "UTF-8", "html");
                   message.setSender(new InternetAddress(sender));
                   message.setSubject(subject);
-                  message.setDataHandler(handler);
-
-                  //message.setContent(_multipart);
 
                   if (recipients.indexOf(',') > 0)
                      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));

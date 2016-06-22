@@ -78,9 +78,10 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
                             + "/" + publicKey + "/" + encodedURL + "/" + requestedFriend.nonce;
 
 
-                  // send the email the the user (THIS IS BAD TO HARDCODE USERNAME AND PASS
+                  // send the email the the user (THIS IS BAD TO HARDCODE USERNAME AND PASS)
                   EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
-                  email.sendMail("POSN - New Friend Request", "SUCCESS!\n\n" + URI, "POSN", requestedFriend.email);
+                  String body = email.emailBodyFormatter(dataManager.user.firstName + " " +  dataManager.user.lastName + " wants to be your friend in POSN!", URI, "Click to Respond to the Request");
+                  email.sendMail("POSN - New Friend Request", body, "POSN", requestedFriend.email);
 
 
                   // add pending friend to request friends list

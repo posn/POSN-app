@@ -65,6 +65,11 @@ public class InitializeApplicationDataAsyncTask extends AsyncTask<String, String
                   System.out.println("GETTING MESSAGES!!!");
                   dataManager.loadConversationListAppFile();
 
+                  // wait until the cloud provider is connected
+                  System.out.println("WAITING");
+                  while(!main.cloud.isConnected);
+                  System.out.println("Done!");
+
                   // check/create cloud storage directories
                   main.cloud.createStorageDirectoriesOnCloud();
                }

@@ -25,20 +25,14 @@ android {
 
 }
 
-
-
-
-
-
-
 dependencies {
     compile files('libs/activation.jar')
     compile files('libs/additionnal.jar')
     compile files('libs/dropbox-android-sdk-1.6.2.jar')
     compile files('libs/mail.jar')
     compile 'com.android.support:design:23.0.1'
-    compile 'com.google.guava:guava:11.0.2'
-    compile 'com.google.android.gms:play-services:7.8.0'
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.google.android.gms:play-services:9.0.2'
     compile project(':live-sdk')
     compile files('libs/json-simple-1.1.1.jar')
 }

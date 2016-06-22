@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.conversations.AsyncResponseConversation;
@@ -132,13 +133,13 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
 
       public void saveConversation()
          {
-            SaveMessagesAsyncTask task = new SaveMessagesAsyncTask(this, app.messagesFilePath + "/" + friendID + ".txt", conversationMessages);
+            SaveMessagesAsyncTask task = new SaveMessagesAsyncTask(this, Constants.messagesFilePath + "/" + friendID + ".txt", conversationMessages);
             task.execute();
          }
 
       public void loadConversation()
          {
-            asyncTaskConversation = new LoadMessagesAsyncTask(this, app.messagesFilePath + "/" + friendID + ".txt");
+            asyncTaskConversation = new LoadMessagesAsyncTask(this, Constants.messagesFilePath + "/" + friendID + ".txt");
             asyncTaskConversation.delegate = this;
             asyncTaskConversation.execute();
          }

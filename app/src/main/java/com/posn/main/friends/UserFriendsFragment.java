@@ -1,7 +1,6 @@
 package com.posn.main.friends;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -20,8 +19,8 @@ import com.posn.asynctasks.friends.NewFriendIntermediateAsyncTask;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.exceptions.POSNCryptoException;
-import com.posn.main.MainActivity;
 import com.posn.main.AppDataManager;
+import com.posn.main.MainActivity;
 import com.posn.main.groups.CreateGroupDialogFragment;
 
 import org.json.JSONException;
@@ -36,23 +35,19 @@ import java.util.Map;
 
 public class UserFriendsFragment extends Fragment implements OnClickListener
    {
-      final int FRAG_NUM = 3;
-      
-      // declare variables
-      public MainActivity activity;
-      AppDataManager dataManager;
-      Context context;
-      ListView lv;
-      RelativeLayout addFriendButton;
-      RelativeLayout addGroupButton;
 
-      HashMap<String, Friend> friendList;
-      ArrayList<RequestedFriend> friendRequestsList;
+      // user interface variables
+      private HashMap<String, Friend> currentFriendsList;
+      private ArrayList<RequestedFriend> friendRequestsList;
       public ArrayList<ListViewFriendItem> listViewItems = new ArrayList<>();
       public FriendsArrayAdapter adapter;
-
       public int newFriendNum = 0;
 
+
+      public MainActivity activity;
+      public AppDataManager dataManager;
+
+      private int fragNum;
 
       @Override
       public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -63,15 +58,14 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             // load the friend tab layout
             View view = inflater.inflate(R.layout.fragment_user_friends, container, false);
-            context = getActivity();
 
-            addFriendButton = (RelativeLayout) view.findViewById(R.id.add_friend_button);
+            RelativeLayout addFriendButton = (RelativeLayout) view.findViewById(R.id.add_friend_button);
             addFriendButton.setOnClickListener(this);
 
-            addGroupButton = (RelativeLayout) view.findViewById(R.id.add_group_button);
+            RelativeLayout addGroupButton = (RelativeLayout) view.findViewById(R.id.add_group_button);
             addGroupButton.setOnClickListener(this);
 
-            lv = (ListView) view.findViewById(R.id.listView1);
+            ListView lv = (ListView) view.findViewById(R.id.listView1);
 
             // get the main activity to access data
             activity = (MainActivity) getActivity();
@@ -82,7 +76,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             lv.setAdapter(adapter);
 
             // get the friends and friend request list from the main activity
-            friendList = dataManager.masterFriendList.currentFriends;
+            currentFriendsList = dataManager.masterFriendList.currentFriends;
             friendRequestsList = dataManager.masterFriendList.friendRequests;
 
             // check if there are any friends, if so then update listview
@@ -93,6 +87,12 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             return view;
          }
+
+      public void setFragNum(int position)
+         {
+            fragNum = position;
+         }
+
 
       @Override
       public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -146,7 +146,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      // remove them from the friend request list
                      friendRequestsList.remove(friend);
                      newFriendNum--;
-                     activity.updateTabNotificationNum(FRAG_NUM, newFriendNum);
+                     activity.updateTabNotificationNum(fragNum, newFriendNum);
 
                      // remove them from the list view
                      listViewItems.remove(new RequestFriendItem(this, this, friend));
@@ -178,7 +178,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                      sortFriendsList();
                      adapter.notifyDataSetChanged();
                      newFriendNum--;
-                     activity.updateTabNotificationNum(FRAG_NUM, newFriendNum);
+                     activity.updateTabNotificationNum(fragNum, newFriendNum);
 
                      // save the updated friends list to file
                      try
@@ -196,7 +196,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                   case R.id.delete_button:
                      Friend position = (Friend) v.getTag();
 
-                     friendList.remove(position.ID);
+                     currentFriendsList.remove(position.ID);
 
                      listViewItems.remove(new AcceptedFriendItem(this, position));
 
@@ -241,7 +241,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             listViewItems.add(new HeaderItem("Accepted and Pending Friends"));
 
             // loop through friends list and add all current friends
-            for (Map.Entry<String, Friend> entry : friendList.entrySet())
+            for (Map.Entry<String, Friend> entry : currentFriendsList.entrySet())
                {
                   Friend friend = entry.getValue();
                   listViewItems.add(new AcceptedFriendItem(this, friend));
@@ -261,13 +261,12 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             sortFriendsList();
 
             // update tab number
-            activity.updateTabNotificationNum(FRAG_NUM, newFriendNum);
+            activity.updateTabNotificationNum(fragNum, newFriendNum);
          }
 
 
       public void updateFriendList()
          {
-
             // check if a new friend needs to be added from URI
             try
                {

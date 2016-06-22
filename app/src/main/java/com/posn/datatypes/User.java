@@ -26,7 +26,7 @@ public class User implements Parcelable, ApplicationFile
       public String gender = null;
 
       // which cloud provider is being used
-      public String cloudProvider = null;
+      public int cloudProvider;
 
 
       // public and private key
@@ -116,7 +116,7 @@ public class User implements Parcelable, ApplicationFile
             phoneNumber = data.getString("phone");
             birthday = data.getString("birthday");
             gender = data.getString("gender");
-            cloudProvider = data.getString("cloudprovider");
+            cloudProvider = data.getInt("cloudprovider");
 
             publicKey = data.getString("publicKey");
             privateKey = data.getString("privateKey");
@@ -161,7 +161,7 @@ public class User implements Parcelable, ApplicationFile
             this.phoneNumber = in.readString();
             this.birthday = in.readString();
             this.gender = in.readString();
-            this.cloudProvider = in.readString();
+            this.cloudProvider = in.readInt();
             this.publicKey = in.readString();
             this.privateKey = in.readString();
 
@@ -187,7 +187,7 @@ public class User implements Parcelable, ApplicationFile
             dest.writeString(this.phoneNumber);
             dest.writeString(this.birthday);
             dest.writeString(this.gender);
-            dest.writeString(this.cloudProvider);
+            dest.writeInt(this.cloudProvider);
 
             dest.writeString(this.publicKey);
             dest.writeString(this.privateKey);

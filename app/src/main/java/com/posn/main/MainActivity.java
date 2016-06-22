@@ -7,10 +7,13 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
+import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.InitializeApplicationDataAsyncTask;
-import com.posn.clouds.Dropbox.DropboxClientUsage;
+import com.posn.clouds.DropboxClientUsage;
+import com.posn.clouds.GoogleDriveClientUsage;
+import com.posn.clouds.OneDriveClientUsage;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.main.messages.UserConversationFragment;
@@ -31,13 +34,6 @@ public class MainActivity extends BaseActivity
       private ViewPager viewPager;
       private ActionBar actionBar;
       private MainTabsPagerAdapter tabsAdapter;
-      private String tabNames[] = {"Wall", "Notifications", "Messages", "Friends", "Settings"};
-      private int selectedIcons[] = {R.drawable.ic_wall_blue, R.drawable.ic_notification_blue, R.drawable.ic_message_blue, R.drawable.ic_friends_blue, R.drawable.ic_settings_blue};
-      private int unselectedIcons[] = {R.drawable.ic_wall_gray, R.drawable.ic_notification_gray, R.drawable.ic_message_gray, R.drawable.ic_friends_gray, R.drawable.ic_settings_gray};
-
-      // count variables used to show the number of new posts/notifications/messages/friend requests
-      public int newNotificationNum = 0;
-      public int newMessagesNum = 0;
 
       // data manager object that holds all the app data and methods to create different files
       public AppDataManager dataManager;
@@ -51,10 +47,6 @@ public class MainActivity extends BaseActivity
       @Override
       public void onSaveInstanceState(Bundle savedInstanceState)
          {
-            // save the current notification numbers
-            savedInstanceState.putInt("newNotificationNum", newNotificationNum);
-            savedInstanceState.putInt("newMessagesNum", newMessagesNum);
-
             savedInstanceState.putParcelable("dataManager", dataManager);
 
             // Always call the superclass so it can save the view hierarchy state
@@ -118,21 +110,22 @@ public class MainActivity extends BaseActivity
                   @Override
                   public void onTabSelected(TabLayout.Tab tab)
                      {
+                        String tabNames[] = {"Wall", "Notifications", "Messages", "Friends", "Settings"};
+                        int selectedIcons[] = {R.drawable.ic_wall_blue, R.drawable.ic_notification_blue, R.drawable.ic_message_blue, R.drawable.ic_friends_blue, R.drawable.ic_settings_blue};
+
                         int index = tab.getPosition();
                         viewPager.setCurrentItem(index, true);
                         tabsAdapter.updateTabIcon(index, selectedIcons[index]);
                         actionBar.setTitle(tabNames[index]);
-
-                        // updateTab(tab.getPosition(), true);
                      }
 
                   @Override
                   public void onTabUnselected(TabLayout.Tab tab)
                      {
                         int index = tab.getPosition();
-                        tabsAdapter.updateTabIcon(index, unselectedIcons[index]);
+                        int unselectedIcons[] = {R.drawable.ic_wall_gray, R.drawable.ic_notification_gray, R.drawable.ic_message_gray, R.drawable.ic_friends_gray, R.drawable.ic_settings_gray};
 
-                        // updateTab(tab.getPosition(), false);
+                        tabsAdapter.updateTabIcon(index, unselectedIcons[index]);
                      }
 
                   @Override
@@ -140,6 +133,7 @@ public class MainActivity extends BaseActivity
                      {
                      }
                });
+
 
             // get the application
             app = (POSNApplication) getApplication();
@@ -150,12 +144,9 @@ public class MainActivity extends BaseActivity
                   initializeCloudProvider();
                }
 
-            // check if the activity was saved previous and fetch the previous data
+            // check if the activity was saved previously and fetch the previous data
             if (savedInstanceState != null)
                {
-                  newNotificationNum = savedInstanceState.getInt("newNotificationNum");
-                  newMessagesNum = savedInstanceState.getInt("newMessagesNum");
-
                   dataManager = savedInstanceState.getParcelable("dataManager");
                }
             // otherwise fetch the data from the application files
@@ -187,9 +178,19 @@ public class MainActivity extends BaseActivity
        **/
       public void initializeCloudProvider()
          {
-            app.cloud = new DropboxClientUsage(this);
-            // cloud = new GoogleDriveClientUsage(this);
-            //cloud = new OneDriveClientUsage(this);
+            if (dataManager.user.cloudProvider == Constants.PROVIDER_DROPBOX)
+               {
+                  app.cloud = new DropboxClientUsage(this);
+               }
+            else if (dataManager.user.cloudProvider == Constants.PROVIDER_GOOGLEDRIVE)
+               {
+                  app.cloud = new GoogleDriveClientUsage(this);
+               }
+            else
+               {
+                  app.cloud = new OneDriveClientUsage(this);
+               }
+
             app.cloud.initializeCloud();
          }
 

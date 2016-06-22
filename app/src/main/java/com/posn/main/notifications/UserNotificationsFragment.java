@@ -1,6 +1,5 @@
 package com.posn.main.notifications;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -32,12 +31,15 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
       int TYPE_FRIEND_ACCEPTED = 2;
 
       // declare variables
-      Context context;
       ArrayList<Notification> notificationsList;
       ListView lv;
       NotificationArrayAdapter adapter;
       MainActivity main;
       TextView noNotificationsText;
+
+      private int fragNum;
+      private int newNotificationNum = 0;
+
 
       @Override
       public void onResume()
@@ -59,7 +61,6 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
 
             // load the system tab layout
             View view = inflater.inflate(R.layout.fragment_user_notifications, container, false);
-            context = getActivity();
 
             // get the application
             main = (MainActivity) getActivity();
@@ -82,6 +83,11 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
             lv.setAdapter(adapter);
 
             return view;
+         }
+
+      public void setFragNum(int position)
+         {
+            fragNum = position;
          }
 
 

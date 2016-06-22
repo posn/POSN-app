@@ -1,6 +1,5 @@
-package com.posn.clouds.OneDrive;
+package com.posn.clouds;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -18,7 +17,7 @@ import com.microsoft.live.LiveOperationException;
 import com.microsoft.live.LiveStatus;
 import com.microsoft.live.OverwriteOption;
 import com.posn.Constants;
-import com.posn.clouds.CloudProvider;
+import com.posn.main.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,8 +34,6 @@ import java.util.HashMap;
 
 public class OneDriveClientUsage extends CloudProvider
    {
-      // Client ID comes from the OneDrive Developer console
-      public final String CLIENT_ID = "0000000044165317";
       public final String[] SCOPES = {"wl.signin", "wl.basic", "wl.offline_access", "wl.skydrive_update", "wl.contacts_create",};
 
       public HashMap<String, String> folderIds;
@@ -53,14 +50,14 @@ public class OneDriveClientUsage extends CloudProvider
             // set the activity context
             this.context = context;
 
-            mAuthClient = new LiveAuthClient(context, CLIENT_ID);
+            mAuthClient = new LiveAuthClient(context, Constants.ONEDRIVE_CLIENT_ID);
             folderIds = new HashMap<>();
          }
 
       @Override
       public void initializeCloud()
          {
-            // initialize skydrive
+            // initialize onedrive
             mAuthClient.initialize(Arrays.asList(SCOPES), new LiveAuthListener()
             {
                @Override
@@ -80,13 +77,13 @@ public class OneDriveClientUsage extends CloudProvider
                            showToast("Skydrive Connected!");
                            mSession = session;
                            mConnectClient = new LiveConnectClient(session);
-                           //createStorageDirectories();
+                           isConnected = true;
                         }
                      else
                         {
                            showToast("Initialize did not connect. Please try login in.");
 
-                           mAuthClient.login((Activity) context, Arrays.asList(SCOPES), new LiveAuthListener()
+                           mAuthClient.login((MainActivity) context, Arrays.asList(SCOPES), new LiveAuthListener()
                            {
                               @Override
                               public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)
@@ -96,14 +93,13 @@ public class OneDriveClientUsage extends CloudProvider
                                           showToast("Skydrive Connected!");
                                           mSession = session;
                                           mConnectClient = new LiveConnectClient(session);
-
+                                          isConnected = true;
                                        }
                                     else
                                        {
                                           showToast("Login did not connect. Status is " + status + ".");
                                        }
                                  }
-
 
                               @Override
                               public void onAuthError(LiveAuthException exception, Object userState)

@@ -20,7 +20,9 @@ import com.posn.initial_setup.SetupPersonalInfoActivity;
 import com.posn.utility.DeviceFileManager;
 import com.posn.utility.UserInterfaceManager;
 
-
+/**
+ * This activity class implements user login/authentication and the option for the user to create a new account:
+ **/
 public class LoginActivity extends BaseActivity implements OnClickListener
    {
       // user interface variables

@@ -50,7 +50,6 @@ import java.util.Map;
 
 public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener
    {
-      private int index;
 
       // user interface variables
       RelativeLayout statusButton, photoButton;
@@ -60,6 +59,8 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
       SwipeRefreshLayout swipeLayout;
 
       public int newWallPostsNum = 0;
+      private int fragNum;
+
 
       public ArrayList<ListViewPostItem> listViewItems = new ArrayList<>();
       HashMap<String, WallPost> wallPostData;
@@ -127,6 +128,11 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                }
 
             return view;
+         }
+
+      public void setFragNum(int position)
+         {
+            fragNum = position;
          }
 
       @Override
@@ -260,7 +266,6 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
                         swipeLayout.setRefreshing(false);
                         Toast.makeText(getActivity(), "Refreshing...", Toast.LENGTH_SHORT).show();
                         new GetFriendContentAsyncTask(main).execute();
-
                      }
                });
          }

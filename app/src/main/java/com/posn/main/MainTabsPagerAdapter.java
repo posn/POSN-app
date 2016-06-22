@@ -23,13 +23,11 @@ import java.util.ArrayList;
 
 public class MainTabsPagerAdapter extends FragmentPagerAdapter
    {
-      SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
       // declare variables
-      Fragment wallTab, notificationTab, messagesTab, friendsTabs, settingsTab;
       Context context;
-
       ArrayList<View> views = new ArrayList<>();
+      SparseArray<Fragment> registeredFragments = new SparseArray<>();
 
 
       public MainTabsPagerAdapter(FragmentManager fm, Context context)
@@ -42,53 +40,50 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
       @Override
       public Fragment getItem(int index)
          {
-            // load the tab that was selected.
-            switch (index)
+            // check if the fragment needs to be created
+            if (registeredFragments.get(index) == null)
                {
-                  // wall tab fragment
-                  case 0:
-                     if (wallTab == null)
-                        {
-                           wallTab = new UserWallFragment();
-                        }
-                     //registeredFragments.put(index, wallTab);
+                  switch (index)
+                     {
+                        // create a wall tab fragment
+                        case 0:
+                           UserWallFragment wallFrag = new UserWallFragment();
+                           wallFrag.setFragNum(0);
+                           registeredFragments.put(0, wallFrag);
+                           break;
 
-                     return wallTab;
+                        // create a notifications tab fragment
+                        case 1:
+                           UserNotificationsFragment notificationsFrag = new UserNotificationsFragment();
+                           notificationsFrag.setFragNum(1);
+                           registeredFragments.put(1, notificationsFrag);
+                           break;
 
-                  // notification tab fragment
-                  case 1:
-                     if (notificationTab == null)
-                        {
-                           notificationTab = new UserNotificationsFragment();
-                        }
-                     return notificationTab;
+                        // create a conversations tab fragment
+                        case 2:
+                           UserConversationFragment conversationFrag = new UserConversationFragment();
+                           conversationFrag.setFragNum(2);
+                           registeredFragments.put(2, conversationFrag);
+                           break;
 
-                  // Messages tab fragment
-                  case 2:
-                     if (messagesTab == null)
-                        {
-                           messagesTab = new UserConversationFragment();
-                        }
-                     return messagesTab;
+                        // create a friends tab fragment
+                        case 3:
+                           UserFriendsFragment friendsFrag = new UserFriendsFragment();
+                           friendsFrag.setFragNum(3);
+                           registeredFragments.put(3, friendsFrag);
+                           break;
 
-                  // Friends tab fragment
-                  case 3:
-                     if (friendsTabs == null)
-                        {
-                           friendsTabs = new UserFriendsFragment();
-                        }
-                     return friendsTabs;
-
-                  // Settings tab fragment
-                  case 4:
-                     if (settingsTab == null)
-                        {
-                           settingsTab = new UserSettingsFragment();
-                        }
-                     return settingsTab;
+                        // create a settings tab fragment
+                        case 4:
+                           UserSettingsFragment settingsFrag = new UserSettingsFragment();
+                           settingsFrag.setFragNum(4);
+                           registeredFragments.put(4, settingsFrag);
+                           break;
+                     }
                }
 
-            return null;
+            // return the fragment (returns the existing fragment or the newly created one)
+            return registeredFragments.get(index);
          }
 
       @Override
@@ -153,7 +148,8 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
             if (showNotifications && numNotifications > 0)
                {
                   tv.setVisibility(View.VISIBLE);
-                  tv.setText(Integer.toString(numNotifications));
+                  String text = Integer.toString(numNotifications);
+                  tv.setText(text);
                }
             else
                {

@@ -9,10 +9,11 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.posn.Constants;
 import com.posn.R;
-import com.posn.clouds.Dropbox.DropboxClientUsage;
-import com.posn.clouds.GoogleDrive.GoogleDriveClientUsage;
-import com.posn.clouds.OneDrive.OneDriveClientUsage;
+import com.posn.clouds.DropboxClientUsage;
+import com.posn.clouds.GoogleDriveClientUsage;
+import com.posn.clouds.OneDriveClientUsage;
 import com.posn.datatypes.User;
 import com.posn.main.BaseActivity;
 
@@ -69,7 +70,7 @@ public class SetupCloudProvidersActivity extends BaseActivity implements OnClick
 
                   case R.id.next_button:
 
-                     if (user.cloudProvider != null)
+                     if (app.cloud.isConnected)
                         {
                            Intent intent = new Intent(this, SetupEncryptionKeysActivity.class);
                            intent.putExtra("user", user);
@@ -85,19 +86,19 @@ public class SetupCloudProvidersActivity extends BaseActivity implements OnClick
                   case R.id.dropbox_button:
                      app.cloud = new DropboxClientUsage(this);
                      app.cloud.initializeCloud();
-                     user.cloudProvider = "Dropbox";
+                     user.cloudProvider = Constants.PROVIDER_DROPBOX;
                      break;
 
                   case R.id.google_drive_button:
                      app.cloud = new GoogleDriveClientUsage(this);
                      app.cloud.initializeCloud();
-                     user.cloudProvider = "Google Drive";
+                     user.cloudProvider = Constants.PROVIDER_GOOGLEDRIVE;
 
                      break;
                   case R.id.onedrive_button:
                      app.cloud = new OneDriveClientUsage(this);
                      app.cloud.initializeCloud();
-                     user.cloudProvider = "OneDrive";
+                     user.cloudProvider = Constants.PROVIDER_ONEDRIVE;
 
 
                      break;

@@ -92,7 +92,6 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
 
                   // generate symmetric key to encrypt data
                   String key = SymmetricKeyManager.createRandomKey();
-                  System.out.println("KEY: " + key);
 
                   String encryptedURI = SymmetricKeyManager.encrypt(key, URI);
 
@@ -105,7 +104,8 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
 
                   // send the email the the user (THIS IS BAD TO HARDCODE USERNAME AND PASS
                   EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
-                  email.sendMail("POSN - New Friend Request", "SUCCESS!\n\n" + URI, "POSN", requestedFriend.email);
+                  String body = email.emailBodyFormatter(dataManager.user.firstName + " " +  dataManager.user.lastName + " has accepted your friend request!", URI, "Click to Finalize the Request");
+                  email.sendMail("POSN - Accepted Friend Request", body, "POSN",requestedFriend.email);
 
                   dataManager.saveFriendListAppFile(false);
 
@@ -114,17 +114,6 @@ public class NewFriendIntermediateAsyncTask extends AsyncTask<String, String, St
                {
                   error.printStackTrace();
                }
-
-            /*
-            // add pending friend to request friends list
-            main.masterFriendList.friendRequests.add(requestedFriend);
-
-
-            friendFrag.listViewItems.add(new PendingFriendItem(requestedFriend));
-            friendFrag.sortFriendsList();
-
-            main.masterFriendList.saveFriendsListToFileAsyncTask(Constants.applicationDataFilePath + "/user_friends.txt");
-*/
 
             return null;
          }

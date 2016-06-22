@@ -1,6 +1,5 @@
 package com.posn.main.messages;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,7 +32,6 @@ public class UserConversationFragment extends Fragment implements OnClickListene
    {
 
       // declare variables
-      Context context;
       ArrayList<Conversation> conversationList;
       ListView lv;
       TextView noConversationsText;
@@ -42,6 +40,8 @@ public class UserConversationFragment extends Fragment implements OnClickListene
 
       MessageArrayAdapter adapter;
 
+      private int fragNum;
+      private int numNewMessages = 0;
 
       @Override
       public void onResume()
@@ -58,7 +58,6 @@ public class UserConversationFragment extends Fragment implements OnClickListene
 
             // load the system tab layout
             View view = inflater.inflate(R.layout.fragment_user_messages, container, false);
-            context = getActivity();
 
             lv = (ListView) view.findViewById(R.id.listView1);
             noConversationsText = (TextView) view.findViewById(R.id.notification_text);
@@ -84,7 +83,7 @@ public class UserConversationFragment extends Fragment implements OnClickListene
                   @Override
                   public void onItemClick(AdapterView<?> parent, View view, int position, long id)
                      {
-                        Intent intent = new Intent(context, FriendMessagesActivity.class);
+                        Intent intent = new Intent(main, FriendMessagesActivity.class);
 
                         Conversation conversation = (Conversation) parent.getItemAtPosition(position);
 
@@ -93,8 +92,7 @@ public class UserConversationFragment extends Fragment implements OnClickListene
                         intent.putExtra("friendID", FriendID);
                         intent.putExtra("friend", friend);
 
-
-                        context.startActivity(intent);
+                        main.startActivity(intent);
                      }
 
 
@@ -102,6 +100,12 @@ public class UserConversationFragment extends Fragment implements OnClickListene
 
 
             return view;
+         }
+
+
+      public void setFragNum(int position)
+         {
+            fragNum = position;
          }
 
 

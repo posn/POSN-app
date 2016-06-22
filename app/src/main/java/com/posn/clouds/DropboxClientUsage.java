@@ -1,4 +1,4 @@
-package com.posn.clouds.Dropbox;
+package com.posn.clouds;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +24,8 @@ import java.net.URL;
 public class DropboxClientUsage extends CloudProvider
    {
       private Context context;
-      private boolean authenticated = false;
+
+
 
       // variable declarations
       public DropboxAPI<AndroidAuthSession> dropboxSession;
@@ -38,7 +39,7 @@ public class DropboxClientUsage extends CloudProvider
       public void initializeCloud()
          {
             // create the application key token
-            AppKeyPair appKeyToken = new AppKeyPair("bcwjrrwwyw309ol", "xgu5rpt67mv4k25");
+            AppKeyPair appKeyToken = new AppKeyPair(Constants.DROPBOX_APP_KEY, Constants.DROPBOX_APP_SECRET);
 
             // try to get the session token from the shared preferences
             String sessionToken = getDropboxToken();
@@ -56,15 +57,15 @@ public class DropboxClientUsage extends CloudProvider
                   dropboxSession = new DropboxAPI<>(new AndroidAuthSession(appKeyToken, sessionToken));
 
                   // authenticate Dropbox login
-                  authenticateDropboxLogin();
-
+                 // authenticateDropboxLogin();
+                  isConnected = true;
                }
          }
 
       @Override
       public void onResume()
          {
-            if(!authenticated)
+            if(!isConnected)
                {
                   authenticateDropboxLogin();
                }
@@ -87,7 +88,7 @@ public class DropboxClientUsage extends CloudProvider
                         System.out.println("TOKEN SAVED!!!!");
 
                         showToast("Dropbox Connected!");
-                        authenticated = true;
+                        isConnected = true;
                      }
                }
          }
