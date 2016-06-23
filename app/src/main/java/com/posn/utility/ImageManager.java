@@ -14,9 +14,15 @@ import com.posn.exceptions.POSNCryptoException;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * This class implements methods that facilitate loading and processing images
+ **/
 public class ImageManager
    {
-      public static Bitmap BITMAP_RESIZER(Bitmap bitmap, int newWidth, int newHeight)
+      /**
+       * This method resizes a bitmap given a new width and height
+       **/
+      public static Bitmap resizeImage(Bitmap bitmap, int newWidth, int newHeight)
          {
             Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
 
@@ -36,18 +42,29 @@ public class ImageManager
 
          }
 
+      /**
+       * This method reads in an encrypted image from the device and decrypts it and returns it as a bitmap
+       **/
       public static Bitmap loadEncryptedBitmap(String key, String filename)
          {
+            // declare variables
+            Bitmap photo;
+
+            // create a file object for the image
             File imgFile = new File(filename);
 
             try
                {
+                  // get the file as a byte array
                   byte[] contents = Files.toByteArray(imgFile);
+
+                  // decrypt the byte array to plaintext
                   contents = SymmetricKeyManager.decrypt(key, contents);
 
-
-                  Bitmap photo;
+                  // get the file size to downsize the image
                   int file_size = Integer.parseInt(String.valueOf(imgFile.length() / 1024));
+
+                  // resize the image based on the file size
                   if (file_size > 2048)
                      {
                         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -61,50 +78,58 @@ public class ImageManager
                         photo = BitmapFactory.decodeByteArray(contents, 0, contents.length, options);
                      }
                   else
-                     photo = BitmapFactory.decodeByteArray(contents, 0, contents.length);
-
-                  Matrix matrix = new Matrix();
-
-                  ExifInterface exifReader;
-
-
-                  exifReader = new ExifInterface(filename);
-                  int orientation = exifReader.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
-
-                  if (orientation == ExifInterface.ORIENTATION_NORMAL)
                      {
-                        // Do nothing. The original image is fine.
-                        matrix.postRotate(0);
-                     }
-                  else if (orientation == ExifInterface.ORIENTATION_ROTATE_90)
-                     {
-
-                        matrix.postRotate(90);
-
-                     }
-                  else if (orientation == ExifInterface.ORIENTATION_ROTATE_180)
-                     {
-
-                        matrix.postRotate(180);
-
-                     }
-                  else if (orientation == ExifInterface.ORIENTATION_ROTATE_270)
-                     {
-
-                        matrix.postRotate(270);
-
+                        photo = BitmapFactory.decodeByteArray(contents, 0, contents.length);
                      }
 
-                  //photo = Bitmap.createScaledBitmap(photo, photo.getWidth() / 2, photo.getHeight() / 2, true);
+                  // create the rotation matrix to rotate the image
+                  Matrix matrix = createRotationMatrix(filename);
+
+                  // create a new rotated bitmap
                   photo = Bitmap.createBitmap(photo, 0, 0, photo.getWidth(), photo.getHeight(), matrix, true);
 
                   return photo;
-
                }
             catch (IOException | POSNCryptoException e)
                {
                   e.printStackTrace();
                }
             return null;
+         }
+
+      /**
+       * This method creates a rotation matrix based on the image's orientation property
+       **/
+      private static Matrix createRotationMatrix(String filepath) throws IOException
+         {
+            // create a new matrix to rotate the photo
+            Matrix matrix = new Matrix();
+
+            // read the image property tags
+            ExifInterface exifReader = new ExifInterface(filepath);
+
+            // get the image orientation
+            int orientation = exifReader.getAttributeInt(ExifInterface.TAG_ORIENTATION, -1);
+
+            // rotate the image
+            if (orientation == ExifInterface.ORIENTATION_NORMAL)
+               {
+                  // Do nothing. The original image is fine.
+                  matrix.postRotate(0);
+               }
+            else if (orientation == ExifInterface.ORIENTATION_ROTATE_90)
+               {
+                  matrix.postRotate(90);
+               }
+            else if (orientation == ExifInterface.ORIENTATION_ROTATE_180)
+               {
+                  matrix.postRotate(180);
+               }
+            else if (orientation == ExifInterface.ORIENTATION_ROTATE_270)
+               {
+                  matrix.postRotate(270);
+               }
+
+            return matrix;
          }
    }

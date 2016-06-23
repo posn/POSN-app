@@ -26,6 +26,8 @@ public abstract class CloudProvider
 
       public abstract String uploadFileToCloud(String folderName, String fileName, String devicePath);
 
+      public abstract void removeFileOnCloud(String folderName, String fileName);
+
       public abstract void activityResult(int requestCode, int resultCode, Intent data);
 
       public abstract void onResume();

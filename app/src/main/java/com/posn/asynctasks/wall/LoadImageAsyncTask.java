@@ -10,12 +10,17 @@ import com.posn.Constants;
 import com.posn.datatypes.WallPost;
 import com.posn.utility.ImageManager;
 
-
+/**
+ * This AsyncTask class reads in an encrypted image from the device and decrypts it to be displayed
+ * The image view has a loading circle while the photo is processed
+ **/
 public class LoadImageAsyncTask extends AsyncTask<Object, Void, Bitmap>
    {
-
+      // user interface variables
       private ImageView imageView;
       private RelativeLayout loader;
+
+
       private String path;
       private WallPost wallPost;
 
@@ -31,36 +36,39 @@ public class LoadImageAsyncTask extends AsyncTask<Object, Void, Bitmap>
       @Override
       protected Bitmap doInBackground(Object... params)
          {
+            // load and decrypt the photo from the device
             return ImageManager.loadEncryptedBitmap(wallPost.multimediaKey, path);
          }
 
       @Override
       protected void onPostExecute(Bitmap result)
          {
-            WallPost wallPost2 = (WallPost)imageView.getTag();
+            // get the wall post from the image view
+            WallPost viewWallPost = (WallPost)imageView.getTag();
 
-            String pathCheck = Constants.multimediaFilePath + "/" + wallPost2.postID + ".jpg";
+            // construct the path for the wall post photo
+            String pathCheck = Constants.multimediaFilePath + "/" + viewWallPost.postID + ".jpg";
 
-
+            // check if the paths are the same
             if (!pathCheck.equals(path))
                {
-               /* The path is not same. This means that this
-                  image view is handled by some other async task.
-                  We don't do anything and return. */
+                  // the path is not the same, therefore the photo is being handled by a different asynctask, so ignore
                   return;
                }
 
+            // check if the image has been loaded and the imageview exists
             if (result != null && imageView != null)
                {
-                  //imageView.setVisibility(View.VISIBLE);
+                  // set the imageview to the photo
                   imageView.setImageBitmap(result);
                }
             else
                {
+                  // remove the imageview from the post
                   imageView.setVisibility(View.GONE);
                }
+
+            // hide the loader spinner
             loader.setVisibility(View.GONE);
-
          }
-
    }

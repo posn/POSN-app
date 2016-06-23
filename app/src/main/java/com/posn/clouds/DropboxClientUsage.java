@@ -12,7 +12,6 @@ import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AppKeyPair;
 import com.posn.Constants;
-import com.posn.clouds.CloudProvider;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,15 +23,16 @@ import java.net.URL;
 public class DropboxClientUsage extends CloudProvider
    {
       private Context context;
-
+      private OnConnectedCloudListener connectedListener;
 
 
       // variable declarations
       public DropboxAPI<AndroidAuthSession> dropboxSession;
 
-      public DropboxClientUsage(Context context)
+      public DropboxClientUsage(Context context, OnConnectedCloudListener connectedListener)
          {
             this.context = context;
+            this.connectedListener = connectedListener;
          }
 
       @Override
@@ -55,17 +55,17 @@ public class DropboxClientUsage extends CloudProvider
                {
                   // session token already available
                   dropboxSession = new DropboxAPI<>(new AndroidAuthSession(appKeyToken, sessionToken));
-
-                  // authenticate Dropbox login
-                 // authenticateDropboxLogin();
                   isConnected = true;
+
+                  // call the on connected listener method
+                  connectedListener.OnConnected();
                }
          }
 
       @Override
       public void onResume()
          {
-            if(!isConnected)
+            if (!isConnected)
                {
                   authenticateDropboxLogin();
                }
@@ -83,11 +83,13 @@ public class DropboxClientUsage extends CloudProvider
                         // finish the authentication
                         dropboxSession.getSession().finishAuthentication();
 
-                        //saveDropboxToken(dropboxSession.getSession().getAccessTokenPair());
                         saveDropboxToken(dropboxSession.getSession().getOAuth2AccessToken());
                         System.out.println("TOKEN SAVED!!!!");
 
                         showToast("Dropbox Connected!");
+
+                        // call the on connected listener method
+                        connectedListener.OnConnected();
                         isConnected = true;
                      }
                }
@@ -102,39 +104,39 @@ public class DropboxClientUsage extends CloudProvider
       public void createStorageDirectoriesOnCloudAsyncTask()
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     createStorageDirectoriesOnCloud();
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        createStorageDirectoriesOnCloud();
+                        return null;
+                     }
+               }.execute();
          }
 
       @Override
       public void downloadFileFromCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     downloadFileFromCloud(folderName, fileName, devicePath);
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        downloadFileFromCloud(folderName, fileName, devicePath);
+                        return null;
+                     }
+               }.execute();
          }
 
       @Override
       public void uploadFileToCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     uploadFileToCloud(folderName, fileName, devicePath);
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        uploadFileToCloud(folderName, fileName, devicePath);
+                        return null;
+                     }
+               }.execute();
          }
 
       // check to see if the token has already been obtained
@@ -201,7 +203,7 @@ public class DropboxClientUsage extends CloudProvider
       @Override
       public void createStorageDirectoriesOnCloud()
          {
-            for(int i = 0; i < Constants.NUM_DIRECTORIES; i++)
+            for (int i = 0; i < Constants.NUM_DIRECTORIES; i++)
                {
                   // check if a direct exists, if it does not then exception will be thrown
                   try
@@ -267,8 +269,7 @@ public class DropboxClientUsage extends CloudProvider
       public String uploadFileToCloud(String folderName, String fileName, String devicePath)
          {
             // declare variables
-            DropboxAPI.Entry response = null;
-            int tries = 3;
+            DropboxAPI.Entry response;
             FileInputStream inputStream;
 
             String dropboxPath = "/" + folderName + "/" + fileName;
@@ -277,58 +278,67 @@ public class DropboxClientUsage extends CloudProvider
             // get the location of the file to be uploaded
             java.io.File file = new java.io.File(devicePath);
 
-            // try up to three times to upload the file
-            while (tries > 0)
+            try
                {
-                  try
+                  // get the file into memory
+                  inputStream = new FileInputStream(file);
+
+                  // upload the file to dropbox
+                  response = dropboxSession.putFileOverwrite(dropboxPath, inputStream, file.length(), null);
+
+                  // check if the upload was successful
+                  if (response != null)
                      {
-                        // get the file into memory
-                        inputStream = new FileInputStream(file);
+                        // share the file to the public
+                        DropboxAPI.DropboxLink link = dropboxSession.share(dropboxPath);
 
-                        // upload the file to dropbox
-                        response = dropboxSession.putFileOverwrite(dropboxPath, inputStream, file.length(), null);
+                        // returned link is a short-link, so get long link
+                        // create a new URL
+                        URL url = new URL(link.url);
 
-                        // check if the upload was successful
-                        if(response != null)
-                           {
-                              // share the file to the public
-                              DropboxAPI.DropboxLink link = dropboxSession.share(dropboxPath);
+                        // open the connection to redirect
+                        HttpURLConnection ucon = (HttpURLConnection) url.openConnection();
+                        ucon.setInstanceFollowRedirects(false);
 
-                              // returned link is a short-link, so get long link
-                              // create a new URL
-                              URL url = new URL(link.url);
+                        // get the long link string in the Location part of the header
+                        String test = ucon.getHeaderField("Location");
 
-                              // open the connection to redirect
-                              HttpURLConnection ucon = (HttpURLConnection) url.openConnection();
-                              ucon.setInstanceFollowRedirects(false);
-
-                              // get the long link string in the Location part of the header
-                              String test = ucon.getHeaderField("Location");
-
-                              // replace end 0 with a 1 to make it become a direct link
-                              directLink = test.substring(0,test.length()-1) + "1";
+                        // replace end 0 with a 1 to make it become a direct link
+                        directLink = test.substring(0, test.length() - 1) + "1";
 
 
-                              Log.i("Dropbox Upload", "Upload Complete");
-                              tries = 0;
-                           }
-                        else
-                           {
-                              Log.i("Dropbox Upload", "Upload Failed");
-                              tries --;
-                           }
-
-                        // close the stream
-                        inputStream.close();
+                        Log.i("Dropbox Upload", "Upload Complete");
                      }
-                  catch (IOException | DropboxException e)
+                  else
                      {
-                        e.printStackTrace();
-                        Log.i("Dropbox Upload", "IO Exception");
-                        tries--;
+                        Log.i("Dropbox Upload", "Upload Failed");
                      }
+
+                  // close the stream
+                  inputStream.close();
+               }
+            catch (IOException | DropboxException e)
+               {
+                  e.printStackTrace();
+                  Log.i("Dropbox Upload", "IO Exception");
                }
 
+
             return directLink;
+         }
+
+      @Override
+      public void removeFileOnCloud(String folderName, String fileName)
+         {
+            String dropboxPath = "/" + folderName + "/" + fileName;
+
+            try
+               {
+                  dropboxSession.delete(dropboxPath);
+               }
+            catch (DropboxException e)
+               {
+                  e.printStackTrace();
+               }
          }
    }

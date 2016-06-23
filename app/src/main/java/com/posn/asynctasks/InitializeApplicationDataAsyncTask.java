@@ -4,8 +4,8 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.posn.exceptions.POSNCryptoException;
-import com.posn.main.MainActivity;
 import com.posn.main.AppDataManager;
+import com.posn.main.MainActivity;
 
 import org.json.JSONException;
 
@@ -64,11 +64,6 @@ public class InitializeApplicationDataAsyncTask extends AsyncTask<String, String
                   // get the messages file
                   System.out.println("GETTING MESSAGES!!!");
                   dataManager.loadConversationListAppFile();
-
-                  // wait until the cloud provider is connected
-                  System.out.println("WAITING");
-                  while(!main.cloud.isConnected);
-                  System.out.println("Done!");
 
                   // check/create cloud storage directories
                   main.cloud.createStorageDirectoriesOnCloud();

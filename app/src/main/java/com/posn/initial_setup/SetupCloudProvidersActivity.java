@@ -13,12 +13,13 @@ import com.posn.Constants;
 import com.posn.R;
 import com.posn.clouds.DropboxClientUsage;
 import com.posn.clouds.GoogleDriveClientUsage;
+import com.posn.clouds.OnConnectedCloudListener;
 import com.posn.clouds.OneDriveClientUsage;
 import com.posn.datatypes.User;
 import com.posn.main.BaseActivity;
 
 
-public class SetupCloudProvidersActivity extends BaseActivity implements OnClickListener
+public class SetupCloudProvidersActivity extends BaseActivity implements OnClickListener, OnConnectedCloudListener
    {
 
       Button next;
@@ -61,6 +62,14 @@ public class SetupCloudProvidersActivity extends BaseActivity implements OnClick
                }
          }
 
+      @Override
+      public void OnConnected()
+         {
+            Intent intent = new Intent(this, SetupEncryptionKeysActivity.class);
+            intent.putExtra("user", user);
+            intent.putExtra("password", password);
+            startActivity(intent);
+         }
 
       @Override
       public void onClick(View v)
@@ -84,19 +93,19 @@ public class SetupCloudProvidersActivity extends BaseActivity implements OnClick
                      break;
 
                   case R.id.dropbox_button:
-                     app.cloud = new DropboxClientUsage(this);
+                     app.cloud = new DropboxClientUsage(this, this);
                      app.cloud.initializeCloud();
                      user.cloudProvider = Constants.PROVIDER_DROPBOX;
                      break;
 
                   case R.id.google_drive_button:
-                     app.cloud = new GoogleDriveClientUsage(this);
+                     app.cloud = new GoogleDriveClientUsage(this, this);
                      app.cloud.initializeCloud();
                      user.cloudProvider = Constants.PROVIDER_GOOGLEDRIVE;
 
                      break;
                   case R.id.onedrive_button:
-                     app.cloud = new OneDriveClientUsage(this);
+                     app.cloud = new OneDriveClientUsage(this, this);
                      app.cloud.initializeCloud();
                      user.cloudProvider = Constants.PROVIDER_ONEDRIVE;
 

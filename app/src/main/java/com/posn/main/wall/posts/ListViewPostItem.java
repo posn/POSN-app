@@ -10,6 +10,8 @@ import java.util.Date;
 public interface ListViewPostItem
    {
       int getViewType();
+
       View getView(LayoutInflater inflater, View convertView, ViewGroup parent);
+
       Date getDate();
    }

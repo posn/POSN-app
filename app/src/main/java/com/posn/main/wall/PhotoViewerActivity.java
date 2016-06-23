@@ -1,7 +1,6 @@
 package com.posn.main.wall;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -11,41 +10,38 @@ import com.posn.R;
 import com.posn.asynctasks.wall.LoadImageAsyncTask;
 import com.posn.datatypes.WallPost;
 
-
+/**
+ * This activity class allows the user to view the full image that was clicked from a wall post
+ **/
 public class PhotoViewerActivity extends Activity
    {
-
-      // declare variables
-      ImageView imageView;
-      RelativeLayout loadingSpinner;
-
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
             super.onCreate(savedInstanceState);
 
-            // load the xml file for the logs
+            // load the user interface layout from the xml file
             setContentView(R.layout.activity_photo_viewer);
 
-            Intent intent = getIntent();
-            WallPost wallPost = intent.getExtras().getParcelable("post");
+            // get the wall post object that was passed from the wall fragment
+            WallPost wallPost = getIntent().getExtras().getParcelable("post");
 
+            // get the imageview and loading spinner from the layout
+            ImageView imageView = (ImageView) findViewById(R.id.image);
+            RelativeLayout loadingSpinner = (RelativeLayout) findViewById(R.id.loadingPanel);
 
-            imageView = (ImageView) findViewById(R.id.image);
-            loadingSpinner = (RelativeLayout) findViewById(R.id.loadingPanel);
-
+            // check if the wall object exists
             if (wallPost != null)
                {
+                  // set the imageview tag with the wall post
                   imageView.setTag(wallPost);
+
+                  // load the image from the device
                   new LoadImageAsyncTask(imageView, loadingSpinner).execute();
+
+                  // set the imageview background to transparent and visible to see the loading circle
                   imageView.setImageResource(android.R.color.transparent);
                   imageView.setVisibility(View.VISIBLE);
                }
-         }
-
-      @Override
-      protected void onStop()
-         {
-            super.onStop();
          }
    }

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 public class WallArrayAdapter extends ArrayAdapter<ListViewPostItem>
    {
-
       private LayoutInflater mInflater;
       private ArrayList<ListViewPostItem> values;
 
@@ -22,7 +21,6 @@ public class WallArrayAdapter extends ArrayAdapter<ListViewPostItem>
          {
             LINK_POST_ITEM, PHOTO_POST_ITEM, STATUS_POST_ITEM, VIDEO_POST_ITEM
          }
-
 
       public WallArrayAdapter(Context context, ArrayList<ListViewPostItem> values)
          {
@@ -35,14 +33,12 @@ public class WallArrayAdapter extends ArrayAdapter<ListViewPostItem>
 
          }
 
-
       @Override
       public int getViewTypeCount()
          {
             return PostType.values().length;
 
          }
-
 
       @Override
       public int getItemViewType(int position)
@@ -56,7 +52,6 @@ public class WallArrayAdapter extends ArrayAdapter<ListViewPostItem>
          {
             return getItem(position).getView(mInflater, convertView, parent);
          }
-
 
       @Override
       public boolean isEnabled(int position)

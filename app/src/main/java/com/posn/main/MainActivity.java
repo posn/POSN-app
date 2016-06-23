@@ -13,6 +13,7 @@ import com.posn.application.POSNApplication;
 import com.posn.asynctasks.InitializeApplicationDataAsyncTask;
 import com.posn.clouds.DropboxClientUsage;
 import com.posn.clouds.GoogleDriveClientUsage;
+import com.posn.clouds.OnConnectedCloudListener;
 import com.posn.clouds.OneDriveClientUsage;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.friends.UserFriendsFragment;
@@ -28,7 +29,7 @@ import java.io.UnsupportedEncodingException;
  * <li>Manages all the application data for the fragments through a AppDataManager object
  * <li>Connects to the user's chosen cloud provider</ul>
  **/
-public class MainActivity extends BaseActivity
+public class MainActivity extends BaseActivity implements OnConnectedCloudListener
    {
       // user interface variables
       private ViewPager viewPager;
@@ -48,6 +49,7 @@ public class MainActivity extends BaseActivity
       public void onSaveInstanceState(Bundle savedInstanceState)
          {
             savedInstanceState.putParcelable("dataManager", dataManager);
+            savedInstanceState.putBoolean("isInitialized", isInitialized);
 
             // Always call the superclass so it can save the view hierarchy state
             super.onSaveInstanceState(savedInstanceState);
@@ -148,12 +150,9 @@ public class MainActivity extends BaseActivity
             if (savedInstanceState != null)
                {
                   dataManager = savedInstanceState.getParcelable("dataManager");
+                  isInitialized = savedInstanceState.getBoolean("isInitialized");
                }
-            // otherwise fetch the data from the application files
-            else
-               {
-                  new InitializeApplicationDataAsyncTask(this).execute();
-               }
+
          }
 
       /**
@@ -170,7 +169,15 @@ public class MainActivity extends BaseActivity
                {
                   initializeCloudProvider();
                }
+         }
 
+      @Override
+      public void OnConnected()
+         {
+            if (!isInitialized)
+               {
+                  new InitializeApplicationDataAsyncTask(this).execute();
+               }
          }
 
       /**
@@ -180,15 +187,15 @@ public class MainActivity extends BaseActivity
          {
             if (dataManager.user.cloudProvider == Constants.PROVIDER_DROPBOX)
                {
-                  app.cloud = new DropboxClientUsage(this);
+                  app.cloud = new DropboxClientUsage(this, this);
                }
             else if (dataManager.user.cloudProvider == Constants.PROVIDER_GOOGLEDRIVE)
                {
-                  app.cloud = new GoogleDriveClientUsage(this);
+                  app.cloud = new GoogleDriveClientUsage(this, this);
                }
             else
                {
-                  app.cloud = new OneDriveClientUsage(this);
+                  app.cloud = new OneDriveClientUsage(this, this);
                }
 
             app.cloud.initializeCloud();

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.microsoft.live.LiveAuthClient;
 import com.microsoft.live.LiveAuthException;
@@ -18,6 +17,7 @@ import com.microsoft.live.LiveStatus;
 import com.microsoft.live.OverwriteOption;
 import com.posn.Constants;
 import com.posn.main.MainActivity;
+import com.posn.utility.UserInterfaceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,12 +44,15 @@ public class OneDriveClientUsage extends CloudProvider
       public LiveConnectClient mConnectClient;
       public LiveConnectSession mSession;
 
+      private OnConnectedCloudListener connectedListener;
 
-      public OneDriveClientUsage(Context context)
+
+      public OneDriveClientUsage(Context context, OnConnectedCloudListener connectedListener)
          {
             // set the activity context
             this.context = context;
 
+            this.connectedListener = connectedListener;
             mAuthClient = new LiveAuthClient(context, Constants.ONEDRIVE_CLIENT_ID);
             folderIds = new HashMap<>();
          }
@@ -59,57 +62,61 @@ public class OneDriveClientUsage extends CloudProvider
          {
             // initialize onedrive
             mAuthClient.initialize(Arrays.asList(SCOPES), new LiveAuthListener()
-            {
-               @Override
-               public void onAuthError(LiveAuthException exception, Object userState)
-                  {
-                     //mInitializeDialog.dismiss();
-                     showToast(exception.getMessage());
-                  }
+               {
+                  @Override
+                  public void onAuthError(LiveAuthException exception, Object userState)
+                     {
+                        UserInterfaceManager.showToast(context, exception.getMessage());
+                     }
 
-               @Override
-               public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)
-                  {
-                     // mInitializeDialog.dismiss();
-
-                     if (status == LiveStatus.CONNECTED)
-                        {
-                           showToast("Skydrive Connected!");
-                           mSession = session;
-                           mConnectClient = new LiveConnectClient(session);
-                           isConnected = true;
-                        }
-                     else
-                        {
-                           showToast("Initialize did not connect. Please try login in.");
-
-                           mAuthClient.login((MainActivity) context, Arrays.asList(SCOPES), new LiveAuthListener()
+                  @Override
+                  public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)
+                     {
+                        if (status == LiveStatus.CONNECTED)
                            {
-                              @Override
-                              public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)
-                                 {
-                                    if (status == LiveStatus.CONNECTED)
-                                       {
-                                          showToast("Skydrive Connected!");
-                                          mSession = session;
-                                          mConnectClient = new LiveConnectClient(session);
-                                          isConnected = true;
-                                       }
-                                    else
-                                       {
-                                          showToast("Login did not connect. Status is " + status + ".");
-                                       }
-                                 }
+                              UserInterfaceManager.showToast(context, "Skydrive Connected!");
+                              mSession = session;
+                              mConnectClient = new LiveConnectClient(session);
+                              isConnected = true;
 
-                              @Override
-                              public void onAuthError(LiveAuthException exception, Object userState)
+                              // call the on connected listener method
+                              connectedListener.OnConnected();
+                           }
+                        else
+                           {
+                              UserInterfaceManager.showToast(context, "Initialize did not connect. Please try login in.");
+
+                              mAuthClient.login((MainActivity) context, Arrays.asList(SCOPES), new LiveAuthListener()
                                  {
-                                    showToast(exception.getMessage());
-                                 }
-                           });
-                        }
-                  }
-            });
+                                    @Override
+                                    public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)
+                                       {
+
+                                          if (status == LiveStatus.CONNECTED)
+                                             {
+                                                UserInterfaceManager.showToast(context, "Skydrive Connected!");
+                                                mSession = session;
+                                                mConnectClient = new LiveConnectClient(session);
+                                                isConnected = true;
+
+                                                // call the on connected listener method
+                                                connectedListener.OnConnected();
+                                             }
+                                          else
+                                             {
+                                                UserInterfaceManager.showToast(context, "Login did not connect. Status is " + status + ".");
+                                             }
+                                       }
+
+                                    @Override
+                                    public void onAuthError(LiveAuthException exception, Object userState)
+                                       {
+                                          UserInterfaceManager.showToast(context, exception.getMessage());
+                                       }
+                                 });
+                           }
+                     }
+               });
 
 
          }
@@ -118,27 +125,27 @@ public class OneDriveClientUsage extends CloudProvider
       public void createStorageDirectoriesOnCloudAsyncTask()
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     createStorageDirectoriesOnCloud();
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        createStorageDirectoriesOnCloud();
+                        return null;
+                     }
+               }.execute();
          }
 
       @Override
       public void downloadFileFromCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     downloadFileFromCloud(folderName, fileName, devicePath);
-                     return null;
-                  }
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        downloadFileFromCloud(folderName, fileName, devicePath);
+                        return null;
+                     }
 
-            }.execute();
+               }.execute();
          }
 
 
@@ -146,77 +153,82 @@ public class OneDriveClientUsage extends CloudProvider
       public void uploadFileToCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     uploadFileToCloud(folderName, fileName, devicePath);
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        uploadFileToCloud(folderName, fileName, devicePath);
+                        return null;
+                     }
+               }.execute();
          }
 
+
+      private String fetchFileId(String folderName, String fileName) throws LiveOperationException, JSONException
+         {
+            // get all the files in the folder
+            LiveOperation operation = mConnectClient.get(folderIds.get(folderName) + "/files");
+
+            // get the files into a JSON array
+            JSONObject result = operation.getResult();
+            JSONArray data = result.optJSONArray("data");
+
+            // look through all the files and search for the desired file to be downloaded
+            for (int i = 0; i < data.length(); i++)
+               {
+                  // get the file/folder json object
+                  JSONObject object = data.getJSONObject(i);
+
+                  // check the name if its the correct folder
+                  if (object.getString("name").equals(fileName))
+                     {
+                        return object.getString("id");
+                     }
+               }
+
+            return null;
+         }
 
       @Override
       public void downloadFileFromCloud(String folderName, String fileName, String devicePath)
          {
-            // initialize variables
-            int i = 0;
-            boolean found = false;
-
             try
                {
-                  // get all the files in the folder
-                  LiveOperation operation = mConnectClient.get(folderIds.get(folderName) + "/files");
+                  // fetch the file ID
+                  String fileID = fetchFileId(folderName, fileName);
 
-                  // get the files into a JSON array
-                  JSONObject result = operation.getResult();
-                  JSONArray data = result.optJSONArray("data");
-
-                  // look through all the files and search for the desired file to be downloaded
-                  while (!found && i < data.length())
+                  // check the name if its the correct folder
+                  if (fileID != null)
                      {
-                        // get the file/folder json object
-                        JSONObject object = data.getJSONObject(i);
+                        // download the file
+                        LiveDownloadOperation downloadOperation = mConnectClient.download(fileID + "/content");
 
-                        // check the name if its the correct folder
-                        if (object.getString("name").equals(fileName))
+                        // get the file data stream
+                        InputStream input = downloadOperation.getStream();
+
+                        // create a new file on the device
+                        File f = new File(devicePath);
+
+                        // copy the file stream into the file
+                        OutputStream stream = new BufferedOutputStream(new FileOutputStream(f));
+
+                        byte[] buffer = new byte[1024];
+                        int len;
+
+                        while ((len = input.read(buffer)) != -1)
                            {
-                              // download the file
-                              LiveDownloadOperation downloadOpperation = mConnectClient.download(object.getString("id") + "/content");
-
-                              // get the file data stream
-                              InputStream input = downloadOpperation.getStream();
-
-                              // create a new file on the device
-                              File f = new File(devicePath);
-
-                              // copy the file stream into the file
-                              OutputStream stream = new BufferedOutputStream(new FileOutputStream(f));
-
-                              byte[] buffer = new byte[1024];
-                              int len;
-
-                              while ((len = input.read(buffer)) != -1)
-                                 {
-                                    stream.write(buffer, 0, len);
-                                 }
-
-                              // close the output stream
-                              stream.close();
-                              input.close();
-
-                              // set the file has been found and downloaded
-                              Log.i("Sky drive", "File Downloaded");
-                              found = true;
+                              stream.write(buffer, 0, len);
                            }
-                        i++;
+
+                        // close the output stream
+                        stream.close();
+                        input.close();
+
+                        // set the file has been found and downloaded
+                        Log.i("Sky drive", "File Downloaded");
                      }
-
                }
-
             catch (IOException | JSONException | LiveOperationException ex)
                {
-                  // print error and try to download the file again
                   System.out.println("Error downloading: " + ex.getMessage());
                }
          }
@@ -264,6 +276,30 @@ public class OneDriveClientUsage extends CloudProvider
             return directLink;
          }
 
+
+      @Override
+      public void removeFileOnCloud(String folderName, String fileName)
+         {
+            try
+               {
+                  // get the file Id
+                  String fileID = fetchFileId(folderName, fileName);
+
+                  if(fileID != null)
+                     {
+                        mConnectClient.delete(fileID);
+                     }
+                  else
+                     {
+                        System.out.println("Error Deleting!!!!!");
+                     }
+               }
+            catch (LiveOperationException | JSONException e)
+               {
+                  e.printStackTrace();
+               }
+         }
+
       @Override
       public void createStorageDirectoriesOnCloud()
          {
@@ -288,12 +324,6 @@ public class OneDriveClientUsage extends CloudProvider
       @Override
       public void onResume()
          {
-         }
-
-
-      private void showToast(String message)
-         {
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
          }
 
       private void createMainFolder(String folderName)

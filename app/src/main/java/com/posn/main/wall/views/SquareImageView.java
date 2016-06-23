@@ -7,11 +7,6 @@ import android.widget.ImageView;
 
 public class SquareImageView extends ImageView
    {
-
-      private int width;
-      boolean allocated = false;
-
-
       public SquareImageView(Context context)
          {
             super(context);
@@ -34,13 +29,7 @@ public class SquareImageView extends ImageView
       protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
          {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            width = getMeasuredWidth();
+            int width = getMeasuredWidth();
             setMeasuredDimension(width, width);
-         }
-
-
-      public int getViewWidth()
-         {
-            return width;
          }
    }

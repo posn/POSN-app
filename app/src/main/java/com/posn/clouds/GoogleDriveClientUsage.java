@@ -6,12 +6,13 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
@@ -25,7 +26,6 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.posn.Constants;
-import com.posn.clouds.CloudProvider;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -42,19 +42,21 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
       private static final String TAG = "Google Drive Client";
 
       protected static final int REQUEST_CODE_RESOLUTION = 1;
-      protected static final int NEXT_AVAILABLE_REQUEST_CODE = 2;
 
       private Context context;
       public GoogleApiClient mGoogleApiClient;
 
       public HashMap<String, DriveId> folderIds;
 
+      private OnConnectedCloudListener connectedListener;
 
-      public GoogleDriveClientUsage(Context context)
+
+      public GoogleDriveClientUsage(Context context, OnConnectedCloudListener connectedListener)
          {
             // set the activity context
             this.context = context;
             folderIds = new HashMap<>();
+            this.connectedListener = connectedListener;
          }
 
       @Override
@@ -73,47 +75,44 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
       public void downloadFileFromCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     downloadFileFromCloud(folderName, fileName, devicePath);
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        downloadFileFromCloud(folderName, fileName, devicePath);
+                        return null;
+                     }
+               }.execute();
          }
 
       @Override
       public void uploadFileToCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     uploadFileToCloud(folderName, fileName, devicePath);
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        uploadFileToCloud(folderName, fileName, devicePath);
+                        return null;
+                     }
+               }.execute();
          }
 
       @Override
       public void createStorageDirectoriesOnCloudAsyncTask()
          {
             new AsyncTask<Void, Void, Void>()
-            {
-               protected Void doInBackground(Void... params)
-                  {
-                     createStorageDirectoriesOnCloud();
-                     return null;
-                  }
-            }.execute();
+               {
+                  protected Void doInBackground(Void... params)
+                     {
+                        createStorageDirectoriesOnCloud();
+                        return null;
+                     }
+               }.execute();
          }
 
-
-      @Override
-      public void downloadFileFromCloud(String folderName, String fileName, String outputPath)
+      private DriveFile fetchDriveFile(DriveFolder folder, String fileName)
          {
-            // get the folder where the file is located
-            DriveFolder folder = Drive.DriveApi.getFolder(mGoogleApiClient, folderIds.get(folderName));
+            DriveFile file = null;
 
             // check if the file exists
             Query query = new Query.Builder()
@@ -122,16 +121,37 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
 
             // execute query and wait for result
             DriveApi.MetadataBufferResult metaData = folder.queryChildren(mGoogleApiClient, query).await();
-            DriveApi.DriveContentsResult driveContentsResult;
 
             // if the query is not empty then download the file
             if (metaData.getMetadataBuffer().getCount() != 0)
                {
                   // get the file from Drive
-                  DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, metaData.getMetadataBuffer().get(0).getDriveId());
+                  //DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, metaData.getMetadataBuffer().get(0).getDriveId());
 
+
+                  file = metaData.getMetadataBuffer().get(0).getDriveId().asDriveFile();
+               }
+
+            // release the Metadata
+            metaData.release();
+
+            return file;
+         }
+
+      @Override
+      public void downloadFileFromCloud(String folderName, String fileName, String outputPath)
+         {
+            // get the folder where the file is located
+            //DriveFolder folder = Drive.DriveApi.getFolder(mGoogleApiClient, folderIds.get(folderName));
+            DriveFolder folder = folderIds.get(folderName).asDriveFolder();
+
+            DriveFile file = fetchDriveFile(folder, fileName);
+
+            // if the query is not empty then download the file
+            if (file != null)
+               {
                   // set the file to be read
-                  driveContentsResult = file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).await();
+                  DriveApi.DriveContentsResult driveContentsResult = file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).await();
 
                   try
                      {
@@ -142,11 +162,10 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
 
                         // open a new file on device
                         OutputStream output = new BufferedOutputStream(new FileOutputStream(new File(outputPath)));
-                        int bufferSize = 1024;
-                        byte[] buffer = new byte[bufferSize];
+                        byte[] buffer = new byte[1024];
 
                         // read all the Drive file data into a buffer
-                        int len = 0;
+                        int len;
                         while ((len = input.read(buffer)) != -1)
                            {
                               // write data to the new file
@@ -167,9 +186,6 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
                         e.printStackTrace();
                      }
                }
-
-            // release the Metadata
-            metaData.release();
          }
 
       @Override
@@ -177,37 +193,27 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
          {
             String MIME_Type = getMimeType(fileName);
             String directLink = null;
-
-            // get the folder where the file is located
-            DriveFolder folder = Drive.DriveApi.getFolder(mGoogleApiClient, folderIds.get(folderName));
-
-            Query query = new Query.Builder()
-                              .addFilter(Filters.contains(SearchableField.TITLE, fileName))
-                              .build();
-
-            // execute query and wait for result
-            DriveApi.MetadataBufferResult metaData = folder.queryChildren(mGoogleApiClient, query).await();
-
-            // check if the file exists
             DriveApi.DriveContentsResult driveContentsResult;
 
-            // if the query is empty then create a subfolder
-            if (metaData.getMetadataBuffer().getCount() == 0)
-               {
-                  // if the file does not exist, then create a new file
-                  driveContentsResult = Drive.DriveApi.newDriveContents(mGoogleApiClient).await();
-               }
-            else
-               {
-                  // if the file exists, then get the file
-                  DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, metaData.getMetadataBuffer().get(0).getDriveId());
+            // get the folder where the file is located
+            DriveFolder folder = folderIds.get(folderName).asDriveFolder();
 
+            DriveFile file = fetchDriveFile(folder, fileName);
+
+            // if the file already exists
+            if (file != null)
+               {
                   // get the direct link for the file
                   DriveResource.MetadataResult meta = file.getMetadata(mGoogleApiClient).await();
                   directLink = meta.getMetadata().getWebContentLink();
 
                   // open the file and edit the contents
                   driveContentsResult = file.open(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, null).await();
+               }
+            else
+               {
+                  // if the file does not exist, then create a new file
+                  driveContentsResult = Drive.DriveApi.newDriveContents(mGoogleApiClient).await();
                }
 
             // get the content from file
@@ -225,10 +231,13 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
                {
                   // read all the file data in
                   BufferedInputStream input = new BufferedInputStream(new FileInputStream(myFile));
-                  input.read(bytes, 0, bytes.length);
+                  int numBytesRead = input.read(bytes, 0, bytes.length);
 
-                  // write data to Drive file
-                  outputStream.write(bytes);
+                  if(numBytesRead >= 0)
+                     {
+                        // write data to Drive file
+                        outputStream.write(bytes);
+                     }
 
                   // close streams
                   outputStream.close();
@@ -240,7 +249,7 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
                }
 
             // if the file is a new file, upload as a new file
-            if (metaData.getMetadataBuffer().getCount() == 0)
+            if (file == null)
                {
                   // set metadata
                   MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -272,13 +281,21 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
             else
                {
                   // update the Drive file with new contents
-                  com.google.android.gms.common.api.Status status = driveContents.commit(mGoogleApiClient, null).await();
+                  driveContents.commit(mGoogleApiClient, null).await();
                }
 
-            // release the metadata
-            metaData.release();
-
             return directLink;
+         }
+
+      @Override
+      public void removeFileOnCloud(String folderName, String fileName)
+         {
+            DriveFolder folder = folderIds.get(folderName).asDriveFolder();
+
+            DriveFile driveFile = fetchDriveFile(folder, fileName);
+
+            // Call to delete file.
+            driveFile.delete(mGoogleApiClient).await();
          }
 
       @Override
@@ -305,7 +322,8 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
             Log.i(TAG, "GoogleApiClient connected");
             isConnected = true;
 
-            //  googleDrive.createStorageDirectories();
+            // call the on connected listener method
+            connectedListener.OnConnected();
          }
 
       /**
@@ -323,13 +341,14 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
        * available.
        */
       @Override
-      public void onConnectionFailed(ConnectionResult result)
+      public void onConnectionFailed(@NonNull ConnectionResult result)
          {
             Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
             if (!result.hasResolution())
                {
                   // show the localized error dialog.
-                  GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), (Activity) context, 0).show();
+                  GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+                  googleAPI.getErrorDialog((Activity) context, result.getErrorCode(), 0).show();
                   return;
                }
             try
@@ -405,7 +424,8 @@ public class GoogleDriveClientUsage extends CloudProvider implements GoogleApiCl
       private void createSubFolder(DriveId mainFolder, String subFolder)
          {
             // set the folder to check as the parent
-            DriveFolder folder = Drive.DriveApi.getFolder(mGoogleApiClient, mainFolder);
+            // DriveFolder folder = Drive.DriveApi.getFolder(mGoogleApiClient, mainFolder);
+            DriveFolder folder = mainFolder.asDriveFolder();
 
             // check if the sub folder is in the main folder
             Query query = new Query.Builder()

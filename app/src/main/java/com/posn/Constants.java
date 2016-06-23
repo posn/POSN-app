@@ -10,7 +10,7 @@ public class Constants
       public static final String DROPBOX_APP_SECRET = "xgu5rpt67mv4k25";
 
       // OneDrive constants (Client ID comes from the OneDrive Dev console)
-      public static final String ONEDRIVE_CLIENT_ID = "0000000044165317";
+      public static final String ONEDRIVE_CLIENT_ID = "aee521df-f303-4d6b-895a-b25ca917d161";
 
       // Cloud provider type values
       public static final int PROVIDER_DROPBOX = 0;
