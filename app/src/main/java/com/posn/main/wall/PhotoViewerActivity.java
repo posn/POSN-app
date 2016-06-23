@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.posn.R;
-import com.posn.asynctasks.LoadImageAsyncTask;
+import com.posn.asynctasks.wall.LoadImageAsyncTask;
 import com.posn.datatypes.WallPost;
 
 

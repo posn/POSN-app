@@ -26,6 +26,10 @@ public class WallPostList implements Parcelable, ApplicationFile
             return wallPosts.get(wallPostID);
          }
 
+      public void addWallPost(WallPost post)
+         {
+            wallPosts.put(post.postID, post);
+         }
 
       @Override
       public String createApplicationFileContents() throws JSONException
