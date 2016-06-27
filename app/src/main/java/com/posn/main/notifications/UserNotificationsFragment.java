@@ -9,21 +9,18 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.posn.Constants;
 import com.posn.R;
 import com.posn.datatypes.Notification;
 import com.posn.main.MainActivity;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 
 
+/**
+ * This fragment class implements the functionality for the notification fragment:
+ * The detailed functionality is not implemented, this acts a skeleton to add the functionality
+ * Currently implement: Listview that holds notification items, custom adapter
+ **/
 public class UserNotificationsFragment extends Fragment implements OnClickListener
    {
       int TYPE_COMMENT = 0;
@@ -39,18 +36,6 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
 
       private int fragNum;
       private int newNotificationNum = 0;
-
-
-      @Override
-      public void onResume()
-         {
-            super.onResume();
-
-            if (!notificationsList.isEmpty())
-               {
-                  updateNotifications();
-               }
-         }
 
 
       @Override
@@ -85,6 +70,18 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
             return view;
          }
 
+
+      @Override
+      public void onResume()
+         {
+            super.onResume();
+
+            if (!notificationsList.isEmpty())
+               {
+                  updateNotifications();
+               }
+         }
+
       public void setFragNum(int position)
          {
             fragNum = position;
@@ -97,42 +94,17 @@ public class UserNotificationsFragment extends Fragment implements OnClickListen
          }
 
 
+
+
       public void createNotificationsList()
          {
-            JSONArray notifications = new JSONArray();
-
-            try
-               {
-
-                  Notification notification = new Notification(TYPE_COMMENT, "ec3591b0907170cc48c6759c013333f712141eb8", "Jan 19, 2015 at 1:45 pm");
-                  notifications.put(notification.createJSONObject());
-
-                  notification = new Notification(TYPE_FRIEND_ACCEPTED, "413e990ba1e5984d8fd41f1a1acaf3d154b21cab", "Jan 19, 2015 at 1:45 pm");
-                  notifications.put(notification.createJSONObject());
-
-                  notification = new Notification(TYPE_FRIEND_REQUEST, "dc66ae1b5fa5c84cf12b82e2ec07f6b91233e8d4", "Jan 19, 2015 at 1:45 pm");
-                  notifications.put(notification.createJSONObject());
-
-                  JSONObject studentsObj = new JSONObject();
-                  studentsObj.put("notifications", notifications);
-
-                  String jsonStr = studentsObj.toString();
-
-                  FileWriter fw = new FileWriter(Constants.applicationDataFilePath + Constants.notificationListFile);
-                  BufferedWriter bw = new BufferedWriter(fw);
-                  bw.write(jsonStr);
-                  bw.close();
-
-               }
-            catch (JSONException | IOException e)
-               {
-                  e.printStackTrace();
-               }
          }
 
       public void updateNotifications()
          {
             System.out.println("CREATING NOTIFICATIONS!!! | " + notificationsList.size());
+
+            createNotificationsList();
 
             if (notificationsList.size() > 0)
                {

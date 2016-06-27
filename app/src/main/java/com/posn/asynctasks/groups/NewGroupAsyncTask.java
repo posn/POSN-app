@@ -6,16 +6,19 @@ import android.os.AsyncTask;
 import com.posn.Constants;
 import com.posn.datatypes.UserGroup;
 import com.posn.exceptions.POSNCryptoException;
-import com.posn.main.MainActivity;
-import com.posn.utility.IDGenerator;
 import com.posn.main.AppDataManager;
-import com.posn.utility.SymmetricKeyManager;
+import com.posn.main.MainActivity;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 
 
+/**
+ * This AsyncTask class implements the functionality to create a new friendID group:
+ * <ul><li>Takes in the new group name and creates a new group object in the grouplist
+ * <li>The group wall file is created and uploaded to the cloud</ul>
+ **/
 public class NewGroupAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
@@ -52,14 +55,7 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
             try
                {
                   // create new group object
-                  UserGroup group = new UserGroup();
-
-                  // generate group ID
-                  group.ID = IDGenerator.generate(newGroupName);
-                  group.name = newGroupName;
-
-                  // generate group wall and archive key
-                  group.groupFileLink = SymmetricKeyManager.createRandomKey();
+                  UserGroup group = dataManager.userGroupList.createNewUserGroup(newGroupName);
 
                   // create empty group wall file on device to upload to cloud
                   String fileName = "group_" + group.name + "_" + group.version + ".txt";
@@ -70,10 +66,10 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
                   group.groupFileLink = main.cloud.uploadFileToCloud(Constants.wallDirectory, fileName, deviceFilepath + "/" + fileName);
 
                   // create new group object and add to group list
-                  dataManager.userGroupList.userGroups.put(group.ID, group);
+                  dataManager.userGroupList.updateUserGroup(group);
 
                   // save group list to device
-                  dataManager.saveUserAppFile();
+                  dataManager.saveUserGroupListAppFile();
                }
             catch (IOException | JSONException | POSNCryptoException error)
                {

@@ -24,14 +24,21 @@ import com.posn.utility.SymmetricKeyManager;
 import java.io.IOException;
 
 
+/**
+ * This activity class implements the functionality to create a public and private keypair for the new user
+ **/
 public class SetupEncryptionKeysActivity extends FragmentActivity implements OnClickListener
    {
       // user interface variables
       private DrawingView dv;
       private ProgressBar progressBar;
 
-      private User user;
+      // user object to store the information about the new user
+      private User newUser;
+
+      // password object to pass to next activity
       private String password;
+
 
       private int timeCount;
       private final float MAXTIME = 80.0f;
@@ -39,6 +46,10 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
       private int numEncryptBits;
 
 
+      /**
+       * This handler is used as a timer to continue until the progress bar is full
+       * Used to give the user some time to draw in the box for the random seed
+       **/
       // runs without a timer by reposting this handler at the end of the runnable
       Handler timerHandler = new Handler();
       Runnable timerRunnable = new Runnable()
@@ -68,16 +79,19 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
          };
 
 
+      /**
+       * This method is called when the activity needs to be created and handles setting up the user interface objects and sets listeners for touch events.
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_setup_encryption_keys);
 
-            // get the user data from the previous activity
+            // get the user and password from the previous activity
             if (getIntent().hasExtra("user"))
                {
-                  user = (User) getIntent().getExtras().get("user");
+                  newUser = (User) getIntent().getExtras().get("user");
                   password = getIntent().getExtras().getString("password");
                }
 
@@ -113,20 +127,22 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
          }
 
 
+      /**
+       * This method is called when the user touches a UI element and gives the element its functionality
+       **/
       @Override
       public void onClick(View v)
          {
             switch (v.getId())
                {
-
                   case R.id.next_button:
 
                      // check if the key has been generated
                      if (keyGenerated)
                         {
-                           // start the next activity
+                           // start the set up groups activity
                            Intent intent = new Intent(this, SetupGroupsActivity.class);
-                           intent.putExtra("user", user);
+                           intent.putExtra("user", newUser);
                            intent.putExtra("password", password);
                            startActivity(intent);
                         }
@@ -165,6 +181,9 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
          }
 
 
+      /**
+       * This method is called when the progress bar is full and it creates the encryption keys from the random seed value
+       **/
       private void createEncryptionKey()
          {
             // disable drawing in the view
@@ -175,6 +194,9 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
          }
 
 
+      /**
+       * This method generates the public and private keypair
+       **/
       public boolean generateEncryptionKeys(int seed)
          {
             try
@@ -192,8 +214,8 @@ public class SetupEncryptionKeysActivity extends FragmentActivity implements OnC
                   Pair<String, String> keyPair = AsymmetricKeyManager.generateKeys(numEncryptBits, seed);
 
                   // set the user's public and private key
-                  user.publicKey = keyPair.first;
-                  user.privateKey = keyPair.second;
+                  newUser.publicKey = keyPair.first;
+                  newUser.privateKey = keyPair.second;
 
                   return true;
                }

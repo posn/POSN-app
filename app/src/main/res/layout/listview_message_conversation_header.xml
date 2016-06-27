@@ -10,7 +10,7 @@
         android:layout_height="1dip"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/separator"
+        android:layout_toLeftOf="@+id/separator"
         android:background="#8b9dc3"
         android:paddingBottom="5dp"/>
 

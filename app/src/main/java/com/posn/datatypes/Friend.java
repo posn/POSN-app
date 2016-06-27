@@ -13,8 +13,15 @@ import org.json.JSONObject;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+
+/**
+ * <p>This class represents an accepted friend that the user has. This class contains data that the friend created for the user and the user has created for the friend
+ * Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>Implements parcelable to easily pass wall posts between activities</p>
+ **/
 public class Friend implements Parcelable
    {
+      // friend data
       public int status;
       public String ID;
       public String name;
@@ -23,19 +30,16 @@ public class Friend implements Parcelable
       public String image_uri;
       public String publicKey;
 
-      public boolean selected;
+      public boolean selected = false;
 
-      // USER CREATED DATA
-
-      // holds the list of groups that the user placed the friend in
-      // used to create friend file
+      // USER CREATED DATA FOR FRIEND
+      // holds the list of groups that the user placed the friend in (used to create friendID file)
       public ArrayList<String> userGroups = new ArrayList<>();
       public String userFriendFileKey;
 
 
-      // FRIEND CREATED DATA
-
-      // holds the list of group's the friend placed the user in
+      // FRIEND CREATED DATA FOR THE USER
+      // holds the list of group's the friend placed the user in (from the friend file)
       public ArrayList<FriendGroup> friendGroups = new ArrayList<>();
       public String friendFileLink;
       public String friendFileKey;
@@ -49,7 +53,7 @@ public class Friend implements Parcelable
 
       public Friend(RequestedFriend friend, String key, int status)
          {
-            // generate a user friend file key to encrypt the friend file
+            // generate a user friendID file key to encrypt the friendID file
             userFriendFileKey = key;
 
             this.status = status;

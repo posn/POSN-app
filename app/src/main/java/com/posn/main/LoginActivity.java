@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,13 +24,19 @@ import com.posn.utility.UserInterfaceManager;
 /**
  * This activity class implements user login/authentication and the option for the user to create a new account:
  **/
-public class LoginActivity extends BaseActivity implements OnClickListener
+public class LoginActivity extends FragmentActivity implements OnClickListener
    {
       // user interface variables
       public EditText passwordText, emailText;
 
+      // URI object that holds the data for a friendID request
       public Uri uri = null;
 
+      /**
+       * This method is called when the activity needs to be created and handles setting up the user interface objects and sets listeners for touch events.
+       * Creates the storage directories on the device
+       * Loads in the friendID request URI
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
@@ -74,11 +81,14 @@ public class LoginActivity extends BaseActivity implements OnClickListener
             DeviceFileManager.createDefaultStorageDirectories();
 
             // get the URI that opened the app (uri is null if it does not exist)
-            // URI is used for friend requests
+            // URI is used for friendID requests
             uri = getIntent().getData();
          }
 
 
+      /**
+       * This method is called when the user touches a UI element and gives the element its functionality
+       **/
       @Override
       public void onClick(View v)
          {

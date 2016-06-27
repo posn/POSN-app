@@ -20,19 +20,25 @@ import android.widget.Toast;
 import com.posn.R;
 import com.posn.datatypes.User;
 import com.posn.utility.IDGenerator;
+import com.posn.utility.UserInterfaceManager;
 
-
+/**
+ * This activity class implements the functionality to get the personal information from a new user
+ * Personal Info: first name, last name, email address, phone number, birthday, gender
+ **/
 public class SetupPersonalInfoActivity extends FragmentActivity implements OnClickListener, OnDateSetListener
    {
-
+      // user interface variables
       EditText firstName, lastName, email, phone;
       TextView birthday;
       Button next;
 
-      //POSNApplication app;
+      // user object to store the information about the new user
+      User newUser;
 
-      User user;;
-
+      /**
+       * This method is called when the activity needs to be created and handles setting up the user interface objects and sets listeners for touch events.
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
@@ -52,7 +58,6 @@ public class SetupPersonalInfoActivity extends FragmentActivity implements OnCli
             birthday.setOnClickListener(this);
             birthday.setOnFocusChangeListener(new OnFocusChangeListener()
                {
-
                   @Override
                   public void onFocusChange(View v, boolean hasFocus)
                      {
@@ -73,50 +78,51 @@ public class SetupPersonalInfoActivity extends FragmentActivity implements OnCli
                {
                   actionBar.setTitle("Setup Account Information");
                }
-
-            // get the application to store data
-            //app = (POSNApplication) this.getApplication();
          }
 
 
+      /**
+       * This method is called when the user touches a UI element and gives the element its functionality
+       **/
       @Override
       public void onClick(View v)
          {
             switch (v.getId())
                {
-
                   case R.id.next_button:
 
                      // check and store all the data
                      if (checkFields())
                         {
-                           user = new User();
+                           // create a new user
+                           newUser = new User();
+
+                           // create user ID
+                           newUser.ID = IDGenerator.generate(newUser.email);
+
                            // store the first and last name
-                           user.firstName = firstName.getText().toString().trim();
-                           user.lastName = lastName.getText().toString().trim();
+                           newUser.firstName = firstName.getText().toString().trim();
+                           newUser.lastName = lastName.getText().toString().trim();
 
                            // store the email address
-                           user.email = email.getText().toString().trim();
+                           newUser.email = email.getText().toString().trim();
 
                            // store the phone number
-                           user.phoneNumber = phone.getText().toString().trim();
+                           newUser.phoneNumber = phone.getText().toString().trim();
 
                            // store the birthday
-                           user.birthday = birthday.getText().toString().trim();
+                           newUser.birthday = birthday.getText().toString().trim();
 
                            // store the gender
                            RadioGroup rg = (RadioGroup) findViewById(R.id.radioGroup1);
-                           String radiovalue = ((RadioButton) this.findViewById(rg.getCheckedRadioButtonId())).getText().toString();
-                           user.gender = radiovalue.trim();
+                           String radioValue = ((RadioButton) this.findViewById(rg.getCheckedRadioButtonId())).getText().toString();
+                           newUser.gender = radioValue.trim();
 
-                           // create user ID
-                           user.ID = IDGenerator.generate(user.email);
-
+                           // launch a new activity to create the password
                            Intent intent = new Intent(this, SetupPasswordActivity.class);
-                           intent.putExtra("user", user);
+                           intent.putExtra("user", newUser);
                            startActivity(intent);
                         }
-
                      break;
 
                   case R.id.textView1:
@@ -129,6 +135,9 @@ public class SetupPersonalInfoActivity extends FragmentActivity implements OnCli
          }
 
 
+      /**
+       * This method is called when the user selects his/her birthday and formats the date
+       **/
       @Override
       public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth)
          {
@@ -145,41 +154,45 @@ public class SetupPersonalInfoActivity extends FragmentActivity implements OnCli
          }
 
 
+      /**
+       * This method shows the date picker dialog window
+       **/
       public void showDateDialog()
          {
-
             FragmentManager fm = getSupportFragmentManager();
             TimePickerFragment newFragment = new TimePickerFragment(this);
             newFragment.show(fm, "date_picker");
-
          }
 
 
+      /**
+       * This method checks to see if the required fields have been filled out. An error message will be displayed if one is missing
+       **/
       public boolean checkFields()
          {
             // check the first name
-            if (isEmpty(firstName))
+            if (UserInterfaceManager.isEditTextEmpty(firstName))
                {
                   Toast.makeText(this, "Please enter your first name.", Toast.LENGTH_SHORT).show();
                   return false;
                }
 
             // check the last name
-            if (isEmpty(lastName))
+            if (UserInterfaceManager.isEditTextEmpty(lastName))
                {
                   Toast.makeText(this, "Please enter your last name.", Toast.LENGTH_SHORT).show();
                   return false;
                }
 
             // check the email
-            if (isEmpty(email))
+            if (UserInterfaceManager.isEditTextEmpty(email))
                {
                   Toast.makeText(this, "Please enter your email.", Toast.LENGTH_SHORT).show();
                   return false;
                }
 
             // check the phone number
-            if (isEmpty(phone))
+            if (UserInterfaceManager.isEditTextEmpty(phone))
                {
                   Toast.makeText(this, "Please enter your phone number.", Toast.LENGTH_SHORT).show();
                   return false;
@@ -193,18 +206,5 @@ public class SetupPersonalInfoActivity extends FragmentActivity implements OnCli
                }
 
             return true;
-         }
-
-
-      private boolean isEmpty(EditText etText)
-         {
-            if (etText.getText().toString().trim().length() > 0)
-               {
-                  return false;
-               }
-            else
-               {
-                  return true;
-               }
          }
    }

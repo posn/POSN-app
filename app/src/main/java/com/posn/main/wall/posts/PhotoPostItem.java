@@ -18,6 +18,11 @@ import java.util.Date;
 import java.util.Locale;
 
 
+/**
+ * This class creates a photo wall post listview item for the wall post listview.
+ * Implements the functions defined in the ListViewPostItem interface.
+ * Uses a viewholder pattern: https://developer.android.com/training/improving-layouts/smooth-scrolling.html
+ **/
 public class PhotoPostItem implements ListViewPostItem
    {
       static class ViewHolderItem

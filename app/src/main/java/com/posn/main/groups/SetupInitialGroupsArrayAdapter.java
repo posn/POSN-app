@@ -1,4 +1,4 @@
-package com.posn.adapters;
+package com.posn.main.groups;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,18 +15,21 @@ import com.posn.datatypes.UserGroup;
 import java.util.ArrayList;
 
 
-public class SetupGroupArrayAdapter extends ArrayAdapter<UserGroup>
+public class SetupInitialGroupsArrayAdapter extends ArrayAdapter<UserGroup>
    {
+      class ViewHolder
+         {
+
+            TextView nameText;
+            CheckBox checkBox;
+         }
 
       private final Context context;
       ArrayList<UserGroup> userGroupList;
       ArrayList<String> selectedList;
 
 
-
-
-
-      public SetupGroupArrayAdapter(Context context, ArrayList<UserGroup> userGroups, ArrayList<String> selected)
+      public SetupInitialGroupsArrayAdapter(Context context, ArrayList<UserGroup> userGroups, ArrayList<String> selected)
          {
             super(context, R.layout.listview_group_item, userGroups);
             this.context = context;

@@ -20,6 +20,13 @@ import java.util.Date;
 import java.util.Locale;
 
 
+/**
+ * This class creates a link wall post listview item for the wall post listview.
+ * Implements the functions defined in the ListViewPostItem interface.
+ * Uses a viewholder pattern: https://developer.android.com/training/improving-layouts/smooth-scrolling.html
+ *
+ * Note: Link posts are not currently implemented
+ **/
 public class LinkPostItem implements ListViewPostItem, OnClickListener
    {
       private Context context;

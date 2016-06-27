@@ -63,7 +63,7 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment>
 				mViewHolder.commentText = (TextView) convertView.findViewById(R.id.comment);
 
 
-				// get friend name
+				// get friendID name
 				String name;
 
 				if(friends.containsKey(values.get(position).userID))

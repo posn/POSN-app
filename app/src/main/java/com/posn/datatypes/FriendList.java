@@ -16,6 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * <p>This class creates a list of all current and requested/pending friends. The class uses an arraylist to hold the non-accepted friends and a hashmap for the accepted friends.
+ *    Methods are included to read and write the data to and from a file.</p>
+ * <p>Implements the methods defined by the ApplicationFile interface</p>
+ * <p>Implements parcelable to easily pass this class between activities</p>
+ **/
 public class FriendList implements Parcelable, ApplicationFile
    {
       public HashMap<String, Friend> currentFriends = new HashMap<>();
@@ -27,16 +33,21 @@ public class FriendList implements Parcelable, ApplicationFile
 
          }
 
-      public Friend addNewAcceptedFriendRequest(RequestedFriend friend) throws POSNCryptoException
+      public Friend addNewAcceptedFriend(RequestedFriend friend, int status) throws POSNCryptoException
          {
             String symmetricKey = SymmetricKeyManager.createRandomKey();
-            Friend newFriend =  new Friend(friend, symmetricKey, Constants.STATUS_ACCEPTED);
+            Friend newFriend = new Friend(friend, symmetricKey, status);
 
-            // remove request friend from friend request list and add to current friends list
+            // remove request friendID from friendID request list and add to current friends list
             friendRequests.remove(friend);
             currentFriends.put(newFriend.ID, newFriend);
 
             return newFriend;
+         }
+
+      public void addNewPendingFriend(RequestedFriend friend)
+         {
+            friendRequests.add(friend);
          }
 
 
@@ -52,7 +63,7 @@ public class FriendList implements Parcelable, ApplicationFile
             // loop through array and parse individual friends
             for (int n = 0; n < friendsList.length(); n++)
                {
-                  // parse the friend
+                  // parse the friendID
                   Friend friend = new Friend();
                   friend.parseJSONObject(friendsList.getJSONObject(n));
                   currentFriends.put(friend.ID, friend);
@@ -98,7 +109,7 @@ public class FriendList implements Parcelable, ApplicationFile
             object.put("friends", friendsList);
 
 
-            // add all of the friends in the friend request list into the JSON array
+            // add all of the friends in the friendID request list into the JSON array
             JSONArray requestedFriendsList = new JSONArray();
 
             for (int i = 0; i < friendRequests.size(); i++)

@@ -18,13 +18,21 @@ import org.json.JSONException;
 import java.io.IOException;
 
 
+/**
+ * This AsyncTask class implements the functionality to authenticate the user's credentials:
+ * <ul><li>The user's password is used to create an asymmetric key that is used to decrypt a verification file.
+ *         If the message is correct, then it was successful
+ * <li>Loads in the user data application file from the device and creates a new data manager object
+ * <li>The email is then checked and if correct, then the main activity is launched</ul>
+ **/
 public class AuthenticateUserAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
-      private String deviceFileKey;
       private String email, password;
-      private boolean loginVerify;
       private LoginActivity activity;
+
+      private boolean loginVerify = false;
+
 
       AppDataManager dataManager;
 
@@ -35,7 +43,6 @@ public class AuthenticateUserAsyncTask extends AsyncTask<String, String, String>
             this.email = email;
             this.password = password;
             this.activity = activity;
-            loginVerify = false;
          }
 
       @Override
@@ -51,10 +58,11 @@ public class AuthenticateUserAsyncTask extends AsyncTask<String, String, String>
 
       protected String doInBackground(String... params)
          {
+            // declare variables
             try
                {
                   // check if password is valid
-                  deviceFileKey = SymmetricKeyManager.createKeyFromString(password);
+                  String deviceFileKey = SymmetricKeyManager.createKeyFromString(password);
 
                   String verificationString = DeviceFileManager.loadStringFromFile(Constants.encryptionKeyFilePath, "verify.pass");
 

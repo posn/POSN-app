@@ -7,6 +7,9 @@ import android.view.ViewGroup;
 import java.util.Date;
 
 
+/**
+ * This interface class defines functions that all listview items in the wall fragment should have
+ **/
 public interface ListViewPostItem
    {
       int getViewType();

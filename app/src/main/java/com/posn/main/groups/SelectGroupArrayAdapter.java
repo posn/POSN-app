@@ -1,4 +1,4 @@
-package com.posn.adapters;
+package com.posn.main.groups;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,24 +15,20 @@ import com.posn.datatypes.UserGroup;
 import java.util.ArrayList;
 
 
-class ViewHolder
-   {
-
-      TextView nameText;
-      CheckBox checkBox;
-      boolean checked = false;
-   }
-
-
 public class SelectGroupArrayAdapter extends ArrayAdapter<UserGroup>
    {
+      class ViewHolder
+         {
+
+            TextView nameText;
+            CheckBox checkBox;
+         }
 
       private final Context context;
       ArrayList<UserGroup> userGroupList;
 
 
       ArrayList<String> selectedGroupIDs;
-
 
 
       public SelectGroupArrayAdapter(Context context, ArrayList<UserGroup> userGroups, ArrayList<String> selectedGroupIDs)

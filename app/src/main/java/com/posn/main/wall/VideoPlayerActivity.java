@@ -9,11 +9,18 @@ import com.posn.Constants;
 import com.posn.R;
 import com.posn.datatypes.WallPost;
 
+
 /**
  * This activity class allows the user to view the full video that was clicked from a wall post
+ * <ul><li>This class is not used as the video posts are not implemented</ul>
  **/
 public class VideoPlayerActivity extends Activity
    {
+      /**
+       * This method is called when the activity needs to be created and handles the interface elements.
+       * <ul><li>Fetches the wall post object that was passed in by the wall fragment
+       * <li>Loads the video to the videoview</ul>
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {

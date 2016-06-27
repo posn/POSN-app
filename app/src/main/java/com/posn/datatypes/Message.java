@@ -8,6 +8,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+
+/**
+ * <p>This class represents a chat message (Note: not fully implemented). Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>Implements parcelable to easily pass wall posts between activities</p>
+ **/
 public class Message
    {
 

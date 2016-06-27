@@ -5,7 +5,6 @@ package com.posn.exceptions;
  **/
 public class POSNCryptoException extends Exception
    {
-
       public POSNCryptoException(String message)
          {
             super(message);

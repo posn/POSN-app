@@ -58,10 +58,10 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                   // loop through all of the friends
                   for (Map.Entry<String, Friend> entry : dataManager.masterFriendList.currentFriends.entrySet())
                      {
-                        // bool value to process the friend file, set to false if the temporal file has not been updated
+                        // bool value to process the friendID file, set to false if the temporal file has not been updated
                         processFriendWallFiles = true;
 
-                        // get the friend from the hash map
+                        // get the friendID from the hash map
                         Friend friend = entry.getValue();
 
                         //check if the temporal file needs to be checked
@@ -72,21 +72,21 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                               String fileName = "temporal_file.txt";
                               DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
 
-                              // attempt to get the updated friend file link
+                              // attempt to get the updated friendID file link
                               boolean fetchedFriendFile = dataManager.loadTemporalFriendFile(friend, deviceFilepath, fileName);
 
-                              // update friend status
+                              // update friendID status
                               if (fetchedFriendFile)
                                  {
-                                    // change the friend status to accepted
+                                    // change the friendID status to accepted
                                     friend.status = Constants.STATUS_ACCEPTED;
 
-                                    // get the most up to date friend file
+                                    // get the most up to date friendID file
                                     fileName = friend.ID + "_friend_user_file.txt";
                                     deviceFilepath = Constants.wallFilePath;
                                     DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
 
-                                    // load the friend file
+                                    // load the friendID file
                                     dataManager.loadFriendFile(friend.ID, deviceFilepath, fileName);
 
                                     // update the friendlist
@@ -97,10 +97,10 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                               processFriendWallFiles = fetchedFriendFile;
                            }
 
-                        // check if the friend file should be processed
+                        // check if the friendID file should be processed
                         if (processFriendWallFiles)
                            {
-                              // loop through all friend groups
+                              // loop through all friendID groups
                               for (int i = 0; i < friend.friendGroups.size(); i++)
                                  {
                                     FriendGroup group = friend.friendGroups.get(i);
@@ -109,10 +109,10 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                                     String fileName = "wall_file.txt";
                                     String deviceFilepath = Constants.wallFilePath;
 
-                                    // download the friend group wall file
+                                    // download the friendID group wall file
                                     DeviceFileManager.downloadFileFromURL(group.groupFileLink, deviceFilepath, fileName);
 
-                                    // load friend group wall file and get wall posts
+                                    // load friendID group wall file and get wall posts
                                     ArrayList<WallPost> wallPosts = main.dataManager.loadFriendGroupWallFile(group, deviceFilepath, fileName);
 
                                     if (wallPosts != null)
@@ -121,7 +121,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                                           for (WallPost wallPost : wallPosts)
                                              {
                                                 // add the post to the post list (updates existing posts)
-                                                dataManager.masterWallPostList.wallPosts.put(wallPost.postID, wallPost);
+                                                dataManager.masterWallPostList.addWallPost(wallPost);
 
                                                 // check if there is multimedia
                                                 if (wallPost.type == Constants.POST_TYPE_PHOTO)

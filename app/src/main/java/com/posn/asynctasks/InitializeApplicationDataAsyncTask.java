@@ -45,13 +45,14 @@ public class InitializeApplicationDataAsyncTask extends AsyncTask<String, String
          {
             try
                {
-                  // get the friend list file
+                  // get the friendID list file
                   System.out.println("GETTING FRIENDS!!!");
                   dataManager.loadFriendListAppFile();
 
                   // get the user groups from file
                   System.out.println("GETTING USER GROUPS!!!");
                   dataManager.loadUserGroupListAppFile();
+
 
                   // get the wall post file
                   System.out.println("GETTING WALL POSTS!!!");

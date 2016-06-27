@@ -19,15 +19,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * <p>This class creates a list of groups the user has defined for his/her friends and the groups are stored in a hashmap using the wall post ID as a key.
+ *        Methods are included to read and write the data to and from a file.</p>
+ * <p>Implements the methods defined by the ApplicationFile interface</p>
+ * <p>Implements parcelable to easily pass this class between activities</p>
+ **/
 public class UserGroupList implements Parcelable, ApplicationFile
    {
-      public HashMap<String, UserGroup> userGroups = new HashMap<>();
+      private HashMap<String, UserGroup> userGroups = new HashMap<>();
 
       public UserGroupList()
          {
 
          }
-
 
       public UserGroup createNewUserGroup(String groupName) throws POSNCryptoException
          {

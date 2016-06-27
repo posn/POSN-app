@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AppKeyPair;
 import com.posn.Constants;
+import com.posn.utility.UserInterfaceManager;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,22 +19,29 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-
-public class DropboxClientUsage extends CloudProvider
+/**
+ * This class implements the Dropbox cloud functionality and uses the Cloud Provider interface
+ **/
+public class DropboxProvider implements CloudProvider
    {
       private Context context;
       private OnConnectedCloudListener connectedListener;
-
+      private boolean isConnected = false;
 
       // variable declarations
       public DropboxAPI<AndroidAuthSession> dropboxSession;
 
-      public DropboxClientUsage(Context context, OnConnectedCloudListener connectedListener)
+      public DropboxProvider(Context context, OnConnectedCloudListener connectedListener)
          {
             this.context = context;
             this.connectedListener = connectedListener;
          }
 
+      /**
+       * This method connects the application to the user's dropbox account
+       * The user will be prompted to log into their account and accept the permissions.
+       * Note: the access token is saved on the device, so the user only needs to log in once
+       **/
       @Override
       public void initializeCloud()
          {
@@ -62,6 +69,9 @@ public class DropboxClientUsage extends CloudProvider
                }
          }
 
+      /**
+       * This method is called after the user logs in using the Dropbox Authentication activity (provided by Dropbox)
+       **/
       @Override
       public void onResume()
          {
@@ -71,7 +81,9 @@ public class DropboxClientUsage extends CloudProvider
                }
          }
 
-
+      /**
+       * This method is to finish the authenticate process and get the token to be saved to the device
+       **/
       private void authenticateDropboxLogin()
          {
             // check if the dropbox session has been created
@@ -83,10 +95,11 @@ public class DropboxClientUsage extends CloudProvider
                         // finish the authentication
                         dropboxSession.getSession().finishAuthentication();
 
+                        // save the Dropbox token to the device
                         saveDropboxToken(dropboxSession.getSession().getOAuth2AccessToken());
-                        System.out.println("TOKEN SAVED!!!!");
 
-                        showToast("Dropbox Connected!");
+                        // show a connection toast
+                        UserInterfaceManager.showToast(context, "Dropbox Connected!");
 
                         // call the on connected listener method
                         connectedListener.OnConnected();
@@ -95,11 +108,9 @@ public class DropboxClientUsage extends CloudProvider
                }
          }
 
-      private void showToast(String message)
-         {
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-         }
-
+      /**
+       * This method creates the cloud storage directories in a asynctask (can be called from the main UI thread)
+       **/
       @Override
       public void createStorageDirectoriesOnCloudAsyncTask()
          {
@@ -113,6 +124,9 @@ public class DropboxClientUsage extends CloudProvider
                }.execute();
          }
 
+      /**
+       * This method downloads a file from the user's cloud in a asynctask (can be called from the main UI thread)
+       **/
       @Override
       public void downloadFileFromCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
@@ -126,6 +140,9 @@ public class DropboxClientUsage extends CloudProvider
                }.execute();
          }
 
+      /**
+       * This method uploads a file to the user's cloud in a asynctask (can be called from the main UI thread)
+       **/
       @Override
       public void uploadFileToCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
@@ -139,70 +156,23 @@ public class DropboxClientUsage extends CloudProvider
                }.execute();
          }
 
-      // check to see if the token has already been obtained
-      //private AccessTokenPair getDropboxToken()
-      private String getDropboxToken()
-         {
-            // get the shared preferences area for the token
-            SharedPreferences sessionTokenRecord = context.getSharedPreferences("token", Context.MODE_PRIVATE);
 
-            // get the token key
-            String sessionToken = sessionTokenRecord.getString("accessToken", null);
-
-            //	String sessionKey = sessionTokenRecord.getString("sessionKey", null);
-
-            // get the token secret
-            //String sessionSecret = sessionTokenRecord.getString("sessionSecret", null);
-
-            // check if the token key and secret were retrieved successfully
-            //if (!(sessionKey == null || sessionSecret == null))
-            if (!(sessionToken == null))
-               {
-                  System.out.println("TOKEN FOUND!");
-                  // return the access token pair
-                  //return new AccessTokenPair(sessionKey, sessionSecret);
-                  return sessionToken;
-               }
-            else
-               {
-                  System.out.println("TOKEN FAILED!");
-
-                  // return null
-                  return null;
-               }
-
-         }
-
-
-      //private void saveDropboxToken(AccessTokenPair accessToken)
-      private void saveDropboxToken(String accessToken)
-         {
-            // create a new shared preferences area for the token
-            SharedPreferences.Editor tokenRecordEditor = context.getSharedPreferences("token", Context.MODE_PRIVATE).edit();
-
-            tokenRecordEditor.putString("accessToken", accessToken);
-
-
-            // put the token key
-            //tokenRecordEditor.putString("sessionKey", accessToken.key);
-
-            // put the token secret
-            //tokenRecordEditor.putString("sessionSecret", accessToken.secret);
-
-            // write the preferences to the device
-            //tokenRecordEditor.commit();
-            tokenRecordEditor.apply();
-         }
-
+      /**
+       * This method is not required for Dropbox
+       **/
       @Override
       public void activityResult(int requestCode, int resultCode, Intent data)
          {
 
          }
 
+      /**
+       * This method creates the cloud storage directories (can not be called from the main UI thread)
+       **/
       @Override
       public void createStorageDirectoriesOnCloud()
          {
+            // loop through the list of directories (Refer to Constants.java)
             for (int i = 0; i < Constants.NUM_DIRECTORIES; i++)
                {
                   // check if a direct exists, if it does not then exception will be thrown
@@ -218,11 +188,13 @@ public class DropboxClientUsage extends CloudProvider
                }
          }
 
+      /**
+       * This method downloads a file from the user's cloud (can not be called from the main UI thread)
+       **/
       @Override
       public void downloadFileFromCloud(String folderName, String fileName, String devicePath)
          {
             // declare variables
-            int tries = 3;
             FileOutputStream outputStream;
 
             String dropboxPath = "/" + folderName + "/" + fileName;
@@ -230,41 +202,39 @@ public class DropboxClientUsage extends CloudProvider
             // get the location of the file to be downloaded
             java.io.File f = new java.io.File(devicePath);
 
-            // try up to three times to download the file
-            while (tries > 0)
+            try
                {
-                  try
+                  // create a stream to put the file onto the device
+                  outputStream = new FileOutputStream(f);
+
+                  // download the file from dropbox
+                  DropboxAPI.DropboxFileInfo info = dropboxSession.getFile(dropboxPath, null, outputStream, null);
+
+                  // check if the download was successful
+                  if (info != null)
                      {
-                        // create a stream to put the file onto the device
-                        outputStream = new FileOutputStream(f);
-
-                        // download the file from dropbox
-                        DropboxAPI.DropboxFileInfo info = dropboxSession.getFile(dropboxPath, null, outputStream, null);
-
-                        // check if the download was successful
-                        if (info != null)
-                           {
-                              tries = 0;
-                              Log.i("Dropbox Download", "Download Complete");
-                           }
-                        else
-                           {
-                              tries--;
-                              Log.i("Dropbox Download", "Download Failed");
-                           }
-
-                        // close the stream
-                        outputStream.close();
+                        Log.i("Dropbox Download", "Download Complete");
                      }
-                  catch (Exception e)
+                  else
                      {
-                        e.printStackTrace();
-                        Log.i("Dropbox Download", "Exception");
-                        tries--;
+                        Log.i("Dropbox Download", "Download Failed");
                      }
+
+                  // close the stream
+                  outputStream.close();
                }
+            catch (Exception e)
+               {
+                  e.printStackTrace();
+                  Log.i("Dropbox Download", "Exception");
+               }
+
          }
 
+      /**
+       * This method uploads a file to the user's cloud and returns the direct download link (can not be called from the main UI thread)
+       * Overwrites an existing file with the same name
+       **/
       @Override
       public String uploadFileToCloud(String folderName, String fileName, String devicePath)
          {
@@ -327,6 +297,9 @@ public class DropboxClientUsage extends CloudProvider
             return directLink;
          }
 
+      /**
+       * This method removes a file from the user's cloud (can not be called from the main UI thread)
+       **/
       @Override
       public void removeFileOnCloud(String folderName, String fileName)
          {
@@ -340,5 +313,43 @@ public class DropboxClientUsage extends CloudProvider
                {
                   e.printStackTrace();
                }
+         }
+
+      /**
+       * This method fetches a previously created Dropbox authentication token from the device's shared preferences
+       * If token is not there, then it returns null
+       **/
+      private String getDropboxToken()
+         {
+            // get the shared preferences area for the token
+            SharedPreferences sessionTokenRecord = context.getSharedPreferences("token", Context.MODE_PRIVATE);
+
+            // get the token key
+            String sessionToken = sessionTokenRecord.getString("accessToken", null);
+
+            // check if the token key and secret were retrieved successfully
+            if (!(sessionToken == null))
+               {
+                  // return the token
+                  return sessionToken;
+               }
+
+            // return null since it was not found
+            return null;
+         }
+
+      /**
+       * This method saves the Dropbox authentication token to the device's shared preferences
+       **/
+      private void saveDropboxToken(String accessToken)
+         {
+            // create a new shared preferences area for the token
+            SharedPreferences.Editor tokenRecordEditor = context.getSharedPreferences("token", Context.MODE_PRIVATE).edit();
+
+            // put the access token in the token object
+            tokenRecordEditor.putString("accessToken", accessToken);
+
+            // write the token object to the device
+            tokenRecordEditor.apply();
          }
    }

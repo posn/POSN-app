@@ -14,33 +14,45 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.posn.R;
-import com.posn.adapters.SetupGroupArrayAdapter;
+import com.posn.main.groups.SetupInitialGroupsArrayAdapter;
 import com.posn.asynctasks.SetupFilesAsyncTask;
 import com.posn.datatypes.User;
 import com.posn.datatypes.UserGroup;
 import com.posn.main.BaseActivity;
 import com.posn.main.LoginActivity;
+import com.posn.utility.UserInterfaceManager;
 
 import java.util.ArrayList;
 
 
+/**
+ * This activity class implements the functionality for the new user to create friendID groups
+ * This activity also creates the initial application data files
+ **/
 public class SetupGroupsActivity extends BaseActivity implements OnClickListener
    {
-
-      // declare variables
+      // user interface variables
       Button addButton, nextButton;
       EditText groupNameText;
       ListView lv;
 
-      public User user;
+      // user object to store the information about the new user
+      public User newUser;
+
+      // password object to pass to next activity
       public String password;
 
+      // arraylists to hold the new user defined friendID groups
       ArrayList<UserGroup> userGroupNames = new ArrayList<>();
       ArrayList<String> selectedGroups = new ArrayList<>();
 
-      SetupGroupArrayAdapter adapter;
+      // adapter for the listview
+      SetupInitialGroupsArrayAdapter adapter;
 
 
+      /**
+       * This method is called when the activity needs to be created and handles setting up the user interface objects and sets listeners for touch events.
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
@@ -49,9 +61,10 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
 
             setContentView(R.layout.activity_setup_groups);
 
+            // get the user and password from the previous activity
             if (getIntent().hasExtra("user"))
                {
-                  user = (User) getIntent().getExtras().get("user");
+                  newUser = (User) getIntent().getExtras().get("user");
                   password = getIntent().getExtras().getString("password");
                }
 
@@ -69,15 +82,12 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
             addButton.setOnClickListener(this);
             nextButton.setOnClickListener(this);
 
+            // create a custom adapter for each group item in the listview
+            adapter = new SetupInitialGroupsArrayAdapter(this, userGroupNames, selectedGroups);
 
+            // set up the listview
             lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             lv.setItemsCanFocus(true);
-
-
-            // create a custom adapter for each contact item in the listview
-            adapter = new SetupGroupArrayAdapter(this, userGroupNames, selectedGroups);
-
-            // set the adapter to the listview
             lv.setAdapter(adapter);
 
             // set onItemClick listener
@@ -107,6 +117,9 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
          }
 
 
+      /**
+       * This method is called when the user touches a UI element and gives the element its functionality
+       **/
       @Override
       public void onClick(View v)
          {
@@ -114,30 +127,43 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
                {
                   case R.id.add_button:
 
-                     UserGroup newUserGroup = new UserGroup();
-
-                     if (!isEmpty(groupNameText))
+                     // check that there is a group name in the editText
+                     if (!UserInterfaceManager.isEditTextEmpty(groupNameText))
                         {
+                           // create a new user group
+                           UserGroup newUserGroup = new UserGroup();
+
+                           // assign the group name and mark it as selected
                            newUserGroup.name = groupNameText.getText().toString();
                            newUserGroup.selected = true;
 
+                           // add the group to the arraylist and adapter
                            selectedGroups.add(newUserGroup.name);
                            adapter.add(newUserGroup);
+
+                           // notify the adapter of the change so the listview can be updated
                            adapter.notifyDataSetChanged();
+
+                           // clear the editText
                            groupNameText.getText().clear();
                         }
                      else
                         {
+                           // show error
                            Toast.makeText(this, "You must enter a group name", Toast.LENGTH_SHORT).show();
                         }
-
                      break;
 
                   case R.id.next_button:
+
+                     // check to see if at least one group has been added/selected
                      if (selectedGroups.size() > 0)
                         {
+                           // create a new intent to launch the login activity
                            Intent intent = new Intent(this, LoginActivity.class);
                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+                           // create the initial application files from the new user data
                            new SetupFilesAsyncTask(this, selectedGroups, intent).execute();
                         }
                      else
@@ -146,11 +172,5 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
                         }
                      break;
                }
-         }
-
-
-      private boolean isEmpty(EditText etText)
-         {
-            return etText.getText().toString().trim().length() <= 0;
          }
    }

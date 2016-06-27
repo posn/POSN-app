@@ -1,34 +1,23 @@
 package com.posn.clouds;
 
-// This is an abstract class to generalize the access to the different cloud providers
-
 import android.content.Intent;
 
-public abstract class CloudProvider
+/**
+ * This interface class defines functions that all cloud providers need to have
+ **/
+public interface CloudProvider
    {
-      public boolean isConnected = false;
+      void initializeCloud();
 
-      public CloudProvider()
-         {
-         }
+      void createStorageDirectoriesOnCloudAsyncTask();
+      void downloadFileFromCloudAsyncTask(String folderName, String fileName, String devicePath);
+      void uploadFileToCloudAsyncTask(String folderName, String fileName, String devicePath);
 
-      public abstract void initializeCloud();
+      void createStorageDirectoriesOnCloud();
+      void downloadFileFromCloud(String folderName, String fileName, String devicePath);
+      String uploadFileToCloud(String folderName, String fileName, String devicePath);
+      void removeFileOnCloud(String folderName, String fileName);
 
-      public abstract void createStorageDirectoriesOnCloudAsyncTask();
-
-      public abstract void downloadFileFromCloudAsyncTask(String folderName, String fileName, String devicePath);
-
-      public abstract void uploadFileToCloudAsyncTask(String folderName, String fileName, String devicePath);
-
-      public abstract void createStorageDirectoriesOnCloud();
-
-      public abstract void downloadFileFromCloud(String folderName, String fileName, String devicePath);
-
-      public abstract String uploadFileToCloud(String folderName, String fileName, String devicePath);
-
-      public abstract void removeFileOnCloud(String folderName, String fileName);
-
-      public abstract void activityResult(int requestCode, int resultCode, Intent data);
-
-      public abstract void onResume();
+      void activityResult(int requestCode, int resultCode, Intent data);
+      void onResume();
    }

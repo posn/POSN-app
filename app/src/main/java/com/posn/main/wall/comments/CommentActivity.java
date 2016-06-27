@@ -117,7 +117,7 @@ public class CommentActivity extends Activity implements View.OnClickListener
                         // THIS NEEDS TO GO IN THE ASYNC TASK TO PROCESS THE COMMENT
                            // NEED TO DO THIS CHECK TO DETERMINE IF THE COMMENTS ARE EMBEDDED DIRECTLY INTO POST AND UPDATE THE WALLS
 
-                        // check if the post is a user or friend post
+                        // check if the post is a user or friendID post
                         if(post.friendID.equals(user.ID))
                            {
 

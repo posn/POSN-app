@@ -13,6 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * <p>This class creates a list of wall posts by storing them in a hashmap using the wall post ID as a key. Methods are included to read and write the data to and from a file.</p>
+ * <p>Implements the methods defined by the ApplicationFile interface</p>
+ * <p>Implements parcelable to easily pass this class between activities</p>
+ **/
 public class WallPostList implements Parcelable, ApplicationFile
    {
       public HashMap<String, WallPost> wallPosts = new HashMap<>();

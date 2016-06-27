@@ -9,8 +9,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+
+/**
+ * <p>This class represents a user defined group for his/her friends. Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>Implements parcelable to easily pass wall posts between activities</p>
+ **/
 public class UserGroup implements Parcelable
    {
+      // group data
       public String ID;
       public String name;
 
@@ -19,11 +25,12 @@ public class UserGroup implements Parcelable
 
       public int version;
 
+      public boolean selected = false;
+
       // used to hold the post IDs for all the posts in the group's wall.
       // used to create wall files
       public ArrayList<String> wallPostList = new ArrayList<>();
 
-      public boolean selected;
 
       public UserGroup()
          {

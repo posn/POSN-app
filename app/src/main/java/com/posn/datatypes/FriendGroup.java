@@ -6,6 +6,12 @@ import android.os.Parcelable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+/**
+ * <p>This class represents a group that a friend has place the user in (this data is fetched from the friend file).
+ *    Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>Implements parcelable to easily pass wall posts between activities</p>
+ **/
 public class FriendGroup implements Parcelable
    {
       public String ID;

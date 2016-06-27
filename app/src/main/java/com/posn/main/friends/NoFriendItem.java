@@ -2,15 +2,27 @@ package com.posn.main.friends;
 
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.posn.R;
 import com.posn.main.friends.FriendsArrayAdapter.RowType;
 
 
+/**
+ * This class creates a listview item that contains a message (ex. No New Friend Requests) for the Friends list listview
+ * Implements the functions defined in the ListViewFriendItem interface
+ * Uses a viewholder pattern: https://developer.android.com/training/improving-layouts/smooth-scrolling.html
+ **/
 public class NoFriendItem implements ListViewFriendItem
    {
+      // view holder class
+      static class NoFriendViewHolder
+         {
+            TextView messageText;
+         }
 
+      // listview item data variables
       String message;
 
 
@@ -28,15 +40,37 @@ public class NoFriendItem implements ListViewFriendItem
 
 
       @Override
-      public View getView(LayoutInflater inflater, View convertView)
+      public View getView(LayoutInflater inflater, View convertView, ViewGroup parent)
          {
-            View view;
+            NoFriendViewHolder viewHolder;
 
-            view = inflater.inflate(R.layout.listview_friend_none_item, null);
-            TextView text = (TextView) view.findViewById(R.id.list_content2);
-            text.setText(message);
+            if (convertView != null && !(convertView.getTag() instanceof NoFriendViewHolder))
+               {
+                  convertView = null;
+               }
 
-            return view;
+            // check if the view was already created
+            if (convertView == null)
+               {
+                  // create a new view by inflating the layout
+                  convertView = inflater.inflate(R.layout.listview_friend_none_item, parent, false);
+
+                  // well set up the ViewHolder
+                  viewHolder = new NoFriendViewHolder();
+                  viewHolder.messageText = (TextView) convertView.findViewById(R.id.list_content2);
+
+                  // store the holder with the view.
+                  convertView.setTag(viewHolder);
+               }
+            else
+               {
+                  viewHolder = (NoFriendViewHolder) convertView.getTag();
+               }
+
+            // set the data into the views
+            viewHolder.messageText.setText(message);
+
+            return convertView;
          }
 
       @Override
@@ -51,13 +85,5 @@ public class NoFriendItem implements ListViewFriendItem
             return "None";
          }
 
-      @Override
-      public boolean equals(Object o)
-         {
-            if (!(o instanceof NoFriendItem))
-               return false;
-            NoFriendItem other = (NoFriendItem) o;
-            return true;
-         }
 
    }

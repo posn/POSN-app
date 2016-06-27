@@ -15,6 +15,11 @@ import com.posn.datatypes.WallPost;
  **/
 public class PhotoViewerActivity extends Activity
    {
+      /**
+       * This method is called when the activity needs to be created and handles the interface elements.
+       * <ul><li>Fetches the wall post object that was passed in by the wall fragment
+       * <li>Loads the photo to the imageview in an asynctask</ul>
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {

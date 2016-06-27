@@ -12,6 +12,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+
+/**
+ * <p>This class represents a comment the the user or friends have made on a post. Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>Implements parcelable to easily pass wall posts between activities</p>
+ **/
 public class Comment implements Parcelable
    {
       public String commentID;

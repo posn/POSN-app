@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
+/**
+ * This AsyncTask class implements the functionality to create the initial application data files when the user signs up
+ * <ul><li>Creates the group wall files and uploads them to the cloud
+ * <li>Creates the application files for: main wall, user defined groups, user, notifications, conversations, and friends</ul>
+ **/
 public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
@@ -56,16 +61,17 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
                   // generate symmetric key from user password
                   String deviceFileKey = SymmetricKeyManager.createKeyFromString(activity.password);
 
-                  AppDataManager dataManager = new AppDataManager(activity.user, deviceFileKey);
+                  AppDataManager dataManager = new AppDataManager(activity.newUser, deviceFileKey);
 
                   // loop and create all the new groups
                   for (int i = 0; i < groupList.size(); i++)
                      {
+                        // create a new user group in the data manager
                         UserGroup group = dataManager.userGroupList.createNewUserGroup(groupList.get(i));
 
+                        // create the group wall file on the device
                         String fileName = "group_" + group.name + "_" + group.version + ".txt";
                         String directory = Constants.wallFilePath;
-
                         dataManager.createGroupWallFile(group.ID, directory, fileName);
 
                         // upload group wall to cloud and get direct link
@@ -81,7 +87,7 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
                   // save the user data to a file
                   dataManager.saveUserAppFile();
 
-                  // get the friend list file
+                  // get the friendID list file
                   dataManager.saveFriendListAppFile(false);
 
                   // get the wall post file

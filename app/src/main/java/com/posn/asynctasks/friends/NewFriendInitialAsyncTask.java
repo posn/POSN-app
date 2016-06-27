@@ -7,16 +7,23 @@ import com.posn.Constants;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.email.EmailSender;
 import com.posn.exceptions.POSNCryptoException;
+import com.posn.main.AppDataManager;
 import com.posn.main.MainActivity;
 import com.posn.main.friends.UserFriendsFragment;
-import com.posn.main.AppDataManager;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 
+/**
+ * This AsyncTask class implements the functionality for the first of three phases of the friendID request process, where the user sends the friendID request to a desired friendID
+ * <ul><li>Takes in the new requested friendID object and creates a temporal file for the desired friendID and uploads it to the cloud
+ * <li>Builds a friendID request URI with the following user data: id, name, email, public key, URL to the temporal file, and nonce value
+ * <li>Creates a new email containing the URI and sends it to the desired friendID</ul>
+ **/
 public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
@@ -53,40 +60,24 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
          {
             try
                {
-                  // create empty temporal friend wall file on device to upload to cloud
+                  // create empty temporal friendID wall file on device to upload to cloud
                   String fileName = requestedFriend.nonce + "_temp_friend_file.txt";
                   String deviceFilepath = Constants.friendsFilePath;
                   dataManager.createTemporalFriendFile(null, deviceFilepath, fileName);
 
                   // upload group wall to cloud and get direct link
-                  String directLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
+                  String temporalFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
-                  // create URI
-                  String URI;
+                  // create the URI
+                  String URI = createURIData(temporalFileLink);
 
-                  // replace all + chars in the key to the hex value
-                  String publicKey = dataManager.user.publicKey;
-                  publicKey = publicKey.replace("+", "%2B");
+                  // send the email
+                  sendEmailToFriend(URI);
 
-                  // encode the key to maintain special chars
-                  publicKey = URLEncoder.encode(publicKey, "UTF-8");
+                  // add pending friendID to request friends list
+                  dataManager.masterFriendList.addNewPendingFriend(requestedFriend);
 
-                  // encode temporal URL to maintain special chars
-                  String encodedURL = URLEncoder.encode(directLink, "UTF-8");
-
-                  URI = "http://posn.com/request/" + dataManager.user.ID + "/" + dataManager.user.email + "/" + dataManager.user.firstName + "/" + dataManager.user.lastName.trim()
-                            + "/" + publicKey + "/" + encodedURL + "/" + requestedFriend.nonce;
-
-
-                  // send the email the the user (THIS IS BAD TO HARDCODE USERNAME AND PASS)
-                  EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
-                  String body = email.emailBodyFormatter(dataManager.user.firstName + " " +  dataManager.user.lastName + " wants to be your friend in POSN!", URI, "Click to Respond to the Request");
-                  email.sendMail("POSN - New Friend Request", body, "POSN", requestedFriend.email);
-
-
-                  // add pending friend to request friends list
-                  dataManager.masterFriendList.friendRequests.add(requestedFriend);
-
+                  // save the updated friends list to the device
                   dataManager.saveFriendListAppFile(false);
                }
             catch (JSONException | IOException | POSNCryptoException error)
@@ -106,5 +97,32 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
 
             // dismiss the dialog once done
             pDialog.dismiss();
+         }
+
+
+      private String createURIData(String temporalFileLink) throws UnsupportedEncodingException
+         {
+            // replace all + chars in the key to the hex value
+            String publicKey = dataManager.user.publicKey;
+            publicKey = publicKey.replace("+", "%2B");
+
+            // encode the key to maintain special chars
+            publicKey = URLEncoder.encode(publicKey, "UTF-8");
+
+            // encode temporal URL to maintain special chars
+            String encodedURL = URLEncoder.encode(temporalFileLink, "UTF-8");
+
+            // create URI containing the user data
+            return "http://posn.com/request/" + dataManager.user.ID + "/" + dataManager.user.email + "/" + dataManager.user.firstName + "/" + dataManager.user.lastName.trim()
+                       + "/" + publicKey + "/" + encodedURL + "/" + requestedFriend.nonce;
+         }
+
+
+      private void sendEmailToFriend(String URI)
+         {
+            // BAD TO HARDCODE EMAIL ADDRESS AND PASSWORD
+            EmailSender email = new EmailSender("projectcloudbook@gmail.com", "cnlpass!!");
+            String body = email.emailBodyFormatter(dataManager.user.firstName + " " + dataManager.user.lastName + " wants to be your friend in POSN!", URI, "Click to Respond to the Request");
+            email.sendMail("POSN - New Friend Request", body, "POSN", requestedFriend.email);
          }
    }

@@ -43,7 +43,7 @@ public class AppDataManager implements Parcelable
       // symmetric key used to encrypt/decrypt the user file on the device (created from the user's password)
       private String deviceFileKey = null;
 
-      // boolean flag used to determine if a new friend request needs to be processed in the processFriendRequest function
+      // boolean flag used to determine if a new friendID request needs to be processed in the processFriendRequest function
       private boolean newFriendRequest = false;
 
       // user object used to hold data belonging to the data owner
@@ -64,7 +64,7 @@ public class AppDataManager implements Parcelable
       // list of all the user defined groups
       public UserGroupList userGroupList = new UserGroupList();
 
-      // friend request object to hold the newest friend request from the URI
+      // friendID request object to hold the newest friendID request from the URI
       public RequestedFriend requestedFriend = null;
 
 
@@ -85,19 +85,19 @@ public class AppDataManager implements Parcelable
          {
             if (newFriendRequest)
                {
-                  // check if the friend is a new incoming friend request
+                  // check if the friendID is a new incoming friendID request
                   if (requestedFriend.status == Constants.STATUS_REQUEST)
                      {
                         masterFriendList.friendRequests.add(requestedFriend);
                         newFriendRequest = false;
                         return requestedFriend;
                      }
-                  // check if the friend accepted the sent request
+                  // check if the friendID accepted the sent request
                   else if (requestedFriend.status == Constants.STATUS_ACCEPTED)
                      {
                         System.out.println("ACCEPT!!!: " + requestedFriend.name + " | " + masterFriendList.friendRequests.contains(requestedFriend));
 
-                        // get the requested from from the friend request list
+                        // get the requested from from the friendID request list
                         int index = masterFriendList.friendRequests.indexOf(requestedFriend);
                         RequestedFriend pendingFriend = masterFriendList.friendRequests.get(index);
 
@@ -138,7 +138,7 @@ public class AppDataManager implements Parcelable
                   if (uriType.equals("request"))
                      {
 
-                        // set friend status
+                        // set friendID status
                         requestedFriend.status = Constants.STATUS_REQUEST;
 
                         // get ID
@@ -176,7 +176,7 @@ public class AppDataManager implements Parcelable
                         String URI = SymmetricKeyManager.decrypt(key, encryptedURI);
                         String[] paths = URI.split("/");
 
-                        // set friend status
+                        // set friendID status
                         requestedFriend.status = Constants.STATUS_ACCEPTED;
 
                         // get ID
@@ -344,7 +344,7 @@ public class AppDataManager implements Parcelable
 
       public boolean loadTemporalFriendFile(Friend friend, String deviceDirectory, String fileName) throws JSONException, IOException, POSNCryptoException
          {
-            // read friend file in
+            // read friendID file in
             String fileContents = DeviceFileManager.loadStringFromFile(deviceDirectory, fileName);
 
             JSONObject object = new JSONObject(fileContents);
@@ -409,7 +409,7 @@ public class AppDataManager implements Parcelable
 
             Friend friend = masterFriendList.currentFriends.get(friendID);
 
-            // read friend file in
+            // read friendID file in
             String encyrptedString = DeviceFileManager.loadStringFromFile(deviceDirectory, fileName);
 
             // decrypt string

@@ -11,10 +11,10 @@ import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.asynctasks.InitializeApplicationDataAsyncTask;
-import com.posn.clouds.DropboxClientUsage;
-import com.posn.clouds.GoogleDriveClientUsage;
+import com.posn.clouds.DropboxProvider;
+import com.posn.clouds.GoogleDriveProvider;
 import com.posn.clouds.OnConnectedCloudListener;
-import com.posn.clouds.OneDriveClientUsage;
+import com.posn.clouds.OneDriveProvider;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.main.messages.UserConversationFragment;
@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * This activity class implements the main social network functionality after the user has been authenticated:
- * <ul><li>Creates and maintains the wall, notification, message, and friend fragments through the MainTabsPagerAdapter
+ * <ul><li>Creates and maintains the wall, notification, message, and friendID fragments through the MainTabsPagerAdapter
  * <li>Manages all the application data for the fragments through a AppDataManager object
  * <li>Connects to the user's chosen cloud provider</ul>
  **/
@@ -58,8 +58,8 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
 
       /**
        * This method is called when the activity needs to be created and handles data being passed in from the login activity (uri, dataManager).
-       * Sets up the tab pager adapter for all the fragments
-       * Connects the app to the cloud provider
+       * <ul><li>Sets up the tab pager adapter for all the fragments
+       * <li>Connects the app to the cloud provider</ul>
        **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -72,7 +72,7 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
             // create a new data manager object
             dataManager = (AppDataManager) getIntent().getExtras().get("dataManager");
 
-            // attempt to get any new friend requests
+            // attempt to get any new friendID requests
             if (getIntent().hasExtra("uri"))
                {
                   try
@@ -145,6 +145,14 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
                {
                   initializeCloudProvider();
                }
+            else
+               {
+                  // check if the data has been initialized
+                  if(!isInitialized)
+                     {
+                        new InitializeApplicationDataAsyncTask(this).execute();
+                     }
+               }
 
             // check if the activity was saved previously and fetch the previous data
             if (savedInstanceState != null)
@@ -171,6 +179,9 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
                }
          }
 
+      /**
+       * This method is called when the cloud provider has been connected with the application
+       **/
       @Override
       public void OnConnected()
          {
@@ -187,15 +198,15 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
          {
             if (dataManager.user.cloudProvider == Constants.PROVIDER_DROPBOX)
                {
-                  app.cloud = new DropboxClientUsage(this, this);
+                  app.cloud = new DropboxProvider(this, this);
                }
             else if (dataManager.user.cloudProvider == Constants.PROVIDER_GOOGLEDRIVE)
                {
-                  app.cloud = new GoogleDriveClientUsage(this, this);
+                  app.cloud = new GoogleDriveProvider(this, this);
                }
             else
                {
-                  app.cloud = new OneDriveClientUsage(this, this);
+                  app.cloud = new OneDriveProvider(this, this);
                }
 
             app.cloud.initializeCloud();
@@ -212,7 +223,7 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
        **/
       public void notifyFragmentsOnNewDataChange()
          {
-            // get the friend fragment and update the friend list with app data
+            // get the friendID fragment and update the friendID list with app data
             UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
             if (friendFrag != null)
                {

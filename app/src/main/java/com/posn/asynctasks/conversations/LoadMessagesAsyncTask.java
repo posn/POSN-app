@@ -27,7 +27,6 @@ public class LoadMessagesAsyncTask extends AsyncTask<String, String, String>
 
       private HashMap<String,ArrayList<Message>> messagesList = new HashMap<>();
 
-      public AsyncResponseConversation delegate = null;
 
 
       public LoadMessagesAsyncTask(Context context, String filePath)
@@ -112,7 +111,6 @@ public class LoadMessagesAsyncTask extends AsyncTask<String, String, String>
          {
             //System.out.println("NUM FRIENDS123: " + friendList.size() + " | " + friendRequestsList.size());
 
-            delegate.loadingConversationFinished(messagesList);
 
 
             // dismiss the dialog once done

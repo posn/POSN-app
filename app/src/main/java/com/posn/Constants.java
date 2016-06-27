@@ -34,8 +34,8 @@ public class Constants
       public static final int RESULT_PHOTO = 4;
 
       // add groups type value
-      public static final int TYPE_FRIEND_INFO = 0;
-      public static final int TYPE_FRIEND_GROUPS = 1;
+      public static final int TYPE_FRIEND_REQUEST_NEW = 0;
+      public static final int TYPE_FRIEND_REQUEST_ACCEPT = 1;
 
       // wall post type values
       public static final int POST_TYPE_STATUS = 0;

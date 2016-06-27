@@ -33,9 +33,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * This fragment class implements the functionality for the friendID fragment:
+ * <ul><li>Populates the list view using the data stored in the current friends and friendID request hashmaps located in the data manager class in the main activity
+ * <li>Allows for friends to be added or removed
+ * <li>Allows the user to accept or decline friendID requests</ul>
+ *
+ * Functionality should be added to view a friendID's profile
+ **/
 public class UserFriendsFragment extends Fragment implements OnClickListener
    {
-
       // user interface variables
       private HashMap<String, Friend> currentFriendsList;
       private ArrayList<RequestedFriend> friendRequestsList;
@@ -49,6 +56,11 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
       private int fragNum;
 
+
+      /**
+       * This method is called when the activity needs to be created and fetches and implements the user interface elements
+       * Sets up the list view adapter to display the different friendID types (Friend request, pending friendID, accepted friendID)
+       **/
       @Override
       public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
          {
@@ -56,7 +68,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             super.onCreate(savedInstanceState);
 
-            // load the friend tab layout
+            // load the friendID tab layout
             View view = inflater.inflate(R.layout.fragment_user_friends, container, false);
 
             RelativeLayout addFriendButton = (RelativeLayout) view.findViewById(R.id.add_friend_button);
@@ -75,7 +87,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             adapter = new FriendsArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
-            // get the friends and friend request list from the main activity
+            // get the friends and friendID request list from the main activity
             currentFriendsList = dataManager.masterFriendList.currentFriends;
             friendRequestsList = dataManager.masterFriendList.friendRequests;
 
@@ -88,12 +100,20 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             return view;
          }
 
+
+      /**
+       * This method is called to set the fragment number so it can be used to update the number of new wall posts
+       **/
       public void setFragNum(int position)
          {
             fragNum = position;
          }
 
 
+      /**
+       * This method is called after a new friendID request has been made or a friendID request has been accepted and the user selected the friendID groups
+       * The requested friendID object is returned and the appropriate async task is launched
+       **/
       @Override
       public void onActivityResult(int requestCode, int resultCode, Intent data)
          {
@@ -109,6 +129,10 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                }
          }
 
+
+      /**
+       * This method is called when the user clicks the different user interface elements and implements each element's functionality
+       **/
       @Override
       public void onClick(View v)
          {
@@ -116,10 +140,10 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                {
                   case R.id.add_friend_button:
 
-                     // create a new activity intent to add a friend
+                     // create a new activity intent to add a friendID
                      Intent intent = new Intent(getActivity(), AddFriendsActivity.class);
 
-                     intent.putExtra("type", Constants.TYPE_FRIEND_INFO);
+                     intent.putExtra("type", Constants.TYPE_FRIEND_REQUEST_NEW);
 
                      // pass the list of groups to the activity
                      intent.putParcelableArrayListExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
@@ -140,21 +164,20 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
 
                   case R.id.confirm_button:
-                     // get the accepted friend
+                     // get the accepted friendID
                      RequestedFriend friend = (RequestedFriend) v.getTag();
 
-                     // remove them from the friend request list
-                     friendRequestsList.remove(friend);
+                     // remove them from the friendID request list
                      newFriendNum--;
                      activity.updateTabNotificationNum(fragNum, newFriendNum);
 
                      // remove them from the list view
-                     listViewItems.remove(new RequestFriendItem(this, this, friend));
+                     //listViewItems.remove(new RequestFriendItem(this, this, friend));
 
 
-                     // create a new activity intent to add friend groups
+                     // create a new activity intent to add friendID groups
                      intent = new Intent(getActivity(), AddFriendsActivity.class);
-                     intent.putExtra("type", Constants.TYPE_FRIEND_GROUPS);
+                     intent.putExtra("type", Constants.TYPE_FRIEND_REQUEST_ACCEPT);
                      intent.putParcelableArrayListExtra("groups", dataManager.userGroupList.getUserGroupsArrayList());
                      intent.putExtra("requestedFriend", friend);
 
@@ -165,7 +188,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
 
                   case R.id.decline_button:
-                     // get the declined friend
+                     // get the declined friendID
                      RequestedFriend requestedFriend = (RequestedFriend) v.getTag();
 
                      // remove them from the request list
@@ -215,7 +238,78 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                }
          }
 
-      public void createFriendsList()
+      /**
+       * This method clears and repopulates the listview using the wall post data and processes any new friendID requests
+       **/
+      public void updateFriendList()
+         {
+            // check if a new friendID needs to be added from URI
+            try
+               {
+                  RequestedFriend requestedFriend = dataManager.processFriendRequest();
+
+                  // check if a requested friendID was returned (null indicates no new request)
+                  if (requestedFriend != null)
+                     {
+                        dataManager.saveFriendListAppFile(true);
+
+                        // start phase FRAG_NUM
+                        if (requestedFriend.status == Constants.STATUS_ACCEPTED)
+                           {
+                              new NewFriendFinalAsyncTask(this, requestedFriend).execute();
+                           }
+                     }
+               }
+            catch (IOException | JSONException | POSNCryptoException e)
+               {
+                  e.printStackTrace();
+               }
+
+            createFriendsList();
+
+            // notify the adapter about the data change
+            adapter.notifyDataSetChanged();
+         }
+
+
+      /**
+       * This method sorts the friends list in the listview: friendID requests go first then the accepted/pending friends. Each group is sorted alphabetically
+       **/
+      private void sortFriendsList()
+         {
+            int firstHeader, secondHeader;
+
+            firstHeader = listViewItems.indexOf(new HeaderItem("Friend Requests"));
+            secondHeader = listViewItems.indexOf(new HeaderItem("Accepted and Pending Friends"));
+
+            if (firstHeader + 1 == secondHeader)
+               {
+                  listViewItems.add(firstHeader + 1, new NoFriendItem("No new requests"));
+                  secondHeader++;
+               }
+
+            if (secondHeader + 1 == listViewItems.size())
+               {
+                  listViewItems.add(secondHeader + 1, new NoFriendItem("No current friends"));
+               }
+
+            Comparator<ListViewFriendItem> friendNameComparator = new Comparator<ListViewFriendItem>()
+               {
+                  public int compare(ListViewFriendItem emp1, ListViewFriendItem emp2)
+                     {
+                        return emp1.getName().compareToIgnoreCase(emp2.getName());
+                     }
+               };
+
+            Collections.sort(listViewItems.subList(firstHeader + 1, secondHeader), friendNameComparator);
+            Collections.sort(listViewItems.subList(secondHeader + 1, listViewItems.size()), friendNameComparator);
+         }
+
+
+      /**
+       * This method creates all the list view items and headers based on the current friends and friendID request hashmaps
+       **/
+      private void createFriendsList()
          {
             System.out.println("CREATING FRIENDS!!");
             newFriendNum = 0;
@@ -226,7 +320,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             // add the new requests section header
             listViewItems.add(0, new HeaderItem("Friend Requests"));
 
-            // add any friend requests to the top of the list view
+            // add any friendID requests to the top of the list view
             for (int i = 0; i < friendRequestsList.size(); i++)
                {
                   RequestedFriend friend = friendRequestsList.get(i);
@@ -264,65 +358,4 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             activity.updateTabNotificationNum(fragNum, newFriendNum);
          }
 
-
-      public void updateFriendList()
-         {
-            // check if a new friend needs to be added from URI
-            try
-               {
-                  RequestedFriend requestedFriend = dataManager.processFriendRequest();
-
-                  // check if a requested friend was returned (null indicates no new request)
-                  if (requestedFriend != null)
-                     {
-                        dataManager.saveFriendListAppFile(true);
-
-                        // start phase FRAG_NUM
-                        if (requestedFriend.status == Constants.STATUS_ACCEPTED)
-                           {
-                              new NewFriendFinalAsyncTask(this, requestedFriend).execute();
-                           }
-                     }
-               }
-            catch (IOException | JSONException | POSNCryptoException e)
-               {
-                  e.printStackTrace();
-               }
-
-            createFriendsList();
-
-            // notify the adapter about the data change
-            adapter.notifyDataSetChanged();
-         }
-
-
-      public void sortFriendsList()
-         {
-            int firstHeader, secondHeader;
-
-            firstHeader = listViewItems.indexOf(new HeaderItem("Friend Requests"));
-            secondHeader = listViewItems.indexOf(new HeaderItem("Accepted and Pending Friends"));
-
-            if (firstHeader + 1 == secondHeader)
-               {
-                  listViewItems.add(firstHeader + 1, new NoFriendItem("No new requests"));
-                  secondHeader++;
-               }
-
-            if (secondHeader + 1 == listViewItems.size())
-               {
-                  listViewItems.add(secondHeader + 1, new NoFriendItem("No current friends"));
-               }
-
-            Comparator<ListViewFriendItem> friendNameComparator = new Comparator<ListViewFriendItem>()
-               {
-                  public int compare(ListViewFriendItem emp1, ListViewFriendItem emp2)
-                     {
-                        return emp1.getName().compareToIgnoreCase(emp2.getName());
-                     }
-               };
-
-            Collections.sort(listViewItems.subList(firstHeader + 1, secondHeader), friendNameComparator);
-            Collections.sort(listViewItems.subList(secondHeader + 1, listViewItems.size()), friendNameComparator);
-         }
    }

@@ -24,6 +24,13 @@ import java.util.Date;
 import java.util.Locale;
 
 
+/**
+ * This class creates a video wall post listview item for the wall post listview.
+ * Implements the functions defined in the ListViewPostItem interface.
+ * Uses a viewholder pattern: https://developer.android.com/training/improving-layouts/smooth-scrolling.html
+ *
+ * Note: Video posts are not currently implemented
+ **/
 public class VideoPostItem implements ListViewPostItem, SurfaceTextureListener
    {
       static class ViewHolderItem

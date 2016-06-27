@@ -45,7 +45,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="5dp" >
+            android:paddingTop="5dp"
+            android:id="@+id/friend_info_layout">
 
             <LinearLayout
                 android:layout_width="0dp"

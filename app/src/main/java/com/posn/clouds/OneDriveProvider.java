@@ -32,35 +32,42 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class OneDriveClientUsage extends CloudProvider
+/**
+ * This class implements the OneDrive cloud functionality and uses the Cloud Provider interface
+ **/
+public class OneDriveProvider implements CloudProvider
    {
-      public final String[] SCOPES = {"wl.signin", "wl.basic", "wl.offline_access", "wl.skydrive_update", "wl.contacts_create",};
+      // String array for the application access permissions
+      private final String[] SCOPES = {"wl.signin", "wl.basic", "wl.offline_access", "wl.skydrive_update", "wl.contacts_create",};
 
-      public HashMap<String, String> folderIds;
+      // hash map to hold the folder IDs of the storage directories
+      private HashMap<String, String> folderIds;
 
       private Context context;
-
-      public LiveAuthClient mAuthClient;
-      public LiveConnectClient mConnectClient;
-      public LiveConnectSession mSession;
-
+      private LiveConnectClient mConnectClient;
       private OnConnectedCloudListener connectedListener;
 
 
-      public OneDriveClientUsage(Context context, OnConnectedCloudListener connectedListener)
+      public OneDriveProvider(Context context, OnConnectedCloudListener connectedListener)
          {
             // set the activity context
             this.context = context;
 
             this.connectedListener = connectedListener;
-            mAuthClient = new LiveAuthClient(context, Constants.ONEDRIVE_CLIENT_ID);
             folderIds = new HashMap<>();
          }
 
+      /**
+       * This method connects the application to the user's OneDrive account
+       * The user will be prompted to log into their account and accept the permissions.
+       * Note: the user only needs to log in once
+       **/
       @Override
       public void initializeCloud()
          {
-            // initialize onedrive
+            final LiveAuthClient mAuthClient = new LiveAuthClient(context, Constants.ONEDRIVE_CLIENT_ID);
+
+            // initialize OneDrive
             mAuthClient.initialize(Arrays.asList(SCOPES), new LiveAuthListener()
                {
                   @Override
@@ -72,18 +79,18 @@ public class OneDriveClientUsage extends CloudProvider
                   @Override
                   public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)
                      {
+                        // check if the connection has been established
                         if (status == LiveStatus.CONNECTED)
                            {
-                              UserInterfaceManager.showToast(context, "Skydrive Connected!");
-                              mSession = session;
+                              UserInterfaceManager.showToast(context, "OneDrive Connected!");
                               mConnectClient = new LiveConnectClient(session);
-                              isConnected = true;
 
                               // call the on connected listener method
                               connectedListener.OnConnected();
                            }
                         else
                            {
+                              // connection was not made, so have the user login
                               UserInterfaceManager.showToast(context, "Initialize did not connect. Please try login in.");
 
                               mAuthClient.login((MainActivity) context, Arrays.asList(SCOPES), new LiveAuthListener()
@@ -91,13 +98,10 @@ public class OneDriveClientUsage extends CloudProvider
                                     @Override
                                     public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)
                                        {
-
                                           if (status == LiveStatus.CONNECTED)
                                              {
-                                                UserInterfaceManager.showToast(context, "Skydrive Connected!");
-                                                mSession = session;
+                                                UserInterfaceManager.showToast(context, "OneDrive Connected!");
                                                 mConnectClient = new LiveConnectClient(session);
-                                                isConnected = true;
 
                                                 // call the on connected listener method
                                                 connectedListener.OnConnected();
@@ -121,6 +125,9 @@ public class OneDriveClientUsage extends CloudProvider
 
          }
 
+      /**
+       * This method creates the cloud storage directories in a asynctask (can be called from the main UI thread)
+       **/
       @Override
       public void createStorageDirectoriesOnCloudAsyncTask()
          {
@@ -134,6 +141,9 @@ public class OneDriveClientUsage extends CloudProvider
                }.execute();
          }
 
+      /**
+       * This method downloads a file from the user's cloud in a asynctask (can be called from the main UI thread)
+       **/
       @Override
       public void downloadFileFromCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
@@ -148,7 +158,9 @@ public class OneDriveClientUsage extends CloudProvider
                }.execute();
          }
 
-
+      /**
+       * This method uploads a file to the user's cloud in a asynctask (can be called from the main UI thread)
+       **/
       @Override
       public void uploadFileToCloudAsyncTask(final String folderName, final String fileName, final String devicePath)
          {
@@ -163,31 +175,9 @@ public class OneDriveClientUsage extends CloudProvider
          }
 
 
-      private String fetchFileId(String folderName, String fileName) throws LiveOperationException, JSONException
-         {
-            // get all the files in the folder
-            LiveOperation operation = mConnectClient.get(folderIds.get(folderName) + "/files");
-
-            // get the files into a JSON array
-            JSONObject result = operation.getResult();
-            JSONArray data = result.optJSONArray("data");
-
-            // look through all the files and search for the desired file to be downloaded
-            for (int i = 0; i < data.length(); i++)
-               {
-                  // get the file/folder json object
-                  JSONObject object = data.getJSONObject(i);
-
-                  // check the name if its the correct folder
-                  if (object.getString("name").equals(fileName))
-                     {
-                        return object.getString("id");
-                     }
-               }
-
-            return null;
-         }
-
+      /**
+       * This method downloads a file from the user's cloud (can not be called from the main UI thread)
+       **/
       @Override
       public void downloadFileFromCloud(String folderName, String fileName, String devicePath)
          {
@@ -233,6 +223,11 @@ public class OneDriveClientUsage extends CloudProvider
                }
          }
 
+
+      /**
+       * This method uploads a file to the user's cloud and returns the direct download link (can not be called from the main UI thread)
+       * Overwrites an existing file with the same name
+       **/
       @Override
       public String uploadFileToCloud(String folderName, String fileName, String devicePath)
          {
@@ -276,7 +271,9 @@ public class OneDriveClientUsage extends CloudProvider
             return directLink;
          }
 
-
+      /**
+       * This method removes a file from the user's cloud (can not be called from the main UI thread)
+       **/
       @Override
       public void removeFileOnCloud(String folderName, String fileName)
          {
@@ -285,7 +282,7 @@ public class OneDriveClientUsage extends CloudProvider
                   // get the file Id
                   String fileID = fetchFileId(folderName, fileName);
 
-                  if(fileID != null)
+                  if (fileID != null)
                      {
                         mConnectClient.delete(fileID);
                      }
@@ -300,6 +297,9 @@ public class OneDriveClientUsage extends CloudProvider
                }
          }
 
+      /**
+       * This method creates the cloud storage directories (can not be called from the main UI thread)
+       **/
       @Override
       public void createStorageDirectoriesOnCloud()
          {
@@ -315,17 +315,27 @@ public class OneDriveClientUsage extends CloudProvider
                }
          }
 
-
+      /**
+       * This method is not required for OneDrive
+       **/
       @Override
       public void activityResult(int requestCode, int resultCode, Intent data)
          {
          }
 
+
+      /**
+       * This method is not required for OneDrive
+       **/
       @Override
       public void onResume()
          {
          }
 
+
+      /**
+       * This method creates the root folder for the application on the cloud (can not be called from the main UI thread)
+       **/
       private void createMainFolder(String folderName)
          {
             try
@@ -382,7 +392,9 @@ public class OneDriveClientUsage extends CloudProvider
                }
          }
 
-
+      /**
+       * This method creates new directories within the root folder on the cloud (can not be called from the main UI thread)
+       **/
       private void createSubFolder(String mainFolderID, String subFolder)
          {
             try
@@ -397,11 +409,10 @@ public class OneDriveClientUsage extends CloudProvider
                   // get the result of creating the folder
                   JSONObject result = operation.getResult();
 
-
                   // check if the folder already exists
                   if (result.has("error"))
                      {
-                        if (result.getJSONObject("error").optString("code").equals("resource_already_exists"))
+                        if (result.getJSONObject("error").optString("code").equals("resource_already_exists") && !folderIds.containsKey(subFolder))
                            {
                               // if it does then get the list of items in the parent folder to get the folder ID
                               LiveOperation fileList = mConnectClient.get(mainFolderID + "/files");
@@ -411,21 +422,11 @@ public class OneDriveClientUsage extends CloudProvider
                               JSONArray data = list.optJSONArray("data");
 
                               // loop through the objects to find the right folder
-                              int i = 0;
-                              boolean found = false;
-
-                              while (!found && i < data.length())
+                              for (int i = 0; i < data.length(); i++)
                                  {
                                     // get the file/folder json object
                                     JSONObject object = data.getJSONObject(i);
-
-                                    // check the name if its the correct folder
-                                    if (object.getString("name").equals(subFolder))
-                                       {
-                                          folderIds.put(subFolder, object.optString("id"));
-                                          found = true;
-                                       }
-                                    i++;
+                                    folderIds.put(object.getString("name"), object.optString("id"));
                                  }
                            }
                      }
@@ -438,5 +439,34 @@ public class OneDriveClientUsage extends CloudProvider
                {
                   System.out.println("Error building folder: " + ex.getMessage());
                }
+         }
+
+
+      /**
+       * This method gets the file ID for a given file name in a given folder
+       **/
+      private String fetchFileId(String folderName, String fileName) throws LiveOperationException, JSONException
+         {
+            // get all the files in the folder
+            LiveOperation operation = mConnectClient.get(folderIds.get(folderName) + "/files");
+
+            // get the files into a JSON array
+            JSONObject result = operation.getResult();
+            JSONArray data = result.optJSONArray("data");
+
+            // look through all the files and search for the desired file to be downloaded
+            for (int i = 0; i < data.length(); i++)
+               {
+                  // get the file/folder json object
+                  JSONObject object = data.getJSONObject(i);
+
+                  // check the name if its the correct folder
+                  if (object.getString("name").equals(fileName))
+                     {
+                        return object.getString("id");
+                     }
+               }
+
+            return null;
          }
    }

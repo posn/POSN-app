@@ -6,10 +6,15 @@ import android.os.Parcelable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+/**
+ * <p>This class represents a notification (Note: not fully implemented). Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>Implements parcelable to easily pass wall posts between activities</p>
+ **/
 public class Notification implements Parcelable
    {
       public int type;
-      public String friend;
+      public String friendID;
       public String date;
 
       public boolean selected;
@@ -19,10 +24,10 @@ public class Notification implements Parcelable
          }
 
 
-      public Notification(int type, String friend, String date)
+      public Notification(int type, String friendID, String date)
          {
             this.type = type;
-            this.friend = friend;
+            this.friendID = friendID;
             this.date = date;
          }
 
@@ -33,7 +38,7 @@ public class Notification implements Parcelable
             try
                {
                   obj.put("type", type);
-                  obj.put("friend", friend);
+                  obj.put("friendID", friendID);
                   obj.put("date", date);
                }
             catch (JSONException e)
@@ -49,7 +54,7 @@ public class Notification implements Parcelable
             try
                {
                   type = obj.getInt("type");
-                  friend = obj.getString("friend");
+                  friendID = obj.getString("friendID");
                   date = obj.getString("date");
                }
             catch (JSONException e)
@@ -62,7 +67,7 @@ public class Notification implements Parcelable
       public Notification(Parcel in)
          {
             this.type = in.readInt();
-            this.friend = in.readString();
+            this.friendID = in.readString();
             this.date = in.readString();
          }
 
@@ -71,7 +76,7 @@ public class Notification implements Parcelable
       public void writeToParcel(Parcel dest, int flags)
          {
             dest.writeInt(this.type);
-            dest.writeString(this.friend);
+            dest.writeString(this.friendID);
             dest.writeString(this.date);
          }
 

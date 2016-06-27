@@ -15,7 +15,6 @@ import android.widget.ListView;
 import com.posn.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
-import com.posn.asynctasks.conversations.AsyncResponseConversation;
 import com.posn.asynctasks.conversations.LoadMessagesAsyncTask;
 import com.posn.asynctasks.conversations.SaveMessagesAsyncTask;
 import com.posn.datatypes.Message;
@@ -28,7 +27,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-public class FriendMessagesActivity extends Activity implements AsyncResponseConversation, View.OnClickListener
+public class FriendMessagesActivity extends Activity implements View.OnClickListener
    {
       private final int FRIEND_MESSAGE = 0;
       private final int USER_MESSAGAGE = 1;
@@ -90,7 +89,7 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
 
             Intent intent = getIntent();
             friendID = intent.getExtras().getString("friendID");
-            Friend friend = intent.getParcelableExtra("friend");
+            Friend friend = intent.getParcelableExtra("friendID");
 
             ActionBar actionBar = getActionBar();
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -140,7 +139,6 @@ public class FriendMessagesActivity extends Activity implements AsyncResponseCon
       public void loadConversation()
          {
             asyncTaskConversation = new LoadMessagesAsyncTask(this, Constants.messagesFilePath + "/" + friendID + ".txt");
-            asyncTaskConversation.delegate = this;
             asyncTaskConversation.execute();
          }
 

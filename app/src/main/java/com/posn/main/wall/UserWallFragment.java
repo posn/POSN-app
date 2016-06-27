@@ -46,10 +46,8 @@ import java.util.Map;
  * <li>Allows the comments for each post to be view (launches a new activity for comments)
  * <li>Allows the user to create new status or photo wall posts</ul>
  **/
-
 public class UserWallFragment extends Fragment implements OnClickListener, OnRefreshListener
    {
-
       // user interface variables
       RelativeLayout statusButton, photoButton;
       public TextView noWallPostsText;
@@ -66,6 +64,7 @@ public class UserWallFragment extends Fragment implements OnClickListener, OnRef
 
       public int newWallPostsNum = 0;
       private int fragNum;
+
 
       /**
        * This method is called when the activity needs to be created and fetches and implements the user interface elements

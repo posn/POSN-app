@@ -15,6 +15,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+
+/**
+ * <p>This class represents a wall post. Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>Implements parcelable to easily pass wall posts between activities</p>
+ **/
 public class WallPost implements Parcelable
    {
       // data variables

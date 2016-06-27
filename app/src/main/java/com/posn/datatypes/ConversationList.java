@@ -12,6 +12,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
+/**
+ * <p>This class creates a list of the current friends the user has a conversation with and are currently stored in an arraylist
+ *    (Note: this is not fully implemented and may need to use a hashmap). Methods are included to read and write the data to and from a file.</p>
+ * <p>Implements the methods defined by the ApplicationFile interface</p>
+ * <p>Implements parcelable to easily pass this class between activities</p>
+ **/
 public class ConversationList implements Parcelable, ApplicationFile
    {
       public ArrayList<Conversation> conversations = new ArrayList<>();

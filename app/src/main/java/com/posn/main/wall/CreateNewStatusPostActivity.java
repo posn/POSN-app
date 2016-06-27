@@ -15,12 +15,18 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.posn.R;
-import com.posn.adapters.SelectGroupArrayAdapter;
+import com.posn.main.groups.SelectGroupArrayAdapter;
 import com.posn.datatypes.UserGroup;
 
 import java.util.ArrayList;
 
 
+/**
+ * This activity class implements the functionality for a user to create a new status post
+ * <ul><li>The user can enter a text status of any length
+ * <li>The user must selected which group(s) to share the photo with
+ * <li>The new post object is returned the main activity through an activity result</ul>
+ **/
 public class CreateNewStatusPostActivity extends Activity implements View.OnClickListener
    {
       // declare variables
@@ -31,6 +37,10 @@ public class CreateNewStatusPostActivity extends Activity implements View.OnClic
       SelectGroupArrayAdapter adapter;
 
 
+      /**
+       * This method is called when the activity needs to be created and handles the interface elements.
+       * <ul><li>Sets up the list view for groups and add listeners for buttons</ul>
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
@@ -87,6 +97,9 @@ public class CreateNewStatusPostActivity extends Activity implements View.OnClic
          }
 
 
+      /**
+       * This method is called when the user clicks the different user interface elements and implements each element's functionality
+       **/
       @Override
       public void onClick(View v)
          {

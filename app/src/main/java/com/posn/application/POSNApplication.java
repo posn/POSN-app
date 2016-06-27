@@ -9,7 +9,6 @@ public class POSNApplication extends Application
    {
       public CloudProvider cloud = null;
 
-      // profile information data
       @Override
       public void onCreate()
          {

@@ -1,4 +1,4 @@
-package com.posn.initial_setup;
+package com.posn.initial_setup.unused;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -32,7 +32,7 @@ public class ContactArrayAdapter extends ArrayAdapter<Friend>
 
       private final Context context;
       private ArrayList<Friend> values;
-      ArrayList<Friend> selectedContacts = new ArrayList<Friend>();
+      ArrayList<Friend> selectedContacts = new ArrayList<>();
       ViewHolder mViewHolder = null;
 
 

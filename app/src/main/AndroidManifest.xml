@@ -55,15 +55,15 @@
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupProfilePictureActivity"
+            android:name=".initial_setup.unused.SetupProfilePictureActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupFriendsActivity"
+            android:name=".initial_setup.unused.SetupFriendsActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupAdditionalFriendsActivity"
+            android:name=".initial_setup.unused.SetupAdditionalFriendsActivity"
             android:label="@string/main_activity">
         </activity>
         <activity

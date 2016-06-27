@@ -11,7 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * <p></p>This class represents a data owner user and his or her data. Methods are included to read and write the data to and from a file.</p>
+ * <p>This class represents a data owner user and his or her data. Methods are included to read and write the data to and from a file.</p>
+ * <p>Implements the methods defined by the ApplicationFile interface</p>
  * <p>Implements parcelable to easily pass this class between activities</p>
  **/
 public class User implements Parcelable, ApplicationFile
@@ -28,12 +29,9 @@ public class User implements Parcelable, ApplicationFile
       // which cloud provider is being used
       public int cloudProvider;
 
-
       // public and private key
       public String publicKey = null;
       public String privateKey = null;
-
-      // hashmap of all of the groups the user has created for his/her friends
 
 
       /**
@@ -71,14 +69,6 @@ public class User implements Parcelable, ApplicationFile
 
             JSONArray groupList = new JSONArray();
 
-            /*
-            // add all of the groups into the JSON array
-            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
-               {
-                  UserGroup userGroup = entry.getValue();
-                  groupList.put(userGroup.createJSONObject());
-               }
-*/
             // create new JSON object and put the JSON array into it
             user.put("groups", groupList);
 
@@ -120,36 +110,7 @@ public class User implements Parcelable, ApplicationFile
 
             publicKey = data.getString("publicKey");
             privateKey = data.getString("privateKey");
-
-            /*
-            // get array of groups
-            JSONArray groupList = data.getJSONArray("groups");
-
-            // loop through array and parse individual groups
-            for (int n = 0; n < groupList.length(); n++)
-               {
-                  // parse the group
-                  UserGroup userGroup = new UserGroup();
-                  userGroup.parseJSONObject(groupList.getJSONObject(n));
-
-                  // add the group to the hashmap
-                  userDefinedGroups.put(userGroup.ID, userGroup);
-               }*/
          }
-
-
-/*
-      public ArrayList<String> getUserWallPostIDs()
-         {
-            ArrayList<String> list = new ArrayList<>();
-
-            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
-               {
-                  list.addAll(entry.getValue().wallPostList);
-               }
-            return list;
-         }
-*/
 
       // Parcelling part
       public User(Parcel in)
@@ -164,16 +125,6 @@ public class User implements Parcelable, ApplicationFile
             this.cloudProvider = in.readInt();
             this.publicKey = in.readString();
             this.privateKey = in.readString();
-
-            /*
-            //initialize your map before
-            int size = in.readInt();
-            for (int i = 0; i < size; i++)
-               {
-                  String key = in.readString();
-                  UserGroup value = in.readParcelable(UserGroup.class.getClassLoader());
-                  userDefinedGroups.put(key, value);
-               }*/
          }
 
 
@@ -191,14 +142,6 @@ public class User implements Parcelable, ApplicationFile
 
             dest.writeString(this.publicKey);
             dest.writeString(this.privateKey);
-
-            /*
-            dest.writeInt(userDefinedGroups.size());
-            for (Map.Entry<String, UserGroup> entry : userDefinedGroups.entrySet())
-               {
-                  dest.writeString(entry.getKey());
-                  dest.writeParcelable(entry.getValue(), flags);
-               }*/
          }
 
       public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>()

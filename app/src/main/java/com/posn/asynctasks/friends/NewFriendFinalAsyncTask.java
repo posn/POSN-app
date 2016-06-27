@@ -7,20 +7,28 @@ import com.posn.Constants;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.exceptions.POSNCryptoException;
+import com.posn.main.AppDataManager;
 import com.posn.main.MainActivity;
-import com.posn.main.friends.AcceptedFriendItem;
 import com.posn.main.friends.UserFriendsFragment;
 import com.posn.utility.AsymmetricKeyManager;
 import com.posn.utility.DeviceFileManager;
-import com.posn.main.AppDataManager;
 import com.posn.utility.SymmetricKeyManager;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 
+/**
+ * This AsyncTask class implements the functionality for the last phase of the friendID request process, where the initiating creates a friendID file and sends the information
+ * to the new friendID and updates the temporal file.
+ * <ul><li>Updates the friends list from pending to accepted
+ * <li>Creates a friendID file for the new friendID and uploads it to the cloud
+ * <li>Creates a new URI containing the friendID file info to send to the user directly and updates the temporal file in the cloud
+ * <li>Fetches the friendID file for the new friendID</ul>
+ **/
 public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
    {
       private ProgressDialog pDialog;
@@ -57,11 +65,10 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
          {
             try
                {
-                  System.out.println("FINAL STARTED!!!");
-                  // create a new friend object from the requested friend
-                  Friend newFriend = dataManager.masterFriendList.addNewAcceptedFriendRequest(requestedFriend);
+                  // create a new friendID object from the requested friendID
+                  Friend newFriend = dataManager.masterFriendList.addNewAcceptedFriend(requestedFriend, Constants.STATUS_ACCEPTED);
 
-                  // create friend file with all friend group data
+                  // create friendID file with all friendID group data
                   String fileName = newFriend.ID + "_friend_file.txt";
                   String deviceFilepath = Constants.friendsFilePath;
                   dataManager.createFriendFile(newFriend.ID, deviceFilepath, fileName);
@@ -69,48 +76,28 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
                   // upload group wall to cloud and get direct link
                   String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
-                  // create URI
-                  String URI = "";
-
-                  // encode the friend file URL and user friend file key to maintain special chars
-                  String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
-                  String encodedKey = URLEncoder.encode(newFriend.userFriendFileKey, "UTF-8");
-
-                  // create URI with appropriate data
-                  URI = dataManager.user.ID + "/" + encodedURL + "/" + encodedKey + "/" + requestedFriend.nonce2;
-
-                  // generate symmetric key to encrypt the URI
-                  String key = SymmetricKeyManager.createRandomKey();
-                  String encryptedURI = SymmetricKeyManager.encrypt(key, URI);
-
-                  // encrypt the symmetric key will the friend's public key
-                  String encryptedKey = AsymmetricKeyManager.encrypt(newFriend.publicKey, key);
-
-                  // build final URI to send to friend
-                  URI = encryptedKey + "/" + encryptedURI;
+                  // create URI contain the friendID file info
+                  String URI = createURI(newFriend, friendFileLink);
 
 
-                  // SEND AS DIRECT MESSAGE
+                  // SEND AS DIRECT MESSAGE (NEED TO IMPLEMENT)
 
-                  // add to temporal file and upload to cloud
+                  // update the temporal file and upload it to the cloud
                   fileName = requestedFriend.nonce + "_temp_friend_file.txt";
                   deviceFilepath = Constants.friendsFilePath;
-                  System.out.println("URI: " + URI);
                   dataManager.createTemporalFriendFile(URI, deviceFilepath, fileName);
-
-                  friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
-
-                  friendFrag.listViewItems.add(new AcceptedFriendItem(friendFrag, newFriend));
-                  friendFrag.sortFriendsList();
+                  main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
 
-                  // NEED TO FETCH ACCEPTED FRIEND'S FRIEND FILE FOR THE USER
+                  // fetch the accepted friendID's friendID file for the user
                   fileName = newFriend.ID + "_friend_user_file.txt";
                   deviceFilepath = Constants.wallFilePath;
                   DeviceFileManager.downloadFileFromURL(newFriend.friendFileLink, deviceFilepath, fileName);
 
+                  // load the friendID file into the application
                   dataManager.loadFriendFile(newFriend.ID, deviceFilepath, fileName);
 
+                  // save the friends list to the device
                   dataManager.saveFriendListAppFile(false);
                }
             catch (POSNCryptoException | IOException | JSONException e)
@@ -129,5 +116,26 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
             // dismiss the dialog once done
             pDialog.dismiss();
+         }
+
+
+      private String createURI(Friend newFriend, String friendFileLink) throws POSNCryptoException, UnsupportedEncodingException
+         {
+            // encode the friendID file URL and user friendID file key to maintain special chars
+            String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
+            String encodedKey = URLEncoder.encode(newFriend.userFriendFileKey, "UTF-8");
+
+            // create URI with appropriate data
+            String URI = dataManager.user.ID + "/" + encodedURL + "/" + encodedKey + "/" + requestedFriend.nonce2;
+
+            // generate symmetric key to encrypt the URI
+            String key = SymmetricKeyManager.createRandomKey();
+            String encryptedURI = SymmetricKeyManager.encrypt(key, URI);
+
+            // encrypt the symmetric key will the friendID's public key
+            String encryptedKey = AsymmetricKeyManager.encrypt(newFriend.publicKey, key);
+
+            // build final URI to send to friendID
+            return encryptedKey + "/" + encryptedURI;
          }
    }

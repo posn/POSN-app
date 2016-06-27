@@ -1,7 +1,6 @@
 package com.posn.initial_setup;
 
 import android.app.ActionBar;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -9,7 +8,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,25 +16,35 @@ import android.widget.Toast;
 
 import com.posn.R;
 import com.posn.datatypes.User;
+import com.posn.utility.UserInterfaceManager;
 
 
+/**
+ * This activity class implements the functionality for a new user to create a password
+ **/
 public class SetupPasswordActivity extends FragmentActivity implements OnClickListener
    {
-
+      // user interface variables
       Button next;
       EditText passwordText, confirmPasswordText;
-      User user;
+
+      // user object to store the information about the new user
+      User newUser;
 
 
+      /**
+       * This method is called when the activity needs to be created and handles setting up the user interface objects and sets listeners for touch events.
+       **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_setup_password);
 
+            // get the new user object from the setup personal info activity
             if (getIntent().hasExtra("user"))
                {
-                  user = (User) getIntent().getExtras().get("user");
+                  newUser = (User) getIntent().getExtras().get("user");
                }
 
             // get the EditText from the layout
@@ -49,6 +57,7 @@ public class SetupPasswordActivity extends FragmentActivity implements OnClickLi
             // set an onclick listener for each button
             next.setOnClickListener(this);
 
+            // set a lister for when the user touches the done button in the keyboard
             confirmPasswordText.setOnEditorActionListener(new OnEditorActionListener()
                {
 
@@ -57,11 +66,7 @@ public class SetupPasswordActivity extends FragmentActivity implements OnClickLi
                      {
                         if (actionId == EditorInfo.IME_ACTION_DONE)
                            {
-                              // Clear focus here from edittext
-                              confirmPasswordText.setCursorVisible(false);
-                              InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                              imm.hideSoftInputFromWindow(confirmPasswordText.getWindowToken(), 0);
-                              confirmPasswordText.clearFocus();
+                              UserInterfaceManager.hideKeyboard(SetupPasswordActivity.this);
                            }
                         return false;
                      }
@@ -76,18 +81,19 @@ public class SetupPasswordActivity extends FragmentActivity implements OnClickLi
          }
 
 
+      /**
+       * This method is called when the user touches a UI element and gives the element its functionality
+       **/
       @Override
       public void onClick(View v)
          {
             switch (v.getId())
                {
-
                   case R.id.next_button:
 
                      // check if the passwords are empty
-                     if (!isEmpty(passwordText) && !isEmpty(confirmPasswordText))
+                     if (!UserInterfaceManager.isEditTextEmpty(passwordText) && !UserInterfaceManager.isEditTextEmpty(confirmPasswordText))
                         {
-
                            // get the passwords from the edittexts
                            String password = passwordText.getText().toString();
                            String confirmPassword = confirmPasswordText.getText().toString();
@@ -95,10 +101,9 @@ public class SetupPasswordActivity extends FragmentActivity implements OnClickLi
                            // check if the two passwords match
                            if (password.equals(confirmPassword))
                               {
-
-                                 // start the encryption activity
+                                 // start the setup cloud provider activity
                                  Intent intent = new Intent(this, SetupCloudProvidersActivity.class);
-                                 intent.putExtra("user", user);
+                                 intent.putExtra("user", newUser);
                                  intent.putExtra("password", password);
                                  startActivity(intent);
                               }
@@ -119,18 +124,4 @@ public class SetupPasswordActivity extends FragmentActivity implements OnClickLi
                      break;
                }
          }
-
-
-      private boolean isEmpty(EditText etText)
-         {
-            if (etText.getText().toString().trim().length() > 0)
-               {
-                  return false;
-               }
-            else
-               {
-                  return true;
-               }
-         }
-
    }

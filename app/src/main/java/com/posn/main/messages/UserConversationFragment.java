@@ -90,7 +90,7 @@ public class UserConversationFragment extends Fragment implements OnClickListene
                         String FriendID = conversation.friend;
                         Friend friend = main.dataManager.masterFriendList.currentFriends.get(FriendID);
                         intent.putExtra("friendID", FriendID);
-                        intent.putExtra("friend", friend);
+                        intent.putExtra("friendID", friend);
 
                         main.startActivity(intent);
                      }

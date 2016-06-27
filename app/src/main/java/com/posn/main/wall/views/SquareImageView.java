@@ -5,6 +5,9 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 
+/**
+ * This view class creates a square image view for the photo wall post listview item
+ **/
 public class SquareImageView extends ImageView
    {
       public SquareImageView(Context context)

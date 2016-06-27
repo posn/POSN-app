@@ -1,4 +1,4 @@
-package com.posn.initial_setup;
+package com.posn.initial_setup.unused;
 
 import android.app.ActionBar;
 import android.content.Intent;

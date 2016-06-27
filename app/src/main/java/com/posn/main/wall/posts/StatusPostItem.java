@@ -15,15 +15,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-
+/**
+ * This class creates a status wall post listview item for the wall post listview.
+ * Implements the functions defined in the ListViewPostItem interface.
+ * Uses a viewholder pattern: https://developer.android.com/training/improving-layouts/smooth-scrolling.html
+ **/
 public class StatusPostItem implements ListViewPostItem
    {
-
-      private WallPost wallPostData;
-      private String friendName;
-      private View.OnClickListener buttonListener;
-
-
       static class ViewHolderItem
          {
             TextView nameText;
@@ -33,6 +31,11 @@ public class StatusPostItem implements ListViewPostItem
             RelativeLayout commentButton;
             RelativeLayout shareButton;
          }
+
+      // listview item data
+      private WallPost wallPostData;
+      private String friendName;
+      private View.OnClickListener buttonListener;
 
 
       public StatusPostItem(View.OnClickListener buttonListener, String friendName, WallPost wallPostData)
