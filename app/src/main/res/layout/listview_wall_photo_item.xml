@@ -71,7 +71,7 @@
             android:layout_below="@id/title_area"
             android:padding="5dp">
 
-            <com.posn.main.wall.views.SquareImageView
+            <com.posn.main.main.wall.views.SquareImageView
                 android:id="@+id/photo"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"

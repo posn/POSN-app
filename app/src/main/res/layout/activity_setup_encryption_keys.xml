@@ -37,7 +37,7 @@
             android:background="@drawable/table_background"
             android:orientation="vertical" >
 
-            <com.posn.initial_setup.DrawingView
+            <com.posn.main.initial_setup.DrawingView
                 android:id="@+id/draw_view"
                 android:layout_width="match_parent"
                 android:layout_height="fill_parent" />

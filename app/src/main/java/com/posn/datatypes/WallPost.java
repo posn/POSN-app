@@ -3,8 +3,8 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.posn.Constants;
-import com.posn.utility.IDGenerator;
+import com.posn.constants.Constants;
+import com.posn.utility.IDGeneratorHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +43,7 @@ public class WallPost implements Parcelable
       public WallPost(int type, String friendID, String textContent)
          {
             // create POST ID
-            postID = IDGenerator.generate(this.friendID);
+            postID = IDGeneratorHelper.generate(this.friendID);
 
             // create post date
             Date currentDate = new Date();
@@ -58,7 +58,7 @@ public class WallPost implements Parcelable
       public WallPost(int type, String friendID)
          {
             // create POST ID
-            postID = IDGenerator.generate(this.friendID);
+            postID = IDGeneratorHelper.generate(this.friendID);
 
             // create post date
             Date currentDate = new Date();

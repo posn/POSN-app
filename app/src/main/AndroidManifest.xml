@@ -34,7 +34,7 @@
 
         >
         <activity
-            android:name=".main.LoginActivity"
+            android:name=".main.login.LoginActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -51,70 +51,70 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".main.MainActivity"
+            android:name=".main.main.MainActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.unused.SetupProfilePictureActivity"
+            android:name=".main.initial_setup.unused.SetupProfilePictureActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.unused.SetupFriendsActivity"
+            android:name=".main.initial_setup.unused.SetupFriendsActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.unused.SetupAdditionalFriendsActivity"
+            android:name=".main.initial_setup.unused.SetupAdditionalFriendsActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".main.friends.AddFriendsActivity"
+            android:name=".main.main.friends.AddFriendsActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupPasswordActivity"
+            android:name=".main.initial_setup.SetupPasswordActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupPersonalInfoActivity"
+            android:name=".main.initial_setup.SetupPersonalInfoActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupEncryptionKeysActivity"
+            android:name=".main.initial_setup.SetupEncryptionKeysActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupCloudProvidersActivity"
+            android:name=".main.initial_setup.SetupCloudProvidersActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".initial_setup.SetupGroupsActivity"
+            android:name=".main.initial_setup.SetupGroupsActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".main.wall.VideoPlayerActivity"
+            android:name=".main.main.wall.VideoPlayerActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".main.wall.PhotoViewerActivity"
+            android:name=".main.main.wall.PhotoViewerActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".main.wall.comments.CommentActivity"
+            android:name=".main.main.wall.comments.CommentActivity"
             android:label="@string/main_activity"
             android:theme="@style/PopupTheme">
         </activity>
         <activity
-            android:name=".main.messages.FriendMessagesActivity"
+            android:name=".main.main.messages.FriendMessagesActivity"
             android:label="@string/main_activity">
         </activity>
         <activity
-            android:name=".main.wall.CreateNewStatusPostActivity"
+            android:name=".main.main.wall.CreateNewStatusPostActivity"
             android:label="@string/main_activity"
             android:windowSoftInputMode="adjustResize">
         </activity>
 
         <activity
-            android:name=".main.wall.CreateNewPhotoPostActivity"
+            android:name=".main.main.wall.CreateNewPhotoPostActivity"
             android:label="Create Photo Post">
         </activity>
 

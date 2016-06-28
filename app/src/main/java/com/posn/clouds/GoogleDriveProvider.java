@@ -24,8 +24,8 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
-import com.posn.Constants;
-import com.posn.utility.UserInterfaceManager;
+import com.posn.constants.Constants;
+import com.posn.utility.UserInterfaceHelper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -371,7 +371,7 @@ public class GoogleDriveProvider implements CloudProvider, GoogleApiClient.Conne
             if (requestCode == REQUEST_CODE_RESOLUTION && resultCode == Activity.RESULT_OK)
                {
                   mGoogleApiClient.connect();
-                  UserInterfaceManager.showToast(context, "Google Drive Connected!");
+                  UserInterfaceHelper.showToast(context, "Google Drive Connected!");
                }
          }
 

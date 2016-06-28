@@ -15,9 +15,9 @@ import com.microsoft.live.LiveOperation;
 import com.microsoft.live.LiveOperationException;
 import com.microsoft.live.LiveStatus;
 import com.microsoft.live.OverwriteOption;
-import com.posn.Constants;
-import com.posn.main.MainActivity;
-import com.posn.utility.UserInterfaceManager;
+import com.posn.constants.Constants;
+import com.posn.main.main.MainActivity;
+import com.posn.utility.UserInterfaceHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -73,7 +73,7 @@ public class OneDriveProvider implements CloudProvider
                   @Override
                   public void onAuthError(LiveAuthException exception, Object userState)
                      {
-                        UserInterfaceManager.showToast(context, exception.getMessage());
+                        UserInterfaceHelper.showToast(context, exception.getMessage());
                      }
 
                   @Override
@@ -82,7 +82,7 @@ public class OneDriveProvider implements CloudProvider
                         // check if the connection has been established
                         if (status == LiveStatus.CONNECTED)
                            {
-                              UserInterfaceManager.showToast(context, "OneDrive Connected!");
+                              UserInterfaceHelper.showToast(context, "OneDrive Connected!");
                               mConnectClient = new LiveConnectClient(session);
 
                               // call the on connected listener method
@@ -91,7 +91,7 @@ public class OneDriveProvider implements CloudProvider
                         else
                            {
                               // connection was not made, so have the user login
-                              UserInterfaceManager.showToast(context, "Initialize did not connect. Please try login in.");
+                              UserInterfaceHelper.showToast(context, "Initialize did not connect. Please try login in.");
 
                               mAuthClient.login((MainActivity) context, Arrays.asList(SCOPES), new LiveAuthListener()
                                  {
@@ -100,7 +100,7 @@ public class OneDriveProvider implements CloudProvider
                                        {
                                           if (status == LiveStatus.CONNECTED)
                                              {
-                                                UserInterfaceManager.showToast(context, "OneDrive Connected!");
+                                                UserInterfaceHelper.showToast(context, "OneDrive Connected!");
                                                 mConnectClient = new LiveConnectClient(session);
 
                                                 // call the on connected listener method
@@ -108,14 +108,14 @@ public class OneDriveProvider implements CloudProvider
                                              }
                                           else
                                              {
-                                                UserInterfaceManager.showToast(context, "Login did not connect. Status is " + status + ".");
+                                                UserInterfaceHelper.showToast(context, "Login did not connect. Status is " + status + ".");
                                              }
                                        }
 
                                     @Override
                                     public void onAuthError(LiveAuthException exception, Object userState)
                                        {
-                                          UserInterfaceManager.showToast(context, exception.getMessage());
+                                          UserInterfaceHelper.showToast(context, exception.getMessage());
                                        }
                                  });
                            }

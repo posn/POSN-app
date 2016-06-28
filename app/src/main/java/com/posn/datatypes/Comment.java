@@ -3,7 +3,7 @@ package com.posn.datatypes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.posn.utility.IDGenerator;
+import com.posn.utility.IDGeneratorHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,25 +23,25 @@ public class Comment implements Parcelable
       public String postID;
       public String userID;
       public String date;
-      public String comment;
+      public String commentText;
 
       public Comment(){}
 
-      public Comment(String userID, String postID, String comment)
+      public Comment(String userID, String postID, String commentText)
          {
             this.userID = userID;
 
             this.postID = postID;
 
             // create comment ID
-            this.commentID = IDGenerator.generate(userID + postID);
+            this.commentID = IDGeneratorHelper.generate(userID + postID);
 
             // create post date
             Date currentDate = new Date();
             SimpleDateFormat dateformatDay = new SimpleDateFormat("MMM dd 'at' h:mmaa", Locale.US);
             this.date = dateformatDay.format(currentDate);
 
-            this.comment = comment;
+            this.commentText = commentText;
          }
 
 
@@ -55,7 +55,7 @@ public class Comment implements Parcelable
                   obj.put("userID", userID);
                   obj.put("postID", postID);
                   obj.put("date", date);
-                  obj.put("comment", comment);
+                  obj.put("comment", commentText);
                }
             catch (JSONException e)
                {
@@ -73,7 +73,7 @@ public class Comment implements Parcelable
                   userID = obj.getString("userID");
                   postID = obj.getString("postID");
                   date = obj.getString("date");
-                  comment = obj.getString("comment");
+                  commentText = obj.getString("comment");
                }
             catch (JSONException e)
                {
@@ -99,7 +99,7 @@ public class Comment implements Parcelable
             this.userID = in.readString();
             this.postID = in.readString();
             this.date = in.readString();
-            this.comment = in.readString();
+            this.commentText = in.readString();
          }
 
 
@@ -110,7 +110,7 @@ public class Comment implements Parcelable
             dest.writeString(this.userID);
             dest.writeString(this.postID);
             dest.writeString(this.date);
-            dest.writeString(this.comment);
+            dest.writeString(this.commentText);
          }
 
       public static final Parcelable.Creator<Comment> CREATOR = new Parcelable.Creator<Comment>()

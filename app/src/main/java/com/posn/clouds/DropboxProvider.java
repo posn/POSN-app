@@ -10,8 +10,8 @@ import com.dropbox.client2.DropboxAPI;
 import com.dropbox.client2.android.AndroidAuthSession;
 import com.dropbox.client2.exception.DropboxException;
 import com.dropbox.client2.session.AppKeyPair;
-import com.posn.Constants;
-import com.posn.utility.UserInterfaceManager;
+import com.posn.constants.Constants;
+import com.posn.utility.UserInterfaceHelper;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -99,7 +99,7 @@ public class DropboxProvider implements CloudProvider
                         saveDropboxToken(dropboxSession.getSession().getOAuth2AccessToken());
 
                         // show a connection toast
-                        UserInterfaceManager.showToast(context, "Dropbox Connected!");
+                        UserInterfaceHelper.showToast(context, "Dropbox Connected!");
 
                         // call the on connected listener method
                         connectedListener.OnConnected();
