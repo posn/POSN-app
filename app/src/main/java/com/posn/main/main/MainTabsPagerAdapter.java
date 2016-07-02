@@ -13,9 +13,9 @@ import android.widget.TextView;
 
 import com.posn.R;
 import com.posn.main.main.friends.UserFriendsFragment;
+import com.posn.main.main.groups.UserGroupsFragment;
 import com.posn.main.main.messages.UserConversationFragment;
 import com.posn.main.main.notifications.UserNotificationsFragment;
-import com.posn.main.main.settings.UserSettingsFragment;
 import com.posn.main.main.wall.UserWallFragment;
 
 import java.util.ArrayList;
@@ -73,11 +73,10 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
                            registeredFragments.put(3, friendsFrag);
                            break;
 
-                        // create a settings tab fragment
+                        // create a groups tab fragment
                         case 4:
-                           UserSettingsFragment settingsFrag = new UserSettingsFragment();
-                           settingsFrag.setFragNum(4);
-                           registeredFragments.put(4, settingsFrag);
+                           UserGroupsFragment groupsFrag = new UserGroupsFragment();
+                           registeredFragments.put(4, groupsFrag);
                            break;
                      }
                }
@@ -161,5 +160,53 @@ public class MainTabsPagerAdapter extends FragmentPagerAdapter
          {
             return registeredFragments.get(position);
          }
+
+      public void notifyWallFragmentOnNewDataChange()
+         {
+            UserWallFragment wallFrag = (UserWallFragment) registeredFragments.get(0);
+            if (wallFrag != null)
+               {
+                  wallFrag.updateWallPosts();
+               }
+         }
+
+      public void notifyFriendsFragmentOnNewDataChange()
+         {
+            UserFriendsFragment friendFrag = (UserFriendsFragment) registeredFragments.get(3);
+            if (friendFrag != null)
+               {
+                  friendFrag.updateFriendList();
+               }
+         }
+
+      public void notifyConversationsFragmentOnNewDataChange()
+         {
+            UserConversationFragment messagesFrag = (UserConversationFragment) registeredFragments.get(2);
+            if (messagesFrag != null)
+               {
+                  messagesFrag.updateConversations();
+               }
+         }
+
+
+      public void notifyNofiticationsFragmentOnNewDataChange()
+         {
+            UserNotificationsFragment notificationFrag = (UserNotificationsFragment) registeredFragments.get(1);
+            if (notificationFrag != null)
+               {
+                  notificationFrag.updateNotifications();
+               }
+         }
+
+      public void notifyUserGroupFragmentOnNewDataChange()
+         {
+            UserGroupsFragment groupsFragment = (UserGroupsFragment) registeredFragments.get(4);
+            if(groupsFragment != null)
+               {
+                  groupsFragment.updateUserGroupListView();
+               }
+         }
+
+
 
    }

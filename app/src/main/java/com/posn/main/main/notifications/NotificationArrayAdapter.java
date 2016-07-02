@@ -69,11 +69,11 @@ public class NotificationArrayAdapter extends ArrayAdapter<Notification>
             Notification notification = values.get(position);
             String notificationMessage, friendName;
 
-            // get the Main Activity to look up which friendID
+            // get the Main Activity to look up which friend
             MainActivity main = (MainActivity) context;
             Friend friend = main.dataManager.friendManager.currentFriends.get(notification.friendID);
 
-            // add bold HTML tag to make the friendID name bold
+            // add bold HTML tag to make the friend name bold
             friendName = "<b>" + friend.name + "</b>";
 
             // set the notification time

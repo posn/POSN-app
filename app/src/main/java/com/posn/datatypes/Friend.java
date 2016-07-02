@@ -33,7 +33,7 @@ public class Friend implements Parcelable
       public boolean selected = false;
 
       // USER CREATED DATA FOR FRIEND
-      // holds the list of groups that the user placed the friend in (used to create friendID file)
+      // holds the list of groups that the user placed the friend in (used to create friend file)
       public ArrayList<String> userGroups = new ArrayList<>();
       public String userFriendFileKey;
 
@@ -53,7 +53,7 @@ public class Friend implements Parcelable
 
       public Friend(RequestedFriend friend, String key, int status)
          {
-            // generate a user friendID file key to encrypt the friendID file
+            // generate a user friend file key to encrypt the friend file
             userFriendFileKey = key;
 
             this.status = status;
@@ -134,6 +134,10 @@ public class Friend implements Parcelable
                   if (obj.has("friendFileLink"))
                      {
                         friendFileLink = obj.getString("friendFileLink");
+                     }
+
+                  if(obj.has("friendFileKey"))
+                     {
                         friendFileKey = obj.getString("friendFileKey");
                      }
 
@@ -146,7 +150,9 @@ public class Friend implements Parcelable
                               userGroups.add(groupID);
                            }
                      }
-                  userFriendFileKey = obj.getString("userFriendFileKey");
+
+                        userFriendFileKey = obj.getString("userFriendFileKey");
+
 
                   if (obj.has("friendGroups"))
                      {

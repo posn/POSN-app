@@ -26,7 +26,7 @@ import java.util.ArrayList;
 
 
 /**
- * This activity class implements the functionality for the new user to create friendID groups
+ * This activity class implements the functionality for the new user to create friend groups
  * This activity also creates the initial application data files
  **/
 public class SetupGroupsActivity extends BaseActivity implements OnClickListener
@@ -42,7 +42,7 @@ public class SetupGroupsActivity extends BaseActivity implements OnClickListener
       // password object to pass to next activity
       public String password;
 
-      // arraylists to hold the new user defined friendID groups
+      // arraylists to hold the new user defined friend groups
       ArrayList<UserGroup> userGroupNames = new ArrayList<>();
       ArrayList<String> selectedGroups = new ArrayList<>();
 

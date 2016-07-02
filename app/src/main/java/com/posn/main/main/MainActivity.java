@@ -7,26 +7,22 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
-import com.posn.constants.Constants;
 import com.posn.R;
 import com.posn.application.POSNApplication;
 import com.posn.clouds.DropboxProvider;
 import com.posn.clouds.GoogleDriveProvider;
 import com.posn.clouds.OnConnectedCloudListener;
 import com.posn.clouds.OneDriveProvider;
+import com.posn.constants.Constants;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.main.BaseActivity;
-import com.posn.main.main.friends.UserFriendsFragment;
-import com.posn.main.main.messages.UserConversationFragment;
-import com.posn.main.main.notifications.UserNotificationsFragment;
-import com.posn.main.main.wall.UserWallFragment;
 import com.posn.managers.AppDataManager;
 
 import java.io.UnsupportedEncodingException;
 
 /**
  * This activity class implements the main social network functionality after the user has been authenticated:
- * <ul><li>Creates and maintains the wall, notification, message, and friendID fragments through the MainTabsPagerAdapter
+ * <ul><li>Creates and maintains the wall, notification, message, and friend fragments through the MainTabsPagerAdapter
  * <li>Manages all the application data for the fragments through a AppDataManager object
  * <li>Connects to the user's chosen cloud provider</ul>
  **/
@@ -35,7 +31,7 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
       // user interface variables
       private ViewPager viewPager;
       private ActionBar actionBar;
-      private MainTabsPagerAdapter tabsAdapter;
+      public MainTabsPagerAdapter tabsAdapter;
 
       // data manager object that holds all the app data and methods to create different files
       public AppDataManager dataManager;
@@ -73,7 +69,7 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
             // create a new data manager object
             dataManager = (AppDataManager) getIntent().getExtras().get("dataManager");
 
-            // attempt to get any new friendID requests
+            // attempt to get any new friend requests
             if (getIntent().hasExtra("uri"))
                {
                   try
@@ -102,7 +98,7 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
             tabLayout.getTabAt(1).setCustomView(tabsAdapter.createTabView(R.drawable.ic_notification_gray, true));
             tabLayout.getTabAt(2).setCustomView(tabsAdapter.createTabView(R.drawable.ic_message_gray, true));
             tabLayout.getTabAt(3).setCustomView(tabsAdapter.createTabView(R.drawable.ic_friends_gray, true));
-            tabLayout.getTabAt(4).setCustomView(tabsAdapter.createTabView(R.drawable.ic_settings_gray, false));
+            tabLayout.getTabAt(4).setCustomView(tabsAdapter.createTabView(R.drawable.ic_groups_gray, false));
 
             // get the action bar to set the title
             actionBar = getActionBar();
@@ -113,8 +109,8 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
                   @Override
                   public void onTabSelected(TabLayout.Tab tab)
                      {
-                        String tabNames[] = {"Wall", "Notifications", "Messages", "Friends", "Settings"};
-                        int selectedIcons[] = {R.drawable.ic_wall_blue, R.drawable.ic_notification_blue, R.drawable.ic_message_blue, R.drawable.ic_friends_blue, R.drawable.ic_settings_blue};
+                        String tabNames[] = {"Wall", "Notifications", "Messages", "Friends", "Groups"};
+                        int selectedIcons[] = {R.drawable.ic_wall_blue, R.drawable.ic_notification_blue, R.drawable.ic_message_blue, R.drawable.ic_friends_blue, R.drawable.ic_groups_blue};
 
                         int index = tab.getPosition();
                         viewPager.setCurrentItem(index, true);
@@ -126,7 +122,7 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
                   public void onTabUnselected(TabLayout.Tab tab)
                      {
                         int index = tab.getPosition();
-                        int unselectedIcons[] = {R.drawable.ic_wall_gray, R.drawable.ic_notification_gray, R.drawable.ic_message_gray, R.drawable.ic_friends_gray, R.drawable.ic_settings_gray};
+                        int unselectedIcons[] = {R.drawable.ic_wall_gray, R.drawable.ic_notification_gray, R.drawable.ic_message_gray, R.drawable.ic_friends_gray, R.drawable.ic_groups_gray};
 
                         tabsAdapter.updateTabIcon(index, unselectedIcons[index]);
                      }
@@ -144,13 +140,16 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
             // initialize the cloud provider
             if (app.cloud == null)
                {
+                  System.out.println("INTIALIZE CLOUD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                   initializeCloudProvider();
                }
             else
                {
                   // check if the data has been initialized
-                  if(!isInitialized)
+                  if (!isInitialized)
                      {
+                        System.out.println("CLOUD - LOAD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
                         new InitializeApplicationDataAsyncTask(this).execute();
                      }
                }
@@ -188,6 +187,8 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
          {
             if (!isInitialized)
                {
+                  System.out.println("INTIALIZE - ON CONNECT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
                   new InitializeApplicationDataAsyncTask(this).execute();
                }
          }
@@ -213,10 +214,15 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
             app.cloud.initializeCloud();
          }
 
+
       @Override
       public boolean onCreateOptionsMenu(Menu menu)
          {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.main_activity_actions, menu);
             return true;
+
+
          }
 
       /**
@@ -224,33 +230,20 @@ public class MainActivity extends BaseActivity implements OnConnectedCloudListen
        **/
       public void notifyFragmentsOnNewDataChange()
          {
-            // get the friendID fragment and update the friendID list with app data
-            UserFriendsFragment friendFrag = (UserFriendsFragment) tabsAdapter.getRegisteredFragment(3);
-            if (friendFrag != null)
-               {
-                  friendFrag.updateFriendList();
-               }
+            // update the friend list with app data
+            tabsAdapter.notifyFriendsFragmentOnNewDataChange();
 
-            // get the wall fragment and update the wall post list with app data
-            UserWallFragment wallFrag = (UserWallFragment) tabsAdapter.getRegisteredFragment(0);
-            if (wallFrag != null)
-               {
-                  wallFrag.updateWallPosts();
-               }
+            // update the wall post list with app data
+            tabsAdapter.notifyWallFragmentOnNewDataChange();
 
-            // get the message fragment and update the conversation list with app data
-            UserConversationFragment messagesFrag = (UserConversationFragment) tabsAdapter.getRegisteredFragment(2);
-            if (messagesFrag != null)
-               {
-                  messagesFrag.updateConversations();
-               }
+            // update the conversation list with app data
+            tabsAdapter.notifyConversationsFragmentOnNewDataChange();
 
-            // get the notification fragment and update the notification list with app data
-            UserNotificationsFragment notificationFrag = (UserNotificationsFragment) tabsAdapter.getRegisteredFragment(1);
-            if (notificationFrag != null)
-               {
-                  notificationFrag.updateNotifications();
-               }
+            // update the notification list with app data
+            tabsAdapter.notifyNofiticationsFragmentOnNewDataChange();
+
+            // update the group list with the app data
+            tabsAdapter.notifyUserGroupFragmentOnNewDataChange();
 
             isInitialized = true;
          }

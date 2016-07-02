@@ -87,16 +87,16 @@ public class SetupFilesAsyncTask extends AsyncTask<String, String, String>
                   // save the user data to a file
                   dataManager.saveUserAppFile();
 
-                  // get the friendID list file
+                  // save the friend list file
                   dataManager.saveFriendListAppFile(false);
 
-                  // get the wall post file
+                  // save the wall post file
                   dataManager.saveWallPostListAppFile();
 
-                  // get the notifications file
+                  // save the notifications file
                   dataManager.saveNotificationListAppFile();
 
-                  // get the messages file
+                  // save the messages file
                   dataManager.saveConversationListAppFile();
                }
             catch (IOException | JSONException | POSNCryptoException error)

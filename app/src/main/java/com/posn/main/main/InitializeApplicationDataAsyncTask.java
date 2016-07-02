@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
 import com.posn.exceptions.POSNCryptoException;
-import com.posn.main.main.MainActivity;
 import com.posn.main.main.wall.asynctasks.GetFriendContentAsyncTask;
 import com.posn.managers.AppDataManager;
 
@@ -46,29 +45,24 @@ public class InitializeApplicationDataAsyncTask extends AsyncTask<String, String
          {
             try
                {
-                  // get the friendID list file
-                  System.out.println("GETTING FRIENDS!!!");
+                  // get the friend list file
                   dataManager.loadFriendListAppFile();
 
                   // get the user groups from file
-                  System.out.println("GETTING USER GROUPS!!!");
                   dataManager.loadUserGroupListAppFile();
 
 
                   // get the wall post file
-                  System.out.println("GETTING WALL POSTS!!!");
                   dataManager.loadWallPostListAppFile();
 
                   // get the notifications file
-                  System.out.println("GETTING NOTIFICATIONS!!!");
                   dataManager.loadNotificationListAppFile();
 
                   // get the messages file
-                  System.out.println("GETTING MESSAGES!!!");
                   dataManager.loadConversationListAppFile();
 
                   // check/create cloud storage directories
-                  main.cloud.createStorageDirectoriesOnCloud();
+                  main.app.cloud.createStorageDirectoriesOnCloud();
                }
             catch (IOException | JSONException | POSNCryptoException error)
                {

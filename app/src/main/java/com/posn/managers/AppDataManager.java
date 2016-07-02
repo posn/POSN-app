@@ -10,7 +10,6 @@ import com.posn.constants.Constants;
 import com.posn.datatypes.ApplicationFile;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.FriendGroup;
-import com.posn.main.main.friends.FriendManager;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.datatypes.UserGroup;
 import com.posn.datatypes.WallPost;
@@ -37,9 +36,6 @@ public class AppDataManager implements Parcelable
       // symmetric key used to encrypt/decrypt the user file on the device (created from the user's password)
       private String deviceFileKey = null;
 
-      // boolean flag used to determine if a new friendID request needs to be processed in the processFriendRequest function
-      private boolean newFriendRequest = false;
-
       // user object used to hold data belonging to the data owner
       public UserManager userManager = null;
 
@@ -58,8 +54,11 @@ public class AppDataManager implements Parcelable
       // list of all the user defined groups
       public UserGroupManager userGroupManager = new UserGroupManager();
 
-      // friendID request object to hold the newest friendID request from the URI
+      // friend request object to hold the newest friend request from the URI
       public RequestedFriend requestedFriend = null;
+
+      // boolean flag used to determine if a new friend request needs to be processed in the processFriendRequest function
+      private boolean newFriendRequest = false;
 
 
       public AppDataManager(String deviceFileKey)
@@ -68,6 +67,7 @@ public class AppDataManager implements Parcelable
             this.deviceFileKey = deviceFileKey;
          }
 
+
       public AppDataManager(UserManager userManager, String deviceFileKey)
          {
             this.userManager = userManager;
@@ -75,27 +75,31 @@ public class AppDataManager implements Parcelable
          }
 
 
+      /**
+       * This method processes new friend requests and accepted friend requests by creating and updating the requested friend objects
+       **/
       public RequestedFriend processFriendRequest() throws POSNCryptoException
          {
+            // check if there is a new friend request to process
             if (newFriendRequest)
                {
-                  // check if the friendID is a new incoming friendID request
+                  // check if the friend is a new incoming friend request
                   if (requestedFriend.status == Constants.STATUS_REQUEST)
                      {
+                        // add the requesting friend to the friend request list
                         friendManager.friendRequests.add(requestedFriend);
                         newFriendRequest = false;
                         return requestedFriend;
                      }
-                  // check if the friendID accepted the sent request
+                  // check if the friend accepted the sent request
                   else if (requestedFriend.status == Constants.STATUS_ACCEPTED)
                      {
-                        // get the requested from from the friendID request list
+                        // get the requested from from the friend request list
                         int index = friendManager.friendRequests.indexOf(requestedFriend);
                         RequestedFriend pendingFriend = friendManager.friendRequests.get(index);
 
                         // merge data
                         RequestedFriend friend = new RequestedFriend();
-
                         friend.status = Constants.STATUS_ACCEPTED;
                         friend.name = pendingFriend.name;
                         friend.email = pendingFriend.email;
@@ -115,10 +119,15 @@ public class AppDataManager implements Parcelable
          }
 
 
+      /**
+       * This method extracts the data from the friend request URI and populates a requested friend object with the data
+       **/
       public void parseFriendRequestURI(Uri uriData) throws UnsupportedEncodingException, POSNCryptoException
          {
+            // check if the URI needs to be parsed
             if (uriData != null)
                {
+                  // create a new requested friend object to fill with data from the URI
                   requestedFriend = new RequestedFriend();
 
                   // get the path segments of the URI
@@ -127,9 +136,10 @@ public class AppDataManager implements Parcelable
                   // check the type of URI
                   String uriType = params.get(0);
 
+                  // check if the URI is a new friend request
                   if (uriType.equals("request"))
                      {
-                        // set friendID status
+                        // set friend status
                         requestedFriend.status = Constants.STATUS_REQUEST;
 
                         // get ID
@@ -152,6 +162,7 @@ public class AppDataManager implements Parcelable
                         requestedFriend.nonce = params.get(7);
                         newFriendRequest = true;
                      }
+                  // check if the URI is an accepted notification
                   else if (uriType.equals("accept"))
                      {
                         // get encrypted key
@@ -166,7 +177,7 @@ public class AppDataManager implements Parcelable
                         String URI = SymmetricKeyHelper.decrypt(key, encryptedURI);
                         String[] paths = URI.split("/");
 
-                        // set friendID status
+                        // set friend status
                         requestedFriend.status = Constants.STATUS_ACCEPTED;
 
                         // get ID
@@ -192,168 +203,145 @@ public class AppDataManager implements Parcelable
                }
          }
 
-
-      public void saveUserGroupListAppFile() throws IOException, JSONException, POSNCryptoException
+      public void createArchivedGroupWallFile(String groupID, String deviceDirectoryPath, String deviceFileName) throws IOException, JSONException, POSNCryptoException
          {
-            saveAppDataFileToDevice(userGroupManager);
+
          }
 
-      public void loadUserGroupListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            loadAppDataFileFromDevice(userGroupManager);
-         }
 
-      public void loadNotificationListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            loadAppDataFileFromDevice(notificationManager);
-         }
-
-      public void saveNotificationListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            saveAppDataFileToDevice(notificationManager);
-         }
-
-      public void loadConversationListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            loadAppDataFileFromDevice(conversationManager);
-         }
-
-      public void saveConversationListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            saveAppDataFileToDevice(conversationManager);
-         }
-
-      public void saveFriendListAppFile(boolean executeAsAsync) throws IOException, JSONException, POSNCryptoException
-         {
-            if (executeAsAsync)
-               saveAppDataFileToDeviceAsync(friendManager);
-            else
-               saveAppDataFileToDevice(friendManager);
-         }
-
-      public void loadFriendListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            loadAppDataFileFromDevice(friendManager);
-         }
-
-      public void saveWallPostListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            saveAppDataFileToDevice(wallPostManager);
-         }
-
-      public void loadWallPostListAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            loadAppDataFileFromDevice(wallPostManager);
-         }
-
-      public void saveUserAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            saveAppDataFileToDevice(userManager);
-         }
-
-      public void loadUserAppFile() throws IOException, JSONException, POSNCryptoException
-         {
-            loadAppDataFileFromDevice(userManager);
-         }
-
+      /**
+       * This method creates a group wall file that holds the wall version number, archive link/key, and the list of wall posts for that group
+       **/
       public void createGroupWallFile(String groupID, String deviceDirectoryPath, String deviceFileName) throws IOException, JSONException, POSNCryptoException
          {
+            // get the group object from the user group manager
             UserGroup group = userGroupManager.getUserGroup(groupID);
 
+            // create a JSON object and add the version number and archive link and key
             JSONObject object = new JSONObject();
-
             object.put("version", group.version);
-            object.put("archive_link", JSONObject.NULL);
-            object.put("archive_key", JSONObject.NULL);
+            object.put("archive_link", group.archiveFileLink);
+            object.put("archive_key", group.archiveFileKey);
 
+            // create a JSON array to add the wall post IDs
             JSONArray postList = new JSONArray();
-
             for (int i = 0; i < group.wallPostList.size(); i++)
                {
                   WallPost wallPost = wallPostManager.getWallPost(group.wallPostList.get(i));
                   postList.put(wallPost.createJSONObject());
                }
 
+            // add the JSON array to the main JSON object
             object.put("posts", postList);
 
             // convert JSON object to JSON formatted string
             String fileContents = object.toString();
 
-            // encrypt the
+            // encrypt the file contents
             String encryptedData = SymmetricKeyHelper.encrypt(group.groupFileKey, fileContents);
 
+            // write out the encrypted string to a file
             DeviceFileManager.writeStringToFile(encryptedData, deviceDirectoryPath, deviceFileName);
          }
 
 
+      /**
+       * This method loads the group wall file information from the user's friends and returns out the updated wall posts
+       **/
       public ArrayList<WallPost> loadFriendGroupWallFile(FriendGroup group, String deviceDirectory, String fileName) throws IOException, JSONException, POSNCryptoException
          {
             ArrayList<WallPost> wallPostArrayList = new ArrayList<>();
 
-            // download the wall file from the cloud (SHOULD BE MOVED OUT)
-            DeviceFileManager.downloadFileFromURL(group.groupFileLink, deviceDirectory, fileName);
-
             // read in the encrypted data
             String encryptedString = DeviceFileManager.loadStringFromFile(deviceDirectory, fileName);
+
+            // check if there was an issue fetching the link
+            if(encryptedString.contains("Link not found"))
+               {
+                  System.out.println("ERROR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                  return null;
+               }
 
             // decrypt the file data
             String fileContents = SymmetricKeyHelper.decrypt(group.groupFileKey, encryptedString);
 
+            // get the JSON object from the string
             JSONObject object = new JSONObject(fileContents);
 
+            // get the wall post data from the JSON object
             JSONArray postList = object.getJSONArray("posts");
-
             for (int i = 0; i < postList.length(); i++)
                {
+                  // get the wall post and convert it from JSON to the wall post format
                   WallPost wallPost = new WallPost();
                   wallPost.parseJSONObject(postList.getJSONObject(i));
 
+                  // add the post to the list of wall posts
                   wallPostArrayList.add(wallPost);
                }
 
             return wallPostArrayList;
          }
 
+
+      /**
+       * This method creates a temporal friend file that is used during the friend request process
+       **/
       public void createTemporalFriendFile(String uri, String deviceDirectory, String fileName) throws IOException, JSONException
          {
+            // create a new JSON object
             JSONObject object = new JSONObject();
 
+            // check if a URI needs to be added
             if (uri != null)
                {
+                  // put the uri in the JSON object
                   object.put("uri", uri);
                }
             else
                {
+                  // otherwise put a null in the JSON object
                   object.put("uri", JSONObject.NULL);
                }
 
+            // convert the JSON object to a string
             String fileContents = object.toString();
 
+            // write the file string to a file on the device
             DeviceFileManager.writeStringToFile(fileContents, deviceDirectory, fileName);
          }
 
+
+      /**
+       * This method reads in and parses the temporal friend file. Reads in a URI if it exists
+       **/
       public boolean loadTemporalFriendFile(Friend friend, String deviceDirectory, String fileName) throws JSONException, IOException, POSNCryptoException
          {
-            // read friendID file in
+            // read in the file contents in
             String fileContents = DeviceFileManager.loadStringFromFile(deviceDirectory, fileName);
 
+            // create a JSON object from the file contents string
             JSONObject object = new JSONObject(fileContents);
 
+            // get the URI field
             String URI = object.getString("uri");
 
+            // check if the URI needs to be handled
             if (!URI.equals("null"))
                {
-                  // parse temporal file
+                  // parse temporal file data
                   String[] paths = URI.split("/");
 
+                  // get the encrypted symmetric key
                   String encryptedSymmetricKey = paths[0];
 
-                  // decrypt symmetric key
+                  // decrypt symmetric key with the user's private key
                   String key = AsymmetricKeyHelper.decrypt(userManager.privateKey, encryptedSymmetricKey);
 
-                  // decrypt URI data
+                  // get the encrypted URI
                   String encryptedURI = paths[1];
 
+                  // decrypt the URI with the symmetric key
                   URI = SymmetricKeyHelper.decrypt(key, encryptedURI);
                   paths = URI.split("/");
 
@@ -370,60 +358,91 @@ public class AppDataManager implements Parcelable
             return false;
          }
 
+
+      /**
+       * This method creates a friend file that contains the information about what groups a friend has access to
+       **/
       public void createFriendFile(String friendID, String deviceDirectory, String fileName) throws IOException, JSONException, POSNCryptoException
          {
-            // need to add user file link and key
+            // create a JSON object and array
             JSONObject obj = new JSONObject();
             JSONArray groupList = new JSONArray();
 
-            Friend friend = friendManager.currentFriends.get(friendID);
+            // get the friend object from the friend manager
+            Friend friend = friendManager.getFriend(friendID);
 
             // ADD USER FILE LINK AND KEY
 
+            // loop through all the groups the friend is in
+            System.out.println("SIZE: !!!!!!!!!!!!!!!!!!!!!!!!" + friend.userGroups.size());
+
             for (int i = 0; i < friend.userGroups.size(); i++)
                {
+                  // get the user object
                   UserGroup userGroup = userGroupManager.getUserGroup(friend.userGroups.get(i));
+
+                  // create the group information and put it in the JSON array
                   groupList.put(userGroup.createFriendFileJSONObject());
                }
+
+            // add the JSON array to the main JSON object
             obj.put("groups", groupList);
 
+            // convert the JSON object to a string
             String fileContents = obj.toString();
+
+            // encrypt the file contents with the friend's friend file key
             String encryptedString = SymmetricKeyHelper.encrypt(friend.userFriendFileKey, fileContents);
 
+            // write the encrypted string to the device
             DeviceFileManager.writeStringToFile(encryptedString, deviceDirectory, fileName);
-
          }
 
+
+      /**
+       * This method loads in the user's friend file from a friend. Adds friend groups into the friend object
+       **/
       public void loadFriendFile(String friendID, String deviceDirectory, String fileName) throws IOException, JSONException, POSNCryptoException
          {
+            // get the friend object from the friend manager
+            Friend friend = friendManager.getFriend(friendID);
 
-            Friend friend = friendManager.currentFriends.get(friendID);
-
-            // read friendID file in
+            // read friend file in from the device
             String encyrptedString = DeviceFileManager.loadStringFromFile(deviceDirectory, fileName);
 
-            // decrypt string
+            // decrypt the file contents string
             String friendFileData = SymmetricKeyHelper.decrypt(friend.friendFileKey, encyrptedString);
 
-            // need to add user file link and key
+            // NEED TO ADD FIELDS FOR FRIEND USER FILE LINK AND KEY
 
-            // GET USER FILE LINK AND KEY
-
-
+            // create a JSON object from the file contents
             JSONObject obj = new JSONObject(friendFileData);
+
+            // get the groups field
             JSONArray groupList = obj.getJSONArray("groups");
 
+            // clear the number of friend groups
+            friend.friendGroups.clear();
+
+            // iterate through all the groups
             for (int i = 0; i < groupList.length(); i++)
                {
+                  // create a new friend group object and fill it with data
                   FriendGroup friendGroup = new FriendGroup();
-
                   friendGroup.parseJSONObject(groupList.getJSONObject(i));
 
+                  // add to the friend object
                   friend.friendGroups.add(friendGroup);
                }
 
+            // update the friend object in the friend manager
+            friendManager.currentFriends.put(friend.ID, friend);
          }
 
+
+      /**
+       * This method saves a generic application file object to the device and encrypts it with the device key
+       **/
       private void saveAppDataFileToDevice(ApplicationFile object) throws IOException, JSONException, POSNCryptoException
          {
             // create a JSON formatted string to store the user data
@@ -436,6 +455,120 @@ public class AppDataManager implements Parcelable
             DeviceFileManager.writeStringToFile(encryptedFileContents, object.getDirectoryPath(), object.getFileName());
          }
 
+
+      /**
+       * This method saves the user group manager to the device
+       **/
+      public void saveUserGroupListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            saveAppDataFileToDevice(userGroupManager);
+         }
+
+
+      /**
+       * This method loads the user group manager data from a file
+       **/
+      public void loadUserGroupListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            loadAppDataFileFromDevice(userGroupManager);
+         }
+
+
+      /**
+       * This method loads the notification manager data from a file
+       **/
+      public void loadNotificationListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            loadAppDataFileFromDevice(notificationManager);
+         }
+
+
+      /**
+       * This method saves the notification manager to the device
+       **/
+      public void saveNotificationListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            saveAppDataFileToDevice(notificationManager);
+         }
+
+
+      /**
+       * This method loads the conversation manager data from a file
+       **/
+      public void loadConversationListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            loadAppDataFileFromDevice(conversationManager);
+         }
+
+
+      /**
+       * This method saves the conversation manager to the device
+       **/
+      public void saveConversationListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            saveAppDataFileToDevice(conversationManager);
+         }
+
+
+      /**
+       * This method saves the friend manager to the device
+       **/
+      public void saveFriendListAppFile(boolean executeAsAsync) throws IOException, JSONException, POSNCryptoException
+         {
+            if (executeAsAsync)
+               saveAppDataFileToDeviceAsync(friendManager);
+            else
+               saveAppDataFileToDevice(friendManager);
+         }
+
+
+      /**
+       * This method loads the friend manager data from a file
+       **/
+      public void loadFriendListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            loadAppDataFileFromDevice(friendManager);
+         }
+
+
+      /**
+       * This method saves the wall post manager to the device
+       **/
+      public void saveWallPostListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            saveAppDataFileToDevice(wallPostManager);
+         }
+
+
+      /**
+       * This method loads the wall post manager data from a file
+       **/
+      public void loadWallPostListAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            loadAppDataFileFromDevice(wallPostManager);
+         }
+
+
+      /**
+       * This method saves the user manager to the device
+       **/
+      public void saveUserAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            saveAppDataFileToDevice(userManager);
+         }
+
+
+      /**
+       * This method loads the user manager data from a file
+       **/
+      public void loadUserAppFile() throws IOException, JSONException, POSNCryptoException
+         {
+            loadAppDataFileFromDevice(userManager);
+         }
+
+      /**
+       * This method saves a generic application file object to the device and encrypts it with the device key as an async task
+       **/
       private void saveAppDataFileToDeviceAsync(final ApplicationFile object)
          {
             new AsyncTask<Void, Void, Void>()
@@ -456,10 +589,16 @@ public class AppDataManager implements Parcelable
                }.execute();
          }
 
+
+      /**
+       * This method loads the data of a generic application file object from the device and decrypts it with the device key
+       **/
       private void loadAppDataFileFromDevice(ApplicationFile object) throws IOException, JSONException, POSNCryptoException
          {
+            // load the encrypted string from the device
             String encryptedFileContents = DeviceFileManager.loadStringFromFile(object.getDirectoryPath(), object.getFileName());
 
+            // decrypt the encrypted string using the device file key
             String fileContents = SymmetricKeyHelper.decrypt(deviceFileKey, encryptedFileContents);
 
             // create a JSON formatted string to store the user data

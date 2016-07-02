@@ -1,29 +1,24 @@
 <RelativeLayout
-    android:tag="friend_frag"
     style="@style/AppBaseTheme"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:background="#ffffff"
+    android:tag="friend_frag">
 
-    >
     <View
         android:id="@+id/divider"
         android:layout_width="fill_parent"
         android:layout_height="0.5dip"
+        android:layout_alignParentTop="true"
         android:layout_centerVertical="true"
-        android:background="#8b9dc3"
-        android:layout_alignParentTop="true"/>
+        android:background="#8b9dc3"/>
 
     <ListView
         android:id="@+id/listView1"
-        android:layout_above="@+id/status_bar"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:divider="@null"
-        android:dividerHeight="0dp"
-
+        android:layout_above="@+id/status_bar"
         android:headerDividersEnabled="false">
     </ListView>
 
@@ -34,14 +29,14 @@
         android:layout_alignParentBottom="true"
         android:background="#E63b5998">
 
+
         <include
-            layout="@layout/button_add_friend"
+            layout="@layout/button_add_group"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@android:drawable/list_selector_background"
             android:clickable="true"/>
-
     </TableRow>
 
 </RelativeLayout>

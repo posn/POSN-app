@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.posn.constants.Constants;
 import com.posn.datatypes.ApplicationFile;
+import com.posn.datatypes.Friend;
 import com.posn.datatypes.UserGroup;
 import com.posn.exceptions.POSNCryptoException;
 import com.posn.utility.IDGeneratorHelper;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 /**
  * <p>This class creates a list of groups the user has defined for his/her friends and the groups are stored in a hashmap using the wall post ID as a key.
- *        Methods are included to read and write the data to and from a file.</p>
+ * Methods are included to read and write the data to and from a file.</p>
  * <p>Implements the methods defined by the ApplicationFile interface</p>
  * <p>Implements parcelable to easily pass this class between activities</p>
  **/
@@ -34,6 +35,20 @@ public class UserGroupManager implements Parcelable, ApplicationFile
       public UserGroupManager()
          {
 
+         }
+
+      public void addFriendToGroups(Friend friend)
+         {
+            for(int i = 0; i < friend.userGroups.size(); i++)
+               {
+                  String groupID = friend.userGroups.get(i);
+
+                  UserGroup group = userGroups.get(groupID);
+
+                  group.friendsList.add(friend.ID);
+
+                  userGroups.put(groupID, group);
+               }
          }
 
       public UserGroup createNewUserGroup(String groupName) throws POSNCryptoException

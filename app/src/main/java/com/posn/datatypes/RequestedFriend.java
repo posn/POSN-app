@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 
 /**
- * <p>This class represents a friendID who has not been accepted yet (pending and requests). Includes methods to create and parse wall post objects in a JSON format</p>
+ * <p>This class represents a friend who has not been accepted yet (pending and requests). Includes methods to create and parse wall post objects in a JSON format</p>
  * <p>Implements parcelable to easily pass wall posts between activities</p>
  **/
 public class RequestedFriend implements Parcelable
@@ -22,8 +22,8 @@ public class RequestedFriend implements Parcelable
       public String name;
       public String email;
       public String publicKey;
-      public String fileLink;   // can be friendID file or temporal file
-      public String fileKey;    // symmetric key to the friendID file
+      public String fileLink;   // can be friend file or temporal file
+      public String fileKey;    // symmetric key to the friend file
       public String nonce;
       public String nonce2;
 

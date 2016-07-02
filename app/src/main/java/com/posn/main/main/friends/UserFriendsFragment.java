@@ -11,14 +11,15 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
-import com.posn.constants.Constants;
 import com.posn.R;
-import com.posn.main.main.friends.asynctasks.NewFriendFinalAsyncTask;
-import com.posn.main.main.friends.asynctasks.NewFriendInitialAsyncTask;
-import com.posn.main.main.friends.asynctasks.NewFriendIntermediateAsyncTask;
+import com.posn.constants.Constants;
 import com.posn.datatypes.Friend;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.exceptions.POSNCryptoException;
+import com.posn.main.main.MainActivity;
+import com.posn.main.main.friends.asynctasks.NewFriendFinalAsyncTask;
+import com.posn.main.main.friends.asynctasks.NewFriendInitialAsyncTask;
+import com.posn.main.main.friends.asynctasks.NewFriendIntermediateAsyncTask;
 import com.posn.main.main.friends.listview_items.AcceptedFriendItem;
 import com.posn.main.main.friends.listview_items.HeaderItem;
 import com.posn.main.main.friends.listview_items.ListViewFriendItem;
@@ -26,8 +27,6 @@ import com.posn.main.main.friends.listview_items.NoFriendItem;
 import com.posn.main.main.friends.listview_items.PendingFriendItem;
 import com.posn.main.main.friends.listview_items.RequestFriendItem;
 import com.posn.managers.AppDataManager;
-import com.posn.main.main.MainActivity;
-import com.posn.main.main.groups.CreateGroupDialogFragment;
 
 import org.json.JSONException;
 
@@ -40,12 +39,12 @@ import java.util.Map;
 
 
 /**
- * This fragment class implements the functionality for the friendID fragment:
- * <ul><li>Populates the list view using the data stored in the current friends and friendID request hashmaps located in the data manager class in the main activity
+ * This fragment class implements the functionality for the friend fragment:
+ * <ul><li>Populates the list view using the data stored in the current friends and friend request hashmaps located in the data manager class in the main activity
  * <li>Allows for friends to be added or removed
- * <li>Allows the user to accept or decline friendID requests</ul>
- * <p/>
- * Functionality should be added to view a friendID's profile
+ * <li>Allows the user to accept or decline friend requests</ul>
+ * <p>
+ * Functionality should be added to view a friend's profile
  **/
 public class UserFriendsFragment extends Fragment implements OnClickListener
    {
@@ -65,7 +64,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
       /**
        * This method is called when the activity needs to be created and fetches and implements the user interface elements
-       * Sets up the list view adapter to display the different friendID types (Friend request, pending friendID, accepted friendID)
+       * Sets up the list view adapter to display the different friend types (Friend request, pending friend, accepted friend)
        **/
       @Override
       public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -74,14 +73,12 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
             super.onCreate(savedInstanceState);
 
-            // load the friendID tab layout
+            // load the friend tab layout
             View view = inflater.inflate(R.layout.fragment_user_friends, container, false);
 
             // get the bottom bar buttons from the layout and set listeners
             RelativeLayout addFriendButton = (RelativeLayout) view.findViewById(R.id.add_friend_button);
-            RelativeLayout addGroupButton = (RelativeLayout) view.findViewById(R.id.add_group_button);
             addFriendButton.setOnClickListener(this);
-            addGroupButton.setOnClickListener(this);
 
             // get the listview from the layout
             ListView lv = (ListView) view.findViewById(R.id.listView1);
@@ -94,7 +91,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             adapter = new FriendsArrayAdapter(getActivity(), listViewItems);
             lv.setAdapter(adapter);
 
-            // get the friends and friendID request list from the main activity
+            // get the friends and friend request list from the main activity
             currentFriendsList = dataManager.friendManager.currentFriends;
             friendRequestsList = dataManager.friendManager.friendRequests;
 
@@ -118,8 +115,8 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
 
       /**
-       * This method is called after a new friendID request has been made or a friendID request has been accepted and the user selected the friendID groups
-       * The requested friendID object is returned and the appropriate async task is launched
+       * This method is called after a new friend request has been made or a friend request has been accepted and the user selected the friend groups
+       * The requested friend object is returned and the appropriate async task is launched
        **/
       @Override
       public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -147,7 +144,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
                {
                   case R.id.add_friend_button:
 
-                     // create a new activity intent to add a friendID
+                     // create a new activity intent to add a friend
                      Intent intent = new Intent(getActivity(), AddFriendsActivity.class);
 
                      intent.putExtra("type", Constants.TYPE_FRIEND_REQUEST_NEW);
@@ -157,16 +154,6 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
                      // start the activity and get the result from it
                      startActivityForResult(intent, Constants.RESULT_ADD_FRIEND);
-                     break;
-
-
-                  case R.id.add_group_button:
-
-                     // create new dialog fragment to get the new group name
-                     CreateGroupDialogFragment groupFrag = new CreateGroupDialogFragment();
-
-                     // show the dialog
-                     groupFrag.show(getActivity().getFragmentManager(), "group");
                      break;
 
 
@@ -244,16 +231,16 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
          }
 
       /**
-       * This method clears and repopulates the listview using the wall post data and processes any new friendID requests
+       * This method clears and repopulates the listview using the wall post data and processes any new friend requests
        **/
       public void updateFriendList()
          {
-            // check if a new friendID needs to be added from URI
+            // check if a new friend needs to be added from URI
             try
                {
                   RequestedFriend requestedFriend = dataManager.processFriendRequest();
 
-                  // check if a requested friendID was returned (null indicates no new request)
+                  // check if a requested friend was returned (null indicates no new request)
                   if (requestedFriend != null)
                      {
                         dataManager.saveFriendListAppFile(true);
@@ -279,7 +266,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
 
       /**
-       * This method sorts the friends list in the listview: friendID requests go first then the accepted/pending friends. Each group is sorted alphabetically
+       * This method sorts the friends list in the listview: friend requests go first then the accepted/pending friends. Each group is sorted alphabetically
        **/
       private void sortFriendsList()
          {
@@ -313,7 +300,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
 
       /**
-       * This method creates all the list view items and headers based on the current friends and friendID request hashmaps
+       * This method creates all the list view items and headers based on the current friends and friend request hashmaps
        **/
       private void createFriendsList()
          {
@@ -326,7 +313,7 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
             // add the new requests section header
             listViewItems.add(0, new HeaderItem("Friend Requests"));
 
-            // add any friendID requests to the top of the list view
+            // add any friend requests to the top of the list view
             for (int i = 0; i < friendRequestsList.size(); i++)
                {
                   RequestedFriend friend = friendRequestsList.get(i);

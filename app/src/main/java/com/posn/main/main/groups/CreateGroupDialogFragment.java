@@ -1,10 +1,12 @@
 package com.posn.main.main.groups;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -12,8 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.posn.R;
-import com.posn.main.main.groups.asynctasks.NewGroupAsyncTask;
-import com.posn.main.main.MainActivity;
+import com.posn.utility.UserInterfaceHelper;
 
 
 public class CreateGroupDialogFragment extends DialogFragment
@@ -41,13 +42,14 @@ public class CreateGroupDialogFragment extends DialogFragment
                @Override
                public void onClick(View v)
                   {
-                     if (!isEmpty(groupText))
+                     if (!UserInterfaceHelper.isEditTextEmpty(groupText))
                         {
-                           String value = groupText.getText().toString();
-                           MainActivity activity = (MainActivity) getActivity();
+                           String newGroupName = groupText.getText().toString();
 
+                           Intent resultIntent = new Intent();
+                           resultIntent.putExtra("newGroupName", newGroupName);
 
-                           new NewGroupAsyncTask(activity, value).execute();
+                           getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, resultIntent);
 
                            dismiss();
                         }
@@ -77,11 +79,5 @@ public class CreateGroupDialogFragment extends DialogFragment
 
             return dialog;
 
-         }
-
-      private boolean isEmpty(EditText etText)
-         {
-            // check if the length of the text is greater than 0
-            return (etText.getText().toString().trim().length() <= 0);
          }
    }

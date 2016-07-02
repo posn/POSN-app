@@ -30,9 +30,10 @@ public class Constants
       public static final int RESULT_CREATE_STATUS_POST = 2;
       public static final int RESULT_CREATE_PHOTO_POST = 3;
       public static final int RESULT_CREATE_COMMENTS = 4;
+      public static final int RESULT_CREATE_GROUP = 5;
+      public static final int RESULT_MANAGE_GROUP = 6;
 
-
-      public static final int RESULT_PHOTO = 5;
+      public static final int RESULT_PHOTO = 7;
 
       // add groups type value
       public static final int TYPE_FRIEND_REQUEST_NEW = 0;
@@ -64,6 +65,7 @@ public class Constants
       public static final String userGroupListFile = "/user_groups.txt";
 
       // cloud directory names individual
+      public static final String archiveDirectory = "archive";
       public static final String wallDirectory = "wall";
       public static final String friendDirectory = "friends";
       public static final String multimediaDirectory = "multimedia";

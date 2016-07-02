@@ -20,8 +20,13 @@ public class UserGroup implements Parcelable
       public String ID;
       public String name;
 
+      // current group file
       public String groupFileLink;
       public String groupFileKey;
+
+      // previous archive
+      public String archiveFileLink = null;
+      public String archiveFileKey = null;
 
       public int version;
 
@@ -31,6 +36,9 @@ public class UserGroup implements Parcelable
       // used to create wall files
       public ArrayList<String> wallPostList = new ArrayList<>();
 
+      // user to hold the friend IDs for all the friends who are in the group
+      // used in the UserGroupFragment
+      public ArrayList<String> friendsList = new ArrayList<>();
 
       public UserGroup()
          {
@@ -59,12 +67,15 @@ public class UserGroup implements Parcelable
                   obj.put("name", name);
                   obj.put("groupFileLink", groupFileLink);
                   obj.put("groupFileKey", groupFileKey);
+                  obj.put("archiveFileLink", archiveFileLink);
+                  obj.put("archiveFileKey", archiveFileKey);
                   obj.put("version", version);
 
                   JSONArray jsArray = new JSONArray(wallPostList);
-
                   obj.put("wallposts", jsArray);
 
+                  jsArray = new JSONArray(friendsList);
+                  obj.put("friendsList", jsArray);
                }
             catch (JSONException e)
                {
@@ -83,7 +94,7 @@ public class UserGroup implements Parcelable
                   obj.put("id", ID);
                   obj.put("groupFileLink", groupFileLink);
                   obj.put("groupFileKey", groupFileKey);
-                  obj.put("version", 0);
+                  obj.put("version", version);
 
                }
             catch (JSONException e)
@@ -102,15 +113,36 @@ public class UserGroup implements Parcelable
                   name = obj.getString("name");
                   groupFileLink = obj.getString("groupFileLink");
                   groupFileKey = obj.getString("groupFileKey");
+                  if(obj.has("archiveFileLink"))
+                     {
+                        archiveFileLink = obj.getString("archiveFileLink");
+                        archiveFileKey = obj.getString("archiveFileKey");
+                     }
+                  else
+                     {
+                        archiveFileLink = null;
+                        archiveFileKey = null;
+                     }
+
                   version = obj.getInt("version");
 
-                  JSONArray groupMemberList = obj.getJSONArray("wallposts");
+                  JSONArray jsonArray = obj.getJSONArray("wallposts");
 
-                  for (int n = 0; n < groupMemberList.length(); n++)
+                  for (int n = 0; n < jsonArray.length(); n++)
                      {
-                        String wallPostID = groupMemberList.getString(n);
+                        String wallPostID = jsonArray.getString(n);
                         wallPostList.add(wallPostID);
                      }
+
+                  jsonArray = obj.getJSONArray("friendsList");
+
+                  for (int n = 0; n < jsonArray.length(); n++)
+                     {
+                        String friendID = jsonArray.getString(n);
+                        friendsList.add(friendID);
+                     }
+                  System.out.println("NUM FRIENDS IN GROUP: " +  friendsList.size());
+
                }
             catch (JSONException e)
                {
@@ -137,8 +169,11 @@ public class UserGroup implements Parcelable
             this.name = in.readString();
             this.groupFileLink = in.readString();
             this.groupFileKey = in.readString();
+            this.archiveFileLink = in.readString();
+            this.archiveFileKey = in.readString();
             this.version = in.readInt();
-
+            in.readStringList(this.wallPostList);
+            in.readStringList(this.friendsList);
          }
 
 
@@ -149,7 +184,11 @@ public class UserGroup implements Parcelable
             dest.writeString(this.name);
             dest.writeString(this.groupFileLink);
             dest.writeString(this.groupFileKey);
+            dest.writeString(this.archiveFileLink);
+            dest.writeString(this.archiveFileKey);
             dest.writeInt(this.version);
+            dest.writeStringList(this.wallPostList);
+            dest.writeStringList(this.friendsList);
          }
 
       public static final Creator<UserGroup> CREATOR = new Creator<UserGroup>()

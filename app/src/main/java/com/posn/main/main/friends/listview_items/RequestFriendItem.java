@@ -11,7 +11,7 @@ import com.posn.datatypes.RequestedFriend;
 import com.posn.main.main.friends.FriendsArrayAdapter.RowType;
 
 /**
- * This class creates a new friendID request listview item for the Friends list listview.
+ * This class creates a new friend request listview item for the Friends list listview.
  * Implements the functions defined in the ListViewFriendItem interface.
  * Uses a viewholder pattern: https://developer.android.com/training/improving-layouts/smooth-scrolling.html
  **/

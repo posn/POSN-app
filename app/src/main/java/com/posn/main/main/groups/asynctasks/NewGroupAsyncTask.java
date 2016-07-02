@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import com.posn.constants.Constants;
 import com.posn.datatypes.UserGroup;
 import com.posn.exceptions.POSNCryptoException;
+import com.posn.main.main.groups.UserGroupsFragment;
 import com.posn.managers.AppDataManager;
 import com.posn.main.main.MainActivity;
 
@@ -15,7 +16,7 @@ import java.io.IOException;
 
 
 /**
- * This AsyncTask class implements the functionality to create a new friendID group:
+ * This AsyncTask class implements the functionality to create a new friend group:
  * <ul><li>Takes in the new group name and creates a new group object in the grouplist
  * <li>The group wall file is created and uploaded to the cloud</ul>
  **/
@@ -26,11 +27,14 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
       private MainActivity main;
       private String newGroupName;
       private AppDataManager dataManager;
+      private UserGroupsFragment fragment;
+      private UserGroup group;
 
-      public NewGroupAsyncTask(MainActivity mainActivity, String groupName)
+      public NewGroupAsyncTask(UserGroupsFragment fragment, String groupName)
          {
             super();
-            main = mainActivity;
+            this.fragment = fragment;
+            main = fragment.activity;
             newGroupName = groupName;
             dataManager = main.dataManager;
          }
@@ -55,7 +59,7 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
             try
                {
                   // create new group object
-                  UserGroup group = dataManager.userGroupManager.createNewUserGroup(newGroupName);
+                  group = dataManager.userGroupManager.createNewUserGroup(newGroupName);
 
                   // create empty group wall file on device to upload to cloud
                   String fileName = "group_" + group.name + "_" + group.version + ".txt";
@@ -83,6 +87,8 @@ public class NewGroupAsyncTask extends AsyncTask<String, String, String>
       // After completing background task Dismiss the progress dialog
       protected void onPostExecute(String file_url)
          {
+            fragment.updateUserGroupListView();
+
             // dismiss the dialog once done
             pDialog.dismiss();
          }

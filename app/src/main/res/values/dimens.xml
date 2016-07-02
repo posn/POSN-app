@@ -4,4 +4,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <!-- The default letter tile text size -->
+    <dimen name="tile_letter_font_size">18sp</dimen>
+    <!-- The deafult tile size -->
+    <dimen name="letter_tile_size">28dp</dimen>
+
 </resources>

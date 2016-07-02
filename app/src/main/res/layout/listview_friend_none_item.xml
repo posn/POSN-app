@@ -13,6 +13,6 @@
         android:paddingTop="15dp"
         android:text="No new requests"
         android:textColor="#3d3d3d"
-        android:textSize="17dip" />
+        android:textSize="17sp" />
 
 </LinearLayout>

@@ -29,7 +29,7 @@ import java.util.Comparator;
 
 
 /**
- * This activity class implements the functionality to get the data to add a new friendID or get the friendID groups after a friendID request was accpeted
+ * This activity class implements the functionality to get the data to add a new friend or get the friend groups after a friend request was accepted
  **/
 public class AddFriendsActivity extends FragmentActivity implements OnClickListener
    {
@@ -45,7 +45,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
       /**
        * This method is called when the activity needs to be created and sets up the user interface
        * A single layout file is used, but different interface elements are removed depending on the type of data that is connected
-       * Two types: TYPE_FRIEND_REQUEST_NEW - shows all of the interface, TYPE_FRIEND_REQUEST_ACCEPT - hides the fields to get the friendID's name and email
+       * Two types: TYPE_FRIEND_REQUEST_NEW - shows all of the interface, TYPE_FRIEND_REQUEST_ACCEPT - hides the fields to get the friend's name and email
        **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -151,16 +151,16 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                                  // change the status to pending
                                  requestedFriend.status = Constants.STATUS_PENDING;
 
-                                 // get the friendID's name from the edit text
+                                 // get the friend's name from the edit text
                                  requestedFriend.name = name.getText().toString();
 
-                                 // get the friendID's email from the edit text
+                                 // get the friend's email from the edit text
                                  requestedFriend.email = email.getText().toString();
 
                                  // create nonce
                                  requestedFriend.nonce = Integer.toString((int) (System.currentTimeMillis() / 1000));
 
-                                 // return to the main activity and pass the requested friendID back
+                                 // return to the main activity and pass the requested friend back
                                  Intent resultIntent = new Intent();
                                  setResult(Activity.RESULT_OK, resultIntent);
                                  resultIntent.putExtra("requestedFriend", requestedFriend);
@@ -168,7 +168,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                               }
                            else
                               {
-                                 Toast.makeText(this, "You must add at least one friendID.", Toast.LENGTH_SHORT).show();
+                                 Toast.makeText(this, "You must add at least one friend.", Toast.LENGTH_SHORT).show();
                               }
                         }
                      else
@@ -176,7 +176,7 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                            // create a second nonce value
                            requestedFriend.nonce2 = Integer.toString((int) (System.currentTimeMillis() / 1000));
 
-                           // return the requested friendID back to the main activity with the selected groups
+                           // return the requested friend back to the main activity with the selected groups
                            Intent resultIntent = new Intent();
                            setResult(Activity.RESULT_OK, resultIntent);
                            resultIntent.putExtra("requestedFriend", requestedFriend);

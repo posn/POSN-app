@@ -28,13 +28,13 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
       // user interface variables
       public EditText passwordText, emailText;
 
-      // URI object that holds the data for a friendID request
+      // URI object that holds the data for a friend request
       public Uri uri = null;
 
       /**
        * This method is called when the activity needs to be created and handles setting up the user interface objects and sets listeners for touch events.
        * Creates the storage directories on the device
-       * Loads in the friendID request URI
+       * Loads in the friend request URI
        **/
       @Override
       protected void onCreate(Bundle savedInstanceState)
@@ -80,7 +80,7 @@ public class LoginActivity extends FragmentActivity implements OnClickListener
             DeviceFileManager.createDefaultStorageDirectories();
 
             // get the URI that opened the app (uri is null if it does not exist)
-            // URI is used for friendID requests
+            // URI is used for friend requests
             uri = getIntent().getData();
          }
 

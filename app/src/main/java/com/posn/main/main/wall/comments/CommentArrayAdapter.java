@@ -95,6 +95,4 @@ public class CommentArrayAdapter extends ArrayAdapter<Comment>
          {
             return values.size();
          }
-
-
    }

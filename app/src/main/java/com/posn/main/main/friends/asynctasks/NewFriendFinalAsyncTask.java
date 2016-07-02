@@ -22,12 +22,12 @@ import java.net.URLEncoder;
 
 
 /**
- * This AsyncTask class implements the functionality for the last phase of the friendID request process, where the initiating creates a friendID file and sends the information
- * to the new friendID and updates the temporal file.
+ * This AsyncTask class implements the functionality for the last phase of the friend request process, where the initiating creates a friend file and sends the information
+ * to the new friend and updates the temporal file.
  * <ul><li>Updates the friends list from pending to accepted
- * <li>Creates a friendID file for the new friendID and uploads it to the cloud
- * <li>Creates a new URI containing the friendID file info to send to the user directly and updates the temporal file in the cloud
- * <li>Fetches the friendID file for the new friendID</ul>
+ * <li>Creates a friend file for the new friend and uploads it to the cloud
+ * <li>Creates a new URI containing the friend file info to send to the user directly and updates the temporal file in the cloud
+ * <li>Fetches the friend file for the new friend</ul>
  **/
 public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
    {
@@ -65,10 +65,13 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
          {
             try
                {
-                  // create a new friendID object from the requested friendID
+                  // create a new friend object from the requested friend
                   Friend newFriend = dataManager.friendManager.addNewAcceptedFriend(requestedFriend, Constants.STATUS_ACCEPTED);
 
-                  // create friendID file with all friendID group data
+                  // add friend to groups
+                  dataManager.userGroupManager.addFriendToGroups(newFriend);
+
+                  // create friend file with all friend group data
                   String fileName = newFriend.ID + "_friend_file.txt";
                   String deviceFilepath = Constants.friendsFilePath;
                   dataManager.createFriendFile(newFriend.ID, deviceFilepath, fileName);
@@ -76,7 +79,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
                   // upload group wall to cloud and get direct link
                   String friendFileLink = main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
-                  // create URI contain the friendID file info
+                  // create URI contain the friend file info
                   String URI = createURI(newFriend, friendFileLink);
 
 
@@ -89,16 +92,19 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
                   main.cloud.uploadFileToCloud(Constants.friendDirectory, fileName, deviceFilepath + "/" + fileName);
 
 
-                  // fetch the accepted friendID's friendID file for the user
+                  // fetch the accepted friend's friend file for the user
                   fileName = newFriend.ID + "_friend_user_file.txt";
                   deviceFilepath = Constants.wallFilePath;
                   DeviceFileManager.downloadFileFromURL(newFriend.friendFileLink, deviceFilepath, fileName);
 
-                  // load the friendID file into the application
+                  // load the friend file into the application
                   dataManager.loadFriendFile(newFriend.ID, deviceFilepath, fileName);
+
+                  dataManager.friendManager.updateFriend(newFriend);
 
                   // save the friends list to the device
                   dataManager.saveFriendListAppFile(false);
+                  dataManager.saveUserGroupListAppFile();
                }
             catch (POSNCryptoException | IOException | JSONException e)
                {
@@ -114,6 +120,9 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
             // notify the adapter that the data changed
             friendFrag.updateFriendList();
 
+            // update the user group fragment
+            main.tabsAdapter.notifyUserGroupFragmentOnNewDataChange();
+
             // dismiss the dialog once done
             pDialog.dismiss();
          }
@@ -121,7 +130,7 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
 
       private String createURI(Friend newFriend, String friendFileLink) throws POSNCryptoException, UnsupportedEncodingException
          {
-            // encode the friendID file URL and user friendID file key to maintain special chars
+            // encode the friend file URL and user friend file key to maintain special chars
             String encodedURL = URLEncoder.encode(friendFileLink, "UTF-8");
             String encodedKey = URLEncoder.encode(newFriend.userFriendFileKey, "UTF-8");
 
@@ -132,10 +141,10 @@ public class NewFriendFinalAsyncTask extends AsyncTask<String, String, String>
             String key = SymmetricKeyHelper.createRandomKey();
             String encryptedURI = SymmetricKeyHelper.encrypt(key, URI);
 
-            // encrypt the symmetric key will the friendID's public key
+            // encrypt the symmetric key will the friend's public key
             String encryptedKey = AsymmetricKeyHelper.encrypt(newFriend.publicKey, key);
 
-            // build final URI to send to friendID
+            // build final URI to send to friend
             return encryptedKey + "/" + encryptedURI;
          }
    }

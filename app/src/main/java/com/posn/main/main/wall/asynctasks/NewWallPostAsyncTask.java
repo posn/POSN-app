@@ -136,7 +136,6 @@ public class NewWallPostAsyncTask extends AsyncTask<String, String, String>
                   // save the group file to device
                   String fileName = "group_" + group.name + "_" + group.version + ".txt";
                   String deviceFilepath = Constants.wallFilePath;
-
                   dataManager.createGroupWallFile(group.ID, deviceFilepath, fileName);
 
                   // upload the updated group wall file to the cloud

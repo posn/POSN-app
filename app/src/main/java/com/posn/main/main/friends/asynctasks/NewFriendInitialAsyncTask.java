@@ -7,9 +7,9 @@ import com.posn.constants.Constants;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.email.EmailSender;
 import com.posn.exceptions.POSNCryptoException;
-import com.posn.managers.AppDataManager;
 import com.posn.main.main.MainActivity;
 import com.posn.main.main.friends.UserFriendsFragment;
+import com.posn.managers.AppDataManager;
 
 import org.json.JSONException;
 
@@ -19,10 +19,10 @@ import java.net.URLEncoder;
 
 
 /**
- * This AsyncTask class implements the functionality for the first of three phases of the friendID request process, where the user sends the friendID request to a desired friendID
- * <ul><li>Takes in the new requested friendID object and creates a temporal file for the desired friendID and uploads it to the cloud
- * <li>Builds a friendID request URI with the following user data: id, name, email, public key, URL to the temporal file, and nonce value
- * <li>Creates a new email containing the URI and sends it to the desired friendID</ul>
+ * This AsyncTask class implements the functionality for the first of three phases of the friend request process, where the user sends the friend request to a desired friend
+ * <ul><li>Takes in the new requested friend object and creates a temporal file for the desired friend and uploads it to the cloud
+ * <li>Builds a friend request URI with the following user data: id, name, email, public key, URL to the temporal file, and nonce value
+ * <li>Creates a new email containing the URI and sends it to the desired friend</ul>
  **/
 public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
    {
@@ -60,7 +60,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
          {
             try
                {
-                  // create empty temporal friendID wall file on device to upload to cloud
+                  // create empty temporal friend wall file on device to upload to cloud
                   String fileName = requestedFriend.nonce + "_temp_friend_file.txt";
                   String deviceFilepath = Constants.friendsFilePath;
                   dataManager.createTemporalFriendFile(null, deviceFilepath, fileName);
@@ -74,7 +74,7 @@ public class NewFriendInitialAsyncTask extends AsyncTask<String, String, String>
                   // send the email
                   sendEmailToFriend(URI);
 
-                  // add pending friendID to request friends list
+                  // add pending friend to request friends list
                   dataManager.friendManager.addNewPendingFriend(requestedFriend);
 
                   // save the updated friends list to the device

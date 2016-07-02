@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:background="#CFD8DC"
+              android:background="#ffffff"
               android:focusable="true"
               android:focusableInTouchMode="true"
               android:orientation="vertical">
@@ -10,7 +10,7 @@
         android:id="@+id/title"
         style="@style/myTheme.ActionBar.Text"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="56dp"
         android:background="#3b5998"
         android:contentDescription="@string/app_name"
         android:gravity="center_vertical"
@@ -64,9 +64,9 @@
         android:background="@drawable/textview_background_selector"
         android:hint="Group Name"
         android:inputType="textCapSentences"
-        android:paddingBottom="10dp"
+        android:paddingBottom="15dp"
         android:paddingLeft="15dp"
-        android:paddingTop="10dp"
+        android:paddingTop="15dp"
         android:textSize="20sp"
 
         />
