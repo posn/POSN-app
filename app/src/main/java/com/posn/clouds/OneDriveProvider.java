@@ -1,5 +1,6 @@
 package com.posn.clouds;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -16,7 +17,6 @@ import com.microsoft.live.LiveOperationException;
 import com.microsoft.live.LiveStatus;
 import com.microsoft.live.OverwriteOption;
 import com.posn.constants.Constants;
-import com.posn.main.main.MainActivity;
 import com.posn.utility.UserInterfaceHelper;
 
 import org.json.JSONArray;
@@ -93,7 +93,7 @@ public class OneDriveProvider implements CloudProvider
                               // connection was not made, so have the user login
                               UserInterfaceHelper.showToast(context, "Initialize did not connect. Please try login in.");
 
-                              mAuthClient.login((MainActivity) context, Arrays.asList(SCOPES), new LiveAuthListener()
+                              mAuthClient.login((Activity)context, Arrays.asList(SCOPES), new LiveAuthListener()
                                  {
                                     @Override
                                     public void onAuthComplete(LiveStatus status, LiveConnectSession session, Object userState)

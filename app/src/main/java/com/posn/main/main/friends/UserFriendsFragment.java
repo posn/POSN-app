@@ -1,9 +1,12 @@
 package com.posn.main.main.friends;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,6 +23,7 @@ import com.posn.main.main.MainActivity;
 import com.posn.main.main.friends.asynctasks.NewFriendFinalAsyncTask;
 import com.posn.main.main.friends.asynctasks.NewFriendInitialAsyncTask;
 import com.posn.main.main.friends.asynctasks.NewFriendIntermediateAsyncTask;
+import com.posn.main.main.friends.asynctasks.RemoveFriendAsyncTask;
 import com.posn.main.main.friends.listview_items.AcceptedFriendItem;
 import com.posn.main.main.friends.listview_items.HeaderItem;
 import com.posn.main.main.friends.listview_items.ListViewFriendItem;
@@ -43,7 +47,7 @@ import java.util.Map;
  * <ul><li>Populates the list view using the data stored in the current friends and friend request hashmaps located in the data manager class in the main activity
  * <li>Allows for friends to be added or removed
  * <li>Allows the user to accept or decline friend requests</ul>
- * <p>
+ * <p/>
  * Functionality should be added to view a friend's profile
  **/
 public class UserFriendsFragment extends Fragment implements OnClickListener
@@ -207,25 +211,27 @@ public class UserFriendsFragment extends Fragment implements OnClickListener
 
 
                   case R.id.delete_button:
-                     Friend position = (Friend) v.getTag();
 
-                     currentFriendsList.remove(position.ID);
+                     // get the friend object of the deleted friend
+                     final Friend deleteFriend = (Friend) v.getTag();
 
-                     listViewItems.remove(new AcceptedFriendItem(this, position));
+                     // create a new confirmation dialog to ask if the user really wants to remove that friend
+                     new AlertDialog.Builder(activity)
+                         .setTitle("Friend Removal Confirmation")
+                         .setMessage(Html.fromHtml("Are you sure you to remove: <b>" + deleteFriend.name + "</b> from your friends list?"))
+                         .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                            {
+                               @Override
+                               public void onClick(DialogInterface dialog, int which)
+                                  {
+                                     // start an async task to remove the friend
+                                     new RemoveFriendAsyncTask(UserFriendsFragment.this, deleteFriend).execute();
+                                  }
 
-                     sortFriendsList();
-                     adapter.notifyDataSetChanged();
+                            })
+                         .setNegativeButton("No", null)
+                         .show();
 
-                     // NEED TO CARRY OUT REVOKING PROCESS
-
-                     try
-                        {
-                           dataManager.saveFriendListAppFile(true);
-                        }
-                     catch (IOException | JSONException | POSNCryptoException e)
-                        {
-                           e.printStackTrace();
-                        }
                      break;
                }
          }

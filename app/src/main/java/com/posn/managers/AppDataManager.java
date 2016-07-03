@@ -374,8 +374,6 @@ public class AppDataManager implements Parcelable
             // ADD USER FILE LINK AND KEY
 
             // loop through all the groups the friend is in
-            System.out.println("SIZE: !!!!!!!!!!!!!!!!!!!!!!!!" + friend.userGroups.size());
-
             for (int i = 0; i < friend.userGroups.size(); i++)
                {
                   // get the user object
@@ -400,18 +398,24 @@ public class AppDataManager implements Parcelable
 
 
       /**
-       * This method loads in the user's friend file from a friend. Adds friend groups into the friend object
+       * This method loads in the user's friend file from a friend. Adds friend groups into the friend object. Returns if the file was loaded or not
        **/
-      public void loadFriendFile(String friendID, String deviceDirectory, String fileName) throws IOException, JSONException, POSNCryptoException
+      public boolean loadFriendFile(String friendID, String deviceDirectory, String fileName) throws IOException, JSONException, POSNCryptoException
          {
             // get the friend object from the friend manager
             Friend friend = friendManager.getFriend(friendID);
 
             // read friend file in from the device
-            String encyrptedString = DeviceFileManager.loadStringFromFile(deviceDirectory, fileName);
+            String encryptedString = DeviceFileManager.loadStringFromFile(deviceDirectory, fileName);
+
+            // check if there was an issue fetching the link
+            if(encryptedString.contains("Link not found"))
+               {
+                  return false;
+               }
 
             // decrypt the file contents string
-            String friendFileData = SymmetricKeyHelper.decrypt(friend.friendFileKey, encyrptedString);
+            String friendFileData = SymmetricKeyHelper.decrypt(friend.friendFileKey, encryptedString);
 
             // NEED TO ADD FIELDS FOR FRIEND USER FILE LINK AND KEY
 
@@ -437,6 +441,8 @@ public class AppDataManager implements Parcelable
 
             // update the friend object in the friend manager
             friendManager.currentFriends.put(friend.ID, friend);
+
+            return true;
          }
 
 

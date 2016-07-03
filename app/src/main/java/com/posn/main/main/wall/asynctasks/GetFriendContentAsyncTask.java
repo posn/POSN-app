@@ -94,7 +94,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
                         else
                            {
                               // get the most up to date friend file
-                              fetchAndLoadFriendFile(friend);
+                              processFriendWallFiles = fetchAndLoadFriendFile(friend);
                            }
 
                         // check if the friend file should be processed
@@ -159,7 +159,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
             pDialog.dismiss();
          }
 
-      private void fetchAndLoadFriendFile(Friend friend) throws IOException, POSNCryptoException, JSONException
+      private boolean fetchAndLoadFriendFile(Friend friend) throws IOException, POSNCryptoException, JSONException
          {
             // get the most up to date friend file
             String fileName = friend.ID + "_friend_user_file.txt";
@@ -167,7 +167,7 @@ public class GetFriendContentAsyncTask extends AsyncTask<String, String, String>
             DeviceFileManager.downloadFileFromURL(friend.friendFileLink, deviceFilepath, fileName);
 
             // load the friend file
-            dataManager.loadFriendFile(friend.ID, deviceFilepath, fileName);
+            return dataManager.loadFriendFile(friend.ID, deviceFilepath, fileName);
          }
 
    }
