@@ -3,15 +3,13 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
-
     defaultConfig {
         applicationId "com.posn"
-        minSdkVersion 16
-        targetSdkVersion 19
+        minSdkVersion 21
+        targetSdkVersion 23
         multiDexEnabled true
 
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -22,8 +20,12 @@ android {
         incremental true
         javaMaxHeapSize "4g"
     }
-
+    productFlavors {
+    }
 }
+
+
+
 
 dependencies {
     compile files('libs/activation.jar')

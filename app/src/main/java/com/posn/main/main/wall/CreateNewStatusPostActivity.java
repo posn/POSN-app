@@ -2,12 +2,12 @@ package com.posn.main.main.wall;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -15,8 +15,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.posn.R;
-import com.posn.main.main.groups.SelectGroupArrayAdapter;
 import com.posn.datatypes.UserGroup;
+import com.posn.main.main.groups.SelectGroupArrayAdapter;
+import com.posn.utility.UserInterfaceHelper;
 
 import java.util.ArrayList;
 
@@ -44,8 +45,6 @@ public class CreateNewStatusPostActivity extends Activity implements View.OnClic
       @Override
       protected void onCreate(Bundle savedInstanceState)
          {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_create_new_status_post);
 
@@ -53,6 +52,14 @@ public class CreateNewStatusPostActivity extends Activity implements View.OnClic
 
 
             status = (EditText) findViewById(R.id.postStatus);
+            status.setOnFocusChangeListener(new View.OnFocusChangeListener()
+               {
+                  @Override public void onFocusChange(View v, boolean hasFocus)
+                     {
+                        UserInterfaceHelper.hideKeyboard(CreateNewStatusPostActivity.this);
+                     }
+               });
+
             Button createStatusButton = (Button) findViewById(R.id.create_status_button);
             createStatusButton.setOnClickListener(this);
 
@@ -86,14 +93,64 @@ public class CreateNewStatusPostActivity extends Activity implements View.OnClic
 
                });
 
-
+            // set up action bar
             ActionBar actionBar = getActionBar();
             if (actionBar != null)
                {
                   actionBar.setDisplayHomeAsUpEnabled(true);
                   actionBar.setTitle("Create Status Post");
+                  actionBar.setHomeAsUpIndicator(R.drawable.ic_back_white);
                }
 
+         }
+
+
+      /**
+       * This method is called when the user touches the back button on their device
+       **/
+      @Override
+      public void onBackPressed()
+         {
+            // check if the status edittext contains text
+            if (!UserInterfaceHelper.isEditTextEmpty(status))
+               {
+                  // warn the user about exiting
+                  new AlertDialog.Builder(this)
+                      .setTitle("Discard New Post?")
+                      .setMessage("Are you sure you want to discard your status?")
+                      .setNegativeButton(android.R.string.no, null)
+                      .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                         {
+
+                            public void onClick(DialogInterface arg0, int arg1)
+                               {
+                                  finish();
+                               }
+                         }).create().show();
+               }
+            else
+               {
+                  // end the activity
+                  finish();
+               }
+         }
+
+      /**
+       * This method is called when the user clicks the buttons on the action bar
+       **/
+      @Override
+      public boolean onMenuItemSelected(int featureId, MenuItem item)
+         {
+            int itemId = item.getItemId();
+            switch (itemId)
+               {
+                  case android.R.id.home:
+                     onBackPressed();
+                     break;
+
+               }
+
+            return true;
          }
 
 
@@ -106,16 +163,35 @@ public class CreateNewStatusPostActivity extends Activity implements View.OnClic
             switch (v.getId())
                {
                   case R.id.create_status_button:
-                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                     imm.hideSoftInputFromWindow(status.getWindowToken(), 0);
 
-                     String statusMsg = status.getText().toString();
+                     // check if at least one group was selected
+                     if (selectedGroups.size() > 0)
+                        {
+                           // check if a status message has been entered
+                           if (!UserInterfaceHelper.isEditTextEmpty(status))
+                              {
 
-                     Intent resultIntent = new Intent();
-                     resultIntent.putExtra("status", statusMsg);
-                     resultIntent.putStringArrayListExtra("groups", selectedGroups);
-                     setResult(Activity.RESULT_OK, resultIntent);
-                     finish();
+                                 // get the text status from the edit text
+                                 String statusMsg = status.getText().toString();
+
+                                 // return the data back to the main activity
+                                 Intent resultIntent = new Intent();
+                                 resultIntent.putExtra("status", statusMsg);
+                                 resultIntent.putStringArrayListExtra("groups", selectedGroups);
+                                 setResult(Activity.RESULT_OK, resultIntent);
+                                 finish();
+                              }
+                           else
+                              {
+                                 // show toast with error message
+                                 UserInterfaceHelper.showToast(this, "Please enter a status message");
+                              }
+                        }
+                     else
+                        {
+                           // show toast with error message
+                           UserInterfaceHelper.showToast(this, "Please select at least one group");
+                        }
                      break;
                }
          }

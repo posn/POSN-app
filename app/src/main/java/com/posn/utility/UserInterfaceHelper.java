@@ -36,7 +36,6 @@ public class UserInterfaceHelper
                {
                   InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                   inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                  view.clearFocus();
                }
          }
 

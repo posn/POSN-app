@@ -1,8 +1,11 @@
 package com.posn.main.main.wall;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -14,6 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -21,11 +25,12 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.posn.constants.Constants;
 import com.posn.R;
-import com.posn.main.main.groups.SelectGroupArrayAdapter;
+import com.posn.constants.Constants;
 import com.posn.datatypes.UserGroup;
+import com.posn.main.main.groups.SelectGroupArrayAdapter;
 import com.posn.utility.ImageHelper;
+import com.posn.utility.UserInterfaceHelper;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -140,6 +145,63 @@ public class CreateNewPhotoPostActivity extends Activity implements View.OnClick
                      }
 
                });
+
+            // set up action bar
+            ActionBar actionBar = getActionBar();
+            if (actionBar != null)
+               {
+                  actionBar.setDisplayHomeAsUpEnabled(true);
+                  actionBar.setTitle("Create Photo Post");
+                  actionBar.setHomeAsUpIndicator(R.drawable.ic_back_white);
+               }
+         }
+
+      /**
+       * This method is called when the user touches the back button on their device
+       **/
+      @Override
+      public void onBackPressed()
+         {
+            // check if a photo was selected
+            if (photopath != null)
+               {
+                  // warn the user about exiting
+                  new AlertDialog.Builder(this)
+                      .setTitle("Discard New Post?")
+                      .setMessage("Are you sure you want to discard your photo?")
+                      .setNegativeButton(android.R.string.no, null)
+                      .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                         {
+
+                            public void onClick(DialogInterface arg0, int arg1)
+                               {
+                                  finish();
+                               }
+                         }).create().show();
+               }
+            else
+               {
+                  // end the activity
+                  finish();
+               }
+         }
+
+      /**
+       * This method is called when the user clicks the buttons on the action bar
+       **/
+      @Override
+      public boolean onMenuItemSelected(int featureId, MenuItem item)
+         {
+            int itemId = item.getItemId();
+            switch (itemId)
+               {
+                  case android.R.id.home:
+                     onBackPressed();
+                     break;
+
+               }
+
+            return true;
          }
 
 
@@ -152,11 +214,31 @@ public class CreateNewPhotoPostActivity extends Activity implements View.OnClick
             switch (v.getId())
                {
                   case R.id.post_photo_button:
-                     Intent resultIntent = new Intent();
-                     resultIntent.putExtra("photopath", photopath);
-                     resultIntent.putStringArrayListExtra("groups", selectedGroups);
-                     setResult(Activity.RESULT_OK, resultIntent);
-                     finish();
+
+                     // check if at least one group was selected
+                     if (selectedGroups.size() > 0)
+                        {
+                           // check if a photo has been selected
+                           if (photopath != null)
+                              {
+                                 // return the data back to the main activity
+                                 Intent resultIntent = new Intent();
+                                 resultIntent.putExtra("photopath", photopath);
+                                 resultIntent.putStringArrayListExtra("groups", selectedGroups);
+                                 setResult(Activity.RESULT_OK, resultIntent);
+                                 finish();
+                              }
+                           else
+                              {
+                                 // show toast with error message
+                                 UserInterfaceHelper.showToast(this, "Please select a photo");
+                              }
+                        }
+                     else
+                        {
+                           // show toast with error message
+                           UserInterfaceHelper.showToast(this, "Please select at least one group");
+                        }
                      break;
 
                   case R.id.choose_photo_button:

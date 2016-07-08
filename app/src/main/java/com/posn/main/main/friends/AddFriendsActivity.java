@@ -2,9 +2,12 @@ package com.posn.main.main.friends;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -14,13 +17,12 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import com.posn.constants.Constants;
 import com.posn.R;
-import com.posn.main.main.groups.SelectGroupArrayAdapter;
+import com.posn.constants.Constants;
 import com.posn.datatypes.RequestedFriend;
 import com.posn.datatypes.UserGroup;
+import com.posn.main.main.groups.SelectGroupArrayAdapter;
 import com.posn.utility.UserInterfaceHelper;
 
 import java.util.ArrayList;
@@ -124,14 +126,65 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
                      }
                });
 
-            // get the action bar and set the title
+            // set up action bar
             ActionBar actionBar = getActionBar();
             if (actionBar != null)
                {
+                  actionBar.setDisplayHomeAsUpEnabled(true);
                   actionBar.setTitle("Add New Friend");
+                  actionBar.setHomeAsUpIndicator(R.drawable.ic_back_white);
                }
 
          }
+
+
+      /**
+       * This method is called when the user touches the back button on their device
+       **/
+      @Override
+      public void onBackPressed()
+         {
+            // check if the name or email edittext contains text
+            if (!UserInterfaceHelper.isEditTextEmpty(name) || !UserInterfaceHelper.isEditTextEmpty(email))
+               {
+                  // warn the user about exiting
+                  new AlertDialog.Builder(this)
+                      .setTitle("Discard New Friend Request?")
+                      .setMessage("Are you sure you want to discard the friend request?")
+                      .setNegativeButton(android.R.string.no, null)
+                      .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                         {
+                            public void onClick(DialogInterface arg0, int arg1)
+                               {
+                                  finish();
+                               }
+                         }).create().show();
+               }
+            else
+               {
+                  // end the activity
+                  finish();
+               }
+         }
+
+      /**
+       * This method is called when the user clicks the buttons on the action bar
+       **/
+      @Override
+      public boolean onMenuItemSelected(int featureId, MenuItem item)
+         {
+            int itemId = item.getItemId();
+            switch (itemId)
+               {
+                  case android.R.id.home:
+                     onBackPressed();
+                     break;
+
+               }
+
+            return true;
+         }
+
 
 
       /**
@@ -146,29 +199,40 @@ public class AddFriendsActivity extends FragmentActivity implements OnClickListe
 
                      if (type == Constants.TYPE_FRIEND_REQUEST_NEW)
                         {
+                           // check if the user entered an email address for the friend
                            if ((!UserInterfaceHelper.isEditTextEmpty(email)))
                               {
-                                 // change the status to pending
-                                 requestedFriend.status = Constants.STATUS_PENDING;
+                                 // check if the user entered a name for the friend
+                                 if(!UserInterfaceHelper.isEditTextEmpty(name))
+                                    {
+                                       // change the status to pending
+                                       requestedFriend.status = Constants.STATUS_PENDING;
 
-                                 // get the friend's name from the edit text
-                                 requestedFriend.name = name.getText().toString();
+                                       // get the friend's name from the edit text
+                                       requestedFriend.name = name.getText().toString();
 
-                                 // get the friend's email from the edit text
-                                 requestedFriend.email = email.getText().toString();
+                                       // get the friend's email from the edit text
+                                       requestedFriend.email = email.getText().toString();
 
-                                 // create nonce
-                                 requestedFriend.nonce = Integer.toString((int) (System.currentTimeMillis() / 1000));
+                                       // create nonce
+                                       requestedFriend.nonce = Integer.toString((int) (System.currentTimeMillis() / 1000));
 
-                                 // return to the main activity and pass the requested friend back
-                                 Intent resultIntent = new Intent();
-                                 setResult(Activity.RESULT_OK, resultIntent);
-                                 resultIntent.putExtra("requestedFriend", requestedFriend);
-                                 finish();
+                                       // return to the main activity and pass the requested friend back
+                                       Intent resultIntent = new Intent();
+                                       setResult(Activity.RESULT_OK, resultIntent);
+                                       resultIntent.putExtra("requestedFriend", requestedFriend);
+
+                                       // end add friends activity
+                                       finish();
+                                    }
+                                 else
+                                    {
+                                       UserInterfaceHelper.showToast(this, "You must enter the friend's full name");
+                                    }
                               }
                            else
                               {
-                                 Toast.makeText(this, "You must add at least one friend.", Toast.LENGTH_SHORT).show();
+                                 UserInterfaceHelper.showToast(this, "You must enter the friend's email address");
                               }
                         }
                      else

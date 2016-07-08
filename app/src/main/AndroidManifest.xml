@@ -35,7 +35,8 @@
         >
         <activity
             android:name=".main.login.LoginActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -110,7 +111,9 @@
         <activity
             android:name=".main.main.wall.CreateNewStatusPostActivity"
             android:label="@string/main_activity"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            >
+
         </activity>
 
         <activity
